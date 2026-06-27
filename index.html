@@ -1,0 +1,2375 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 POS 管理系統</title>
+    
+    <!-- 👑 為網頁新增我的最愛/書籤列專用小圖標 (Favicon) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍾</text></svg>">
+    
+    <!-- 載入 Tailwind CSS (畫面美化排版) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 經典圖標庫 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            background-color: #f0f2f5; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        .font-mono-custom { font-family: 'JetBrains Mono', monospace; }
+        
+        @media (min-width: 768px) { 
+            .table-wrap { height: calc(100vh - 310px); overflow-y: auto; } 
+        }
+        @media (max-width: 767px) { 
+            body { padding-bottom: 70px; } 
+        }
+
+        /* 隱藏滾動條 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .mobile-card { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); }
+        .office-indicator-longtan { border-left: 8px solid #3b82f6 !important; } 
+        .office-indicator-bade { border-left: 8px solid #ef4444 !important; }
+        .badge-longtan { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .badge-bade { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .profit-border-low { border: 1px solid #fee2e2; background-color: #fef2f2; color: #b91c1c; }
+        .profit-border-high { border: 1px solid #d1fae5; background-color: #ecfdf5; color: #047857; }
+        
+        /* 拖曳磁吸特效輔助 */
+        .drag-hover-top { border-top: 4px solid #4f46e5 !important; }
+        .drag-hover-bottom { border-bottom: 4px solid #4f46e5 !important; }
+        tr[draggable="true"] { cursor: grab; }
+        tr[draggable="true"]:active { cursor: grabbing; }
+
+        /* 🍺 3D 啤酒注入杯子動畫樣式 */
+        .beer-mug {
+            width: 70px;
+            height: 100px;
+            border: 4px solid #475569;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            position: relative;
+        }
+        .beer-handle {
+            width: 18px;
+            height: 50px;
+            border: 4px solid #475569;
+            border-left: none;
+            border-radius: 0 10px 10px 0;
+            position: absolute;
+            right: -22px;
+            top: 25px;
+        }
+        .beer-liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #f59e0b; /* 琥珀色 */
+            border-radius: 0 0 8px 8px;
+            animation: pourBeer 2.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .beer-foam {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 4px 4px 0 0;
+            box-shadow: 0 -2px 6px rgba(255,255,255,0.8);
+            animation: riseFoam 2.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        /* 啤酒氣泡 */
+        .beer-bubble {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            bottom: 10px;
+            animation: bubbleUp 1.8s infinite ease-in;
+        }
+        
+        @keyframes pourBeer {
+            0% { height: 0%; }
+            100% { height: 82%; }
+        }
+        @keyframes riseFoam {
+            0% { height: 0%; bottom: 0%; opacity: 0; }
+            15% { height: 4%; bottom: 10%; opacity: 0.8; }
+            100% { height: 16%; bottom: 80%; opacity: 1; }
+        }
+        @keyframes bubbleUp {
+            0% { transform: translateY(0) scale(0.8); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-70px) scale(1.3); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="p-0 m-0 text-slate-800">
+
+    <!-- 🔐 帳號密碼登入防護盾牌 (Lock Screen) -->
+    <div id="loginPortal" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 z-[999] flex items-center justify-center p-4">
+        <div class="bg-white/95 backdrop-blur-md rounded-[2.5rem] w-full max-w-md p-8 md:p-10 shadow-2xl border border-white/20 flex flex-col items-center">
+            
+            <!-- 鎖屏圖案與 Logo -->
+            <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center shadow-inner mb-4">
+                <i class="fa-solid fa-shield-halved text-4xl"></i>
+            </div>
+            <h2 class="text-2xl font-black text-gray-900 tracking-tight">2026 POS 管理系統</h2>
+            <p class="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider mb-8">請登入以存取大溪與八德所數據</p>
+            
+            <form id="loginForm" onsubmit="handleSystemLogin(event)" class="w-full space-y-4 font-bold text-xs text-slate-500">
+                <div>
+                    <label class="block mb-1.5 pl-1">系統登入帳號 (Username)</label>
+                    <div class="relative">
+                        <input type="text" id="sysUser" required placeholder="請輸入公務帳號" class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold transition-all">
+                        <i class="fa-solid fa-user absolute left-4 top-4 text-gray-400 text-sm"></i>
+                    </div>
+                </div>
+                <div>
+                    <label class="block mb-1.5 pl-1">系統認證密碼 (Password)</label>
+                    <div class="relative">
+                        <input type="password" id="sysPass" required placeholder="請輸入認證密碼" class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold transition-all">
+                        <i class="fa-solid fa-lock absolute left-4 top-4 text-gray-400 text-sm"></i>
+                    </div>
+                </div>
+                
+                <!-- 錯誤訊息容器 -->
+                <div id="loginErrorMsg" class="text-red-500 font-black text-center text-xs hidden pt-1">
+                    <i class="fa-solid fa-circle-exclamation mr-1"></i> 帳號或密碼輸入錯誤，請重新確認！
+                </div>
+                
+                <button type="submit" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-sm font-black shadow-lg shadow-indigo-500/20 active:scale-95 transition-all uppercase tracking-widest pt-4">
+                    認證登入 <i class="fa-solid fa-arrow-right-to-bracket ml-1.5"></i>
+                </button>
+            </form>
+            
+            <div class="text-[10px] text-gray-400 mt-8 font-medium">
+                © 2026 台灣菸酒作業安全認證防護
+            </div>
+        </div>
+    </div>
+
+    <!-- 🍺 倒啤酒慢慢倒滿之全螢幕載入動畫 (Loading Glass Overlay) -->
+    <div id="beerLoadingScreen" class="fixed inset-0 bg-slate-900 z-[990] flex flex-col items-center justify-center p-4 transition-opacity duration-500 hidden">
+        <div class="flex flex-col items-center space-y-6">
+            <!-- 啤酒杯結構 -->
+            <div class="beer-mug">
+                <!-- 注入的液體 -->
+                <div class="beer-liquid"></div>
+                <!-- 泡沫頂部 -->
+                <div class="beer-foam"></div>
+                <!-- 漂浮氣泡 -->
+                <div class="beer-bubble" style="left: 15%; animation-delay: 0.1s;"></div>
+                <div class="beer-bubble" style="left: 35%; animation-delay: 0.5s;"></div>
+                <div class="beer-bubble" style="left: 55%; animation-delay: 1s;"></div>
+                <div class="beer-bubble" style="left: 75%; animation-delay: 0.3s;"></div>
+                <div class="beer-bubble" style="left: 45%; animation-delay: 0.7s;"></div>
+                <div class="beer-handle"></div>
+            </div>
+            
+            <!-- 動態進度文字說明 -->
+            <div class="text-center space-y-2">
+                <p id="loadingStatusText" class="text-amber-400 font-black tracking-widest text-sm animate-pulse">正在緩緩倒入冰啤酒...</p>
+                <p class="text-xs text-slate-400 font-bold">同步雲端資料庫並初始化安全設定</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主系統畫面 -->
+    <div id="mainContent" class="p-3 md:p-6 min-h-screen hidden">
+        <div class="max-w-[1600px] mx-auto">
+            
+            <!-- 頂部標題與控制列 -->
+            <header class="mb-4 md:mb-6 bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-gray-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 sticky top-0 z-40 md:relative">
+                <div class="flex flex-wrap items-center justify-between w-full xl:w-auto gap-4">
+                    <div class="flex items-center">
+                        <div class="bg-blue-600 text-white font-black px-3.5 py-1.5 rounded-xl mr-3 text-sm md:text-base tracking-wider shadow-sm italic uppercase">SYS</div>
+                        <h1 class="text-xl md:text-2xl font-black text-gray-800 tracking-tight whitespace-nowrap">2026 POS 管理系統</h1>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <!-- 雲端連線呼吸狀態燈 -->
+                        <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-gray-200 whitespace-nowrap">
+                            <span id="headerStatusDot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                            <span id="headerStatusText" class="text-xs font-black text-gray-400">本機模式</span>
+                        </div>
+                        <!-- 一鍵備份網頁檔 -->
+                        <button onclick="exportUpdatedHTML()" class="hidden md:inline-flex bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white px-4 py-2.5 rounded-xl text-xs font-black shadow-md active:scale-95 transition-all items-center gap-1.5 whitespace-nowrap">
+                            <i class="fa-solid fa-cloud-arrow-down"></i> 💾 一鍵下載備份網頁檔
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 功能導入按鈕組 (網頁版顯示) -->
+                <div class="hidden md:flex flex-wrap items-center gap-2 w-full xl:w-auto justify-start xl:justify-end">
+                    <button onclick="openImportModal('products')" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-blue-700 shadow-md text-xs active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-file-import"></i> 📥 導入全產品
+                    </button>
+                    <button onclick="openImportModal('customers')" class="bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-indigo-700 shadow-md text-xs active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-users"></i> 👥 導入客戶
+                    </button>
+                    <button onclick="openImportModal('n90')" class="bg-teal-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-teal-700 shadow-md text-xs active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-receipt"></i> 📊 導入 N90 明細
+                    </button>
+                    <button onclick="openCustomerModal()" class="shrink-0 bg-slate-700 text-white px-4 py-2 rounded-xl font-bold hover:bg-slate-800 shadow-md text-xs active:scale-95 transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-gear"></i> 客戶查詢
+                    </button>
+                    <button onclick="copyText('臺菸酒通字第1130018482號函', '已複製銷退函文！')" class="shrink-0 bg-amber-400 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-amber-500 shadow-md transition-all flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-file-lines"></i> 複製通字函
+                    </button>
+                    
+                    <!-- 拆分後之雙清空資料庫管理按鈕 -->
+                    <button onclick="confirmClearCustomers()" class="shrink-0 bg-rose-600 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-rose-700 shadow-md active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-user-slash"></i> 👤 清空客戶庫
+                    </button>
+                    <button onclick="confirmClearProducts()" class="shrink-0 bg-red-600 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-red-700 shadow-md active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-dumpster-fire"></i> 📦 清空產品庫
+                    </button>
+
+                    <!-- 🚪 登出按鈕 -->
+                    <button onclick="handleLogout()" class="shrink-0 bg-slate-100 border border-gray-300 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-black hover:bg-slate-200 shadow-sm active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-door-open"></i> 🚪 登出
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex flex-col md:grid md:grid-cols-[230px_1fr] gap-4 md:gap-6">
+                
+                <!-- 側邊欄分類 -->
+                <aside class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 md:h-fit md:sticky md:top-6 z-30">
+                    <h3 class="hidden md:block text-xs font-black text-gray-400 uppercase px-2 mb-2">分類篩選</h3>
+                    <nav id="categoryNav" class="flex overflow-x-auto md:flex-col gap-2 md:gap-1 no-scrollbar pb-1 md:pb-0 font-bold mb-4"></nav>
+                    
+                    <!-- ⚡ 本地 analysis 篩選控制面板 -->
+                    <div class="hidden md:block mt-6 px-2 border-t border-gray-100 pt-5 text-nowrap">
+                        <p class="text-[10px] text-gray-400 font-bold mb-3 uppercase tracking-widest text-center">⚡ 本地智慧分析面板</p>
+                        <button onclick="processDataLocallyAndUpload()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black py-2.5 px-2 rounded-xl shadow-md active:scale-95 hover:from-blue-700 hover:to-indigo-700 transition-all flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-circle-radiation"></i> 本地 analysis 並過濾
+                        </button>
+                        <p class="text-[9px] text-gray-400 text-center mt-1.5 font-medium leading-relaxed whitespace-pre-wrap">分析剔除無交易舊品
+交易明細不上傳立即銷毀</p>
+                    </div>
+
+                    <!-- 🔐 N90 系統登入密碼鑰匙圈 (一鍵複製與三個月定期更換) -->
+                    <div class="mt-6 px-2 border-t border-gray-100 pt-5 text-nowrap">
+                        <p class="text-[10px] text-gray-400 font-bold mb-3 uppercase tracking-widest text-center">🔐 N90 系統登入密碼</p>
+                        <div class="bg-slate-50 p-3 rounded-2xl border border-gray-200 flex flex-col gap-2">
+                            <div class="flex items-center justify-between gap-1.5">
+                                <span id="n90PassDisplay" class="font-mono text-sm font-black text-slate-700 truncate tracking-wider">••••••</span>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="toggleN90PassVisible()" class="text-gray-400 hover:text-slate-655 p-1" title="顯示/隱藏密碼">
+                                        <i id="n90PassToggleIcon" class="fa-solid fa-eye-slash text-xs"></i>
+                                    </button>
+                                    <button onclick="copyN90Password()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-2.5 py-1.5 rounded-xl text-xs font-black shadow-sm flex items-center gap-1">
+                                        <i class="fa-solid fa-copy text-[10px]"></i> 複製
+                                    </button>
+                                </div>
+                            </div>
+                            <button onclick="openChangeN90PassModal()" class="w-full text-center text-[10px] text-blue-500 hover:text-blue-700 font-black flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-key text-[9px]"></i> 修改登入密碼 (3個月更換)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 📡 雲端連線即時診斷面板 -->
+                    <div class="hidden md:block mt-6 px-2 border-t border-gray-100 pt-5 text-nowrap">
+                        <p class="text-[10px] text-gray-400 font-bold mb-3 uppercase tracking-widest text-center">📡 雲端連線診斷</p>
+                        <div class="grid grid-cols-3 gap-1 text-[9px] font-bold text-center mb-3">
+                            <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                                <div class="text-gray-400 mb-1">金鑰</div>
+                                <div id="diagSdk" class="text-red-500">🔴 失敗</div>
+                            </div>
+                            <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                                <div class="text-gray-400 mb-1">登入</div>
+                                <div id="diagAuth" class="text-red-500">🔴 失敗</div>
+                            </div>
+                            <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                                <div class="text-gray-400 mb-1">同步</div>
+                                <div id="diagSync" class="text-gray-400">⚪ 離線</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-955 p-2.5 rounded-xl border border-slate-800">
+                            <p class="text-[8px] text-slate-500 font-mono-custom uppercase tracking-wider mb-1">連線診斷日誌：</p>
+                            <textarea id="diagConsole" readonly class="w-full h-28 bg-transparent text-emerald-400 font-mono-custom text-[8px] leading-relaxed resize-none focus:outline-none no-scrollbar" placeholder="等待系統連線偵測..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 統計數據字卡 -->
+                    <div class="hidden md:block mt-6 px-2 border-t border-gray-100 pt-5 text-center text-nowrap">
+                        <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase tracking-widest">總品項數</p>
+                        <div id="totalItems" class="text-3xl font-mono-custom font-black text-gray-800 mb-6">0</div>
+                        <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase tracking-widest">客戶總數</p>
+                        <div id="totalCust" class="text-3xl font-mono-custom font-black text-indigo-600">0</div>
+                    </div>
+                </aside>
+
+                <!-- 右側：搜尋欄與產品數據大表 -->
+                <main class="flex flex-col gap-4 col-span-1">
+                    
+                    <!-- 智慧搜尋欄區塊 -->
+                    <div class="flex flex-col gap-2.5">
+                        <div class="flex gap-2 w-full items-center">
+                            <div class="relative flex-1 text-nowrap" id="searchContainer">
+                                <input type="text" id="searchInput" oninput="filterData()" placeholder="可搜：代號 / 品名 / 批發價 / 建議價..." 
+                                    class="w-full pl-11 pr-11 py-3.5 bg-white border border-gray-200 rounded-2xl shadow-sm text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                                <svg class="w-4 h-4 text-gray-400 absolute left-4 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                <!-- 清空按鈕 -->
+                                <button onclick="clearSearch()" class="absolute right-4 top-3.5 text-gray-400 hover:text-slate-655 transition-colors">
+                                    <i class="fa-solid fa-circle-xmark text-lg"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- 僅在網頁版顯示「手動新增產品」按鈕，手機版隱藏以確保簡潔 -->
+                            <button onclick="openProductModal(null)" class="hidden md:inline-flex bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-4 py-3.5 rounded-2xl shadow-md transition-all active:scale-95 items-center gap-1 whitespace-nowrap">
+                                <i class="fa-solid fa-circle-plus"></i> ➕ 手動新增產品
+                            </button>
+                        </div>
+
+                        <!-- 常用快捷搜尋鍵 -->
+                        <div class="flex flex-wrap items-center gap-1.5 px-2 text-xs">
+                            <span class="font-black text-slate-500 flex items-center gap-1"><i class="fa-solid fa-wine-bottle text-red-500"></i> 米酒常用：</span>
+                            <button onclick="quickSearch('27', '省酒')" class="bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 text-red-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">27</button>
+                            <button onclick="quickSearch('45', '省酒')" class="bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 text-red-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">45</button>
+                            <button onclick="quickSearch('48', '省酒')" class="bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 text-red-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">48</button>
+                            <button onclick="quickSearch('90', '省酒')" class="bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 text-red-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">90</button>
+                            <button onclick="quickSearch('250', '省酒')" class="bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 text-red-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">250</button>
+
+                            <span class="font-black text-slate-500 flex items-center gap-1 ml-4"><i class="fa-solid fa-smoking text-blue-500"></i> 香菸常用：</span>
+                            <button onclick="quickSearch('75', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">75</button>
+                            <button onclick="quickSearch('80', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">80</button>
+                            <button onclick="quickSearch('85', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">85</button>
+                            <button onclick="quickSearch('90', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">90</button>
+                            <button onclick="quickSearch('95', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">95</button>
+                            <button onclick="quickSearch('100', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">100</button>
+                            <button onclick="quickSearch('110', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">110</button>
+
+                            <!-- 啤酒常用規格 -->
+                            <span class="font-black text-slate-500 flex items-center gap-1 ml-4"><i class="fa-solid fa-beer-mug-empty text-emerald-500"></i> 啤酒常用：</span>
+                            <button onclick="quickSearch('0.33', '省酒')" class="bg-white border border-gray-200 hover:bg-emerald-50 hover:border-emerald-300 text-emerald-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">0.33</button>
+                            <button onclick="quickSearch('0.5', '省酒')" class="bg-white border border-gray-200 hover:bg-emerald-50 hover:border-emerald-300 text-emerald-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">0.5</button>
+                            <button onclick="quickSearch('0.6', '省酒')" class="bg-white border border-gray-200 hover:bg-emerald-50 hover:border-emerald-300 text-emerald-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">0.6</button>
+
+                            <!-- 其他酒類快捷 -->
+                            <span class="font-black text-slate-500 flex items-center gap-1 ml-4"><i class="fa-solid fa-glass-water text-amber-500"></i> 其他酒類：</span>
+                            <button onclick="quickSearch('高粱', '省酒')" class="bg-white border border-gray-200 hover:bg-amber-50 hover:border-amber-300 text-amber-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">高粱</button>
+                            <button onclick="quickSearch('清酒', '省酒')" class="bg-white border border-gray-200 hover:bg-amber-50 hover:border-amber-300 text-amber-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">清酒</button>
+                            <button onclick="quickSearch('紅露酒', '省酒')" class="bg-white border border-gray-200 hover:bg-amber-50 hover:border-amber-300 text-amber-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">紅露酒</button>
+
+                            <!-- 🍜 泡麵常用快捷 (已對齊工廠自製分類) -->
+                            <span class="font-black text-slate-500 flex items-center gap-1 ml-4"><i class="fa-solid fa-bowl-food text-orange-500"></i> 泡麵常用：</span>
+                            <button onclick="quickSearch('單包', '工廠自製')" class="bg-white border border-gray-200 hover:bg-orange-50 hover:border-orange-300 text-orange-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">單包</button>
+                            <button onclick="quickSearch('碗', '工廠自製')" class="bg-white border border-gray-200 hover:bg-orange-50 hover:border-orange-300 text-orange-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">紙碗</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 產品資料大表格 -->
+                    <div class="md:bg-white md:rounded-2xl md:shadow-sm md:border md:border-gray-200 md:overflow-hidden font-bold">
+                        <!-- 滾動加載核心容器 -->
+                        <div class="table-wrap no-scrollbar" id="productTableWrap">
+                            <table class="w-full text-left border-collapse block md:table">
+                                <thead class="hidden md:table-header-group bg-gray-50/75 sticky top-0 z-10 border-b border-gray-200 shadow-sm text-nowrap">
+                                    <tr>
+                                        <!-- 👑 排序的上帝：拖曳指示控制欄 -->
+                                        <th class="p-4 text-xs font-black text-gray-500 uppercase w-24 text-center">拖曳排序</th>
+                                        <th class="p-4 text-xs font-black text-gray-500 uppercase w-32">代號 (複製)</th>
+                                        <th class="p-4 text-xs font-black text-gray-500 uppercase w-20 text-center">分類</th>
+                                        <th class="p-4 text-xs font-black text-gray-500 uppercase">產品名稱</th>
+                                        <th class="p-4 text-xs font-black text-gray-500 uppercase text-center w-20">單位</th>
+                                        <th class="p-4 text-xs font-black text-gray-500 uppercase text-center w-20">最小</th>
+                                        <th class="p-4 text-xs font-black text-gray-500 uppercase text-right w-24">批發價</th>
+                                        <th class="p-4 text-xs font-black text-blue-600 uppercase text-right w-24 font-black">建議價</th>
+                                        <th class="p-4 text-xs font-black text-gray-500 uppercase text-right w-20">毛利</th>
+                                        <th class="p-4 text-xs font-black text-gray-500 uppercase text-center w-24">利潤率</th>
+                                        <th class="p-4 text-xs font-black text-gray-500 uppercase text-center w-24">開單數</th>
+                                        <th class="p-4 text-xs font-black text-gray-500 uppercase text-center w-16">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dataTable" class="block md:table-row-group space-y-3 md:space-y-0 divide-y-0 md:divide-y md:divide-gray-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- 導入視窗 (Modal) -->
+    <div id="importModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[100] p-4 text-center">
+        <div class="bg-white rounded-[2rem] w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col">
+            <div id="importHeader" class="p-6 text-white flex justify-between items-center font-black shrink-0">
+                <h3 id="importTitle" class="text-xl">導入資料</h3>
+                <button onclick="closeImportModal()"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            <div class="p-6 space-y-4 text-left">
+                <div id="importDesc" class="p-4 bg-gray-50 rounded-xl text-xs font-bold leading-relaxed border text-gray-650"></div>
+                <textarea id="importRawText" class="w-full h-72 p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 font-mono-custom text-sm" placeholder="請將 Excel 資料全選複製並貼至此處..."></textarea>
+                <div class="flex gap-4">
+                    <button onclick="closeImportModal()" class="flex-1 py-4 bg-gray-100 text-gray-500 rounded-xl font-black">取消</button>
+                    <!-- 智慧底色確認按鈕 -->
+                    <button id="importConfirmBtn" onclick="processImport()" class="flex-1 py-4 text-white bg-blue-600 hover:bg-blue-700 rounded-xl font-black shadow-lg">導入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 客戶查詢大視窗 (Modal) -->
+    <div id="customerModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[100] p-4 text-left">
+        <div class="bg-white rounded-[2rem] w-full max-w-[95vw] md:max-w-7xl overflow-hidden shadow-2xl flex flex-col h-[85vh]">
+            <div class="p-6 bg-indigo-600 flex justify-between items-center text-white shrink-0">
+                <h3 class="text-xl font-black">POS 客戶資料查詢庫 (按 Esc 可立刻關閉退出)</h3>
+                <button onclick="closeCustomerModal()"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            <div class="p-5 border-b bg-gray-50 flex items-center justify-between text-nowrap flex-wrap md:flex-nowrap gap-4">
+                <div class="relative flex-1">
+                    <input type="text" id="custSearchInput" oninput="searchCustomer()" placeholder="模糊搜尋：姓名、店家、統編/代號、地址或電話連號..." class="w-full pl-12 pr-4 py-3 bg-white border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleCustHistoryModal()" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-4 py-3 rounded-xl text-sm font-black flex items-center gap-1.5 transition-colors">
+                        <i class="fa-solid fa-clock-rotate-left"></i> 🕒 歷史紀錄
+                    </button>
+                    <div class="text-sm font-bold text-gray-500">符合：<span id="custSearchCount" class="text-indigo-600 font-black text-xl">0</span> 筆</div>
+                </div>
+            </div>
+            <div class="flex-1 overflow-auto bg-white p-2 no-scrollbar" id="customerTableWrap">
+                <table class="w-full text-left border-collapse min-w-[1250px]">
+                    <thead class="text-[11px] font-black text-gray-400 uppercase border-b-2 sticky top-0 bg-white z-20 shadow-sm text-nowrap">
+                        <tr>
+                            <th class="py-4 px-4 w-32">客戶代號 (複製)</th>
+                            <th class="py-4 px-4 w-28 text-center">營業所</th>
+                            <th class="py-4 px-4 w-32 text-center">付款方式</th>
+                            <th class="py-4 px-4 w-32">負責人</th>
+                            <th class="py-4 px-4 w-48">店名</th>
+                            <th class="py-4 px-4 w-40">聯絡電話</th>
+                            <th class="py-4 px-4 w-64">登記營址</th>
+                            <th class="py-4 px-4 w-24 text-center">地圖導航</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerTable" class="divide-y text-sm font-medium"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🕒 客戶查詢歷史紀錄子彈窗 -->
+    <div id="custHistoryModal" class="fixed inset-0 bg-black/50 backdrop-blur-xs hidden flex items-center justify-center z-[200] p-4 text-left font-bold text-sm">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col max-h-[70vh] border border-gray-100">
+            <div class="p-5 bg-slate-900 text-white flex justify-between items-center font-black">
+                <h4 class="text-base flex items-center gap-2">
+                    <i class="fa-solid fa-history text-indigo-400"></i>
+                    客戶查詢歷史 (秒速記憶點回)
+                </h4>
+                <button onclick="toggleCustHistoryModal()" class="text-xl hover:text-slate-400 transition-colors">✕</button>
+            </div>
+            <div class="p-4 overflow-y-auto divide-y divide-gray-100" id="custHistoryList" style="max-height: 50vh;"></div>
+            <div class="p-4 bg-gray-50 border-t border-gray-100 text-center flex justify-between items-center gap-3">
+                <p class="text-[10px] text-gray-400 font-medium">無打字超過 1.2 秒自動留存快照</p>
+                <button onclick="clearCustHistory()" class="text-red-500 hover:text-red-700 font-black text-xs flex items-center gap-1">
+                    <i class="fa-solid fa-trash-can"></i> 清除歷史紀錄
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 產品編輯與新增彈窗 -->
+    <div id="productModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[100] p-4 text-left text-nowrap animate-fadeIn">
+        <div class="bg-white rounded-[2rem] w-full max-w-lg overflow-hidden shadow-2xl">
+            <div class="p-6 bg-blue-600 text-white font-black flex justify-between items-center">
+                <h3 id="pModalTitle">手動新增/編輯產品</h3>
+                <button onclick="closeProductModal()">✕</button>
+            </div>
+            <form id="productForm" class="p-8 space-y-4 text-xs">
+                <input type="hidden" id="editKey">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-400 font-bold mb-1">產品代號</label>
+                        <input type="text" id="pId" required placeholder="例如：280010" class="w-full p-4 bg-gray-50 border rounded-xl font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 font-bold mb-1">分類 (如：省酒、省菸)</label>
+                        <input type="text" id="pCat" required placeholder="省酒" class="w-full p-4 bg-gray-50 border rounded-xl font-bold">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-400 font-bold mb-1">產品品名</label>
+                    <input type="text" id="pName" required placeholder="公升金牌台灣啤酒" class="w-full p-4 bg-gray-50 border rounded-xl font-bold text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-400 font-bold mb-1">含稅批發價</label>
+                        <input type="number" id="pW" step="0.01" required placeholder="批發價" class="w-full p-4 bg-gray-50 border rounded-xl font-black">
+                    </div>
+                    <div>
+                        <label class="block text-blue-400 font-bold mb-1">含稅建議售價</label>
+                        <input type="number" id="pR" step="0.01" required placeholder="建議價" class="w-full p-4 bg-gray-50 border rounded-xl font-black text-blue-600">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-400 font-bold mb-1">銷售單位 (預設為 條)</label>
+                        <input type="text" id="pUnit" required placeholder="銷售單位 (例：條)" class="w-full p-4 bg-gray-50 border rounded-xl font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 font-bold mb-1">最小單位 (預設為 包)</label>
+                        <input type="text" id="pMinUnit" placeholder="最小單位 (例：包)" class="w-full p-4 bg-gray-50 border rounded-xl font-bold">
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black shadow-lg uppercase active:scale-95 transition-all text-sm">確認保存並同步資料庫</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 🔐 修改 N90 密碼對話框 -->
+    <div id="n90PassModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[110] p-4 text-left">
+        <div class="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl p-6 space-y-4">
+            <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-key text-indigo-500"></i>
+                <span>修改 N90 系統密碼</span>
+            </h3>
+            <p class="text-[10px] text-gray-400 font-bold leading-relaxed">
+                為了確保您的系統登入安全，建議每 3 個月定期更換密碼。
+            </p>
+            <div>
+                <input type="text" id="newN90PassInput" placeholder="輸入新的 N90 密碼..." class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-bold">
+            </div>
+            <div class="flex gap-2">
+                <button onclick="closeN90PassModal()" class="flex-1 py-2.5 bg-gray-100 text-gray-500 hover:bg-gray-200 rounded-xl font-bold text-xs">
+                    取消
+                </button>
+                <button onclick="saveN90Password()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md">
+                    儲存密碼
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自定義毀滅性安全確認對話框 -->
+    <div id="dangerConfirmModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center hidden p-4 text-left">
+        <div class="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl p-6 space-y-4">
+            <h3 class="text-lg font-black text-red-600 flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>🚨 毀滅性安全確認</span>
+            </h3>
+            <p id="dangerModalMessage" class="text-xs text-gray-500 leading-relaxed font-bold whitespace-pre-wrap">
+                這項操作將會刪除您本機上的全部快取，以及雲端資料庫中的所有資料。此動作完全無法復原，您確定要繼續嗎？
+            </p>
+            <div class="flex gap-3 pt-2">
+                <button onclick="closeDangerModal()" class="flex-1 py-3 bg-gray-100 text-gray-500 hover:bg-gray-200 rounded-xl font-black text-xs transition-colors">
+                    安全取消
+                </button>
+                <button id="dangerConfirmBtn" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black text-xs shadow-lg transition-colors">
+                    確認執行
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 手機版底部導覽 -->
+    <div class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 flex justify-around z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="flex-1 py-3 flex flex-col items-center justify-center text-blue-600 transition-colors">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            <span class="text-[10px] font-black">產品搜尋</span>
+        </button>
+        <button onclick="openCustomerModal()" class="flex-1 py-3 flex flex-col items-center justify-center text-gray-400 hover:text-indigo-600 transition-colors">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span class="text-[10px] font-black">客戶查詢</span>
+        </button>
+    </div>
+
+    <!-- Toast 彈出提醒 -->
+    <div id="toast" class="fixed top-14 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-8 py-4 rounded-2xl shadow-2xl font-black hidden z-[200] copy-toast text-sm">
+        <span id="toastText">已複製</span>
+    </div>
+
+    <!-- Firebase 系統載入與核心同步模組 -->
+    <script type="module">
+        // 模組化引入最穩定之 Google 官方 SDK
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { initializeFirestore, getFirestore, doc, setDoc, onSnapshot, persistentLocalCache, persistentMultipleTabManager, disableNetwork, enableNetwork, setLogLevel } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ==========================================
+        // 帶入您專屬的金鑰，並對接雲端資料庫 
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyD6bOk90x5C_SMiVXTZih-ei9GR0kMFXr8",
+            authDomain: "my-ttl-system.firebaseapp.com",
+            projectId: "my-ttl-system",
+            storageBucket: "my-ttl-system.firebasestorage.app",
+            messagingSenderId: "1064089344457",
+            appId: "1:1064089344457:web:e17ae0c78af3f492767018",
+            measurementId: "G-GD3CZ61PSM"
+        };
+
+        let db = null;
+        let auth = null;
+        let appId = 'ttl-product-system-v2';
+        let isSdkLoaded = false;
+        let isUserLoggedIn = false;
+        let isFirestoreConnected = false;
+        let isLoading = false; 
+
+        // 預設全域資料庫
+        let products = [];
+        let customers = [];
+        let tempTransactions = []; 
+        let activeAnalysis = {};   
+        let curCat = "";
+        
+        // 👑 上帝專屬排序字典：保存各個快捷搜尋下，由使用者手動微調的商品 ID 順序清單
+        let customSortMap = {};
+
+        // 🔐 N90 密碼儲存變數與顯示狀態
+        let n90Password = localStorage.getItem('db_n90_password') || 'N90Password123';
+        let isN90PassVisible = false;
+
+        // 效能優化核心：智慧分頁增量渲染控制變數
+        let displayedProductLimit = 100;
+        let displayedCustomerLimit = 100;
+        let currentFilteredProducts = [];
+        let currentFilteredCustomers = [];
+
+        // 安全防呆：定義可能在 customer 查詢中用到的 directDebitIds 清單以防 JS 潰
+        const directDebitIds = ["321095", "321097"];
+
+        // 智慧型打字計時器 (用於客戶搜尋歷史秒速留存)
+        let custSearchTimeout = null;
+
+        // 全域防禦與跨組件調用標記（防未定義錯誤，直接綁定到全域 `window`）
+        window.searchNeedClear = false;
+        window.isQuickRiceWine90 = false;
+        window.isBeerQuickSearch = false; // 🍺 啤酒快捷鍵專用旗標
+        window.isRamenQuickSearch = false; // 🍜 泡麵快捷鍵專用旗標
+        window.currentImportType = "products";
+        window.isQuickSearchClick = false;
+
+        function log(message, isError = false) {
+            const consoleEl = document.getElementById('diagConsole');
+            const timestamp = new Date().toLocaleTimeString();
+            const logMsg = `[${timestamp}] ${message}\n`;
+            if (consoleEl) {
+                consoleEl.value = logMsg + consoleEl.value;
+            }
+            if (isError) {
+                console.error(message);
+            } else {
+                console.log(message);
+            }
+        }
+
+        function setIsLoading(val) {
+            isLoading = val;
+            document.body.style.cursor = val ? 'wait' : 'default';
+        }
+
+        function initApp() {
+            buildNav();
+            filterData();
+            document.getElementById('totalItems').innerText = products.length;
+            document.getElementById('totalCust').innerText = customers.length;
+        }
+
+        function safeSaveToLocalStorage(key, dataList) {
+            try {
+                localStorage.setItem(key, JSON.stringify(dataList));
+            } catch (e) {
+                if (e.name === 'QuotaExceededError') {
+                    if (Array.isArray(dataList)) {
+                        localStorage.setItem(key, JSON.stringify(dataList.slice(0, 1000)));
+                    }
+                    log("⚠️ 本機快取已滿，自動優化截斷舊明細！", true);
+                }
+            }
+        }
+        
+        // 儲存上帝字典至雲端
+        function saveCustomSort() {
+            safeSaveToLocalStorage('db_custom_sort_v2', customSortMap);
+            if (db && isUserLoggedIn && navigator.onLine) {
+                setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'custom_sort', 'custom_sort_doc'), { map: customSortMap })
+                  .catch(err => log(`🔴 雲端排序快取備份失敗: ${err.message}`, true));
+            }
+        }
+
+        function save() {
+            safeSaveToLocalStorage('db_p_baked_final', products);
+            safeSaveToLocalStorage('db_c_baked_final', customers);
+            safeSaveToLocalStorage('db_tx_temp_local', tempTransactions);
+            safeSaveToLocalStorage('db_active_analysis_final', activeAnalysis);
+            
+            if (db && isUserLoggedIn && navigator.onLine) {
+                log("正在將變更備份至 Firebase 雲端資料庫...");
+                setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', 'products_doc'), { list: products })
+                  .then(() => {
+                      isFirestoreConnected = true;
+                      updateConnectionStatusUI();
+                  })
+                  .catch(err => {
+                      log(`🔴 雲端產品庫同步失敗: ${err.message}`, true);
+                      isFirestoreConnected = false;
+                      updateConnectionStatusUI();
+                  });
+
+                setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'customers', 'customers_doc'), { list: customers })
+                  .catch(err => log(`🔴 雲端客戶庫同步失敗: ${err.message}`, true));
+
+                setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'active_analysis', 'active_analysis_doc'), { list: activeAnalysis })
+                  .catch(err => log(`🔴 雲端開單次數備份失敗: ${err.message}`, true));
+            }
+            initApp();
+        }
+
+        // ==========================================
+        // 【核心連線】Firebase 初始化與三合一即時診斷 
+        // ==========================================
+        function initFirebase() {
+            try {
+                if (firebaseConfig.apiKey) {
+                    log("正在載入 Firebase 設定...");
+                    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    
+                    try {
+                        // 💡 核心修復：靜音 Firebase 底層控制台的網路超時警告
+                        setLogLevel('silent');
+                        
+                        // 💡 優化設定阻擋警告與縮短控制台中的 Backend 超時通知：
+                        // 增加 long-polling、停用 meta 的 CSP 報錯干涉、縮短超時判定，並設置離線重試防阻
+                        db = initializeFirestore(app, {
+                            experimentalForceLongPolling: true,
+                            localCache: persistentLocalCache({
+                                tabManager: persistentMultipleTabManager()
+                            })
+                        });
+                        log("🟢 Firestore 首次初始化成功 (已啟用持久化快取與長輪詢模式)");
+
+                        // 💡 智慧網路偵測：如果當前確實離線或載入網頁時網路受限
+                        // 主動切斷連線，切換為 100% 純本機資料庫無干擾操作，完全杜絕 10 秒 Backend didn't respond 錯誤。
+                        if (!navigator.onLine) {
+                            disableNetwork(db).then(() => {
+                                log("📡 偵測到目前處於離線狀態，已主動關閉雲端網路同步以節省效能並避免超時警告。");
+                            }).catch(()=>{});
+                        }
+                    } catch (firestoreInitError) {
+                        log("⚠️ 偵測到重複初始化，正在自動安全重用現有 Firestore 執行個體...");
+                        db = getFirestore(app);
+                    }
+                    
+                    isSdkLoaded = true;
+                    log("🟢 Firebase 金鑰配置載入與容錯對接成功！");
+                    updateConnectionStatusUI();
+
+                    log("開始與 Google 進行匿名驗證登入...");
+                    signInAnonymously(auth)
+                        .then(cred => {
+                            isUserLoggedIn = true;
+                            log(`🟢 匿名驗證登入成功！(UID: ${cred.user.uid})`);
+                            updateConnectionStatusUI();
+                            startSync(); 
+                        })
+                        .catch(err => {
+                            isUserLoggedIn = false;
+                            log(`🔴 驗證失敗: [${err.code}] ${err.message}`, true);
+                            updateConnectionStatusUI();
+                        });
+                }
+            } catch (e) {
+                log(`🔴 Firebase 初始化致命崩潰: ${e.message}`, true);
+                updateConnectionStatusUI();
+            }
+        }
+
+        function startSync() {
+            if(!db) return;
+
+            // 💡 安全保護：只有在確實能對外通訊時才建立即時訂閱監聽
+            if (!navigator.onLine) {
+                log("📡 偵測到處於離線狀態，略過雲端同步連線。");
+                return;
+            }
+
+            log("正在與雲端文檔建立即時訂閱監聽...");
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'products', 'products_doc'), snap => {
+                isFirestoreConnected = true;
+                updateConnectionStatusUI();
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data?.list?.length > 0) {
+                        products = data.list;
+                        safeSaveToLocalStorage('db_p_baked_final', products);
+                        initApp(); 
+                    }
+                }
+            }, err => {
+                log(`🔴 雲端產品讀取受阻: [${err.code}] ${err.message}`, true);
+                isFirestoreConnected = false;
+                updateConnectionStatusUI();
+            });
+
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'customers', 'customers_doc'), snap => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data?.list?.length > 0) {
+                        customers = data.list;
+                        safeSaveToLocalStorage('db_c_baked_final', customers);
+                        initApp();
+                    }
+                }
+            }, err => {});
+
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'active_analysis', 'active_analysis_doc'), snap => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (Object.keys(data?.list || {}).length > 0) {
+                        activeAnalysis = data.list;
+                        safeSaveToLocalStorage('db_active_analysis_final', activeAnalysis);
+                        initApp();
+                    }
+                }
+            }, err => {});
+            
+            // 👑 即時監聽訂閱雲端「上帝排序字典」
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'custom_sort', 'custom_sort_doc'), snap => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data?.map) {
+                        customSortMap = data.map;
+                        safeSaveToLocalStorage('db_custom_sort_v2', customSortMap);
+                        filterData(); // 更新畫面上的排序
+                    }
+                }
+            }, err => {});
+        }
+
+        function updateConnectionStatusUI() {
+            const diagSdk = document.getElementById('diagSdk');
+            const diagAuth = document.getElementById('diagAuth');
+            const diagSync = document.getElementById('diagSync');
+            
+            if (diagSdk) {
+                diagSdk.innerText = isSdkLoaded ? "🟢 成功" : "🔴 失敗";
+                diagSdk.className = isSdkLoaded ? "text-emerald-600 font-bold" : "text-red-500 font-bold";
+            }
+            if (diagAuth) {
+                diagAuth.innerText = isUserLoggedIn ? "🟢 成功" : "🔴 失敗";
+                diagAuth.className = isUserLoggedIn ? "text-emerald-600 font-bold" : "text-red-500 font-bold";
+            }
+            if (diagSync) {
+                diagSync.innerText = isFirestoreConnected ? "🟢 同步" : "⚪ 離線";
+                diagSync.className = isFirestoreConnected ? "text-emerald-600 font-bold" : "text-gray-400 font-bold";
+            }
+
+            const headerStatusDot = document.getElementById('headerStatusDot');
+            const headerStatusText = document.getElementById('headerStatusText');
+            
+            if (headerStatusDot && headerStatusText) {
+                if (isFirestoreConnected) {
+                    headerStatusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                    headerStatusText.innerText = "雲端同步中";
+                    headerStatusText.className = "text-xs font-black text-emerald-600";
+                } else if (isUserLoggedIn) {
+                    headerStatusDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
+                    headerStatusText.innerText = "帳戶已登入";
+                    headerStatusText.className = "text-xs font-black text-amber-500";
+                } else {
+                    headerStatusDot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
+                    headerStatusText.innerText = "本機模式";
+                    headerStatusText.className = "text-xs font-black text-gray-500";
+                }
+            }
+        }
+
+        // ==========================================
+        // ⚡ 本地 analysis 篩選控制
+        // ==========================================
+        function processDataLocallyAndUpload() {
+            if (products.length === 0) {
+                showToast("⚠️ 請先導入產品料號基本庫！");
+                return;
+            }
+            if (tempTransactions.length === 0) {
+                showToast("⚠️ 請先導入 N90122 交易明細進行 analysis 計算！");
+                return;
+            }
+
+            setIsLoading(true);
+            log("正在啟動本地智慧運算、排序並執行篩選過濾...");
+
+            computeActiveAnalysis();
+
+            const nameGroups = {};
+            products.forEach(p => {
+                const nameKey = p.name ? p.name.trim() : '';
+                if (!nameGroups[nameKey]) nameGroups[nameKey] = [];
+                nameGroups[nameKey].push(p);
+            });
+
+            const deduplicated = [];
+            Object.keys(nameGroups).forEach(nameKey => {
+                const list = nameGroups[nameKey];
+                if (list.length === 1) {
+                    deduplicated.push(list[0]);
+                    return;
+                }
+                list.sort((a, b) => {
+                    const countA = activeAnalysis[a.id]?.count || 0;
+                    const countB = activeAnalysis[b.id]?.count || 0;
+                    if (countA !== countB) return countB - countA;
+
+                    const marginA = a.r - a.w;
+                    const marginB = b.r - b.w;
+                    if (marginA !== marginB) return marginB - marginA;
+
+                    const is2026A = a.launchDate && a.launchDate.includes('2026');
+                    const is2026B = b.launchDate && b.launchDate.includes('2026');
+                    return (is2026B ? 1 : 0) - (is2026A ? 1 : 0);
+                });
+                deduplicated.push(list[0]);
+            });
+
+            let removedCount = 0;
+            const finalProducts = deduplicated.filter(p => {
+                const count = activeAnalysis[p.id]?.count || 0;
+                const is2026 = p.launchDate && p.launchDate.includes('2026');
+                
+                if (count > 0 || is2026) {
+                    return true;
+                } else {
+                    removedCount++;
+                    return false;
+                }
+            });
+
+            safeSaveToLocalStorage('db_active_analysis_final', activeAnalysis);
+            log("⚡ 本地開單次數快照已安全獨立保存，將在交易紀錄拋棄後繼續守護排序規則。");
+
+            tempTransactions = [];
+            localStorage.removeItem('db_tx_temp_local');
+            log("⚡ 本地運算判定完成，原始交易日誌已完成安全物理銷毀與丟棄。");
+
+            products = finalProducts;
+            save();
+
+            setIsLoading(false);
+            showToast("⚡ 分析完成！剔除 " + removedCount + " 款無動銷舊料號，交易明細已在本地安全銷毀！");
+        }
+
+        function computeActiveAnalysis() {
+            const analysis = {};
+            tempTransactions.forEach(tx => {
+                const pid = tx.productId;
+                if (!pid) return;
+                if (!analysis[pid]) {
+                    analysis[pid] = { count: 0, qty: 0, amt: 0, lastDate: '' };
+                }
+                analysis[pid].count += 1;
+                analysis[pid].qty += (parseFloat(tx.qty) || 0);
+                analysis[pid].amt += (parseFloat(tx.amount) || 0);
+                
+                if (!analysis[pid].lastDate || tx.date > analysis[pid].lastDate) {
+                    analysis[pid].lastDate = tx.date;
+                }
+            });
+            activeAnalysis = analysis;
+            safeSaveToLocalStorage('db_active_analysis_final', activeAnalysis);
+        }
+
+        // ==========================================
+        // ⚡ 一鍵完全清空本機與雲端 (已拆分為獨立與防呆的客戶與產品兩套清空方法) ⚡
+        // ==========================================
+        function confirmClearCustomers() {
+            openDangerModal(
+                "🚨 【警告】清空客戶資料庫",
+                "此操作將會：\n1. 永久清空您在雲端 Firestore 的所有客戶名冊。\n2. 永久清空這台設備瀏覽器的客戶快取。\n\n此動作完全無法復原，您確定要清空客戶名冊嗎？",
+                handleClearCustomers
+            );
+        }
+
+        function handleClearCustomers() {
+            setIsLoading(true);
+            log("🚨 正在執行客戶資料庫毀滅性清空指令...");
+            try {
+                customers = [];
+                localStorage.removeItem('db_c_baked_final');
+
+                if (db && isUserLoggedIn) {
+                    setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'customers', 'customers_doc'), { list: [] })
+                      .then(() => {
+                          log("🟢 雲端客戶名冊清空成功！");
+                          setIsLoading(false);
+                          showToast("⚡ 客戶庫已完全清空重置！");
+                      })
+                      .catch(err => {
+                          log(`🔴 雲端客戶清空失敗: ${err.message}`, true);
+                          setIsLoading(false);
+                      });
+                } else {
+                    showToast("⚡ 本地客戶快取已完全重置清空");
+                    setIsLoading(false);
+                }
+                initApp();
+                closeDangerModal();
+            } catch (e) {
+                log(`🔴 清空客戶執行時發生錯誤: ${e.message}`, true);
+                setIsLoading(false);
+            }
+        }
+
+        function confirmClearProducts() {
+            openDangerModal(
+                "🚨 【警告】清空產品與交易資料庫",
+                "此操作將會：\n1. 永久清空您在雲端 Firestore 的所有產品、排序狀態與開單次數。\n2. 永久清空這台設備瀏覽器的產品快取與暫存交易明細。\n\n此動作完全無法復原，您確定要清空產品資料庫嗎？",
+                handleClearProducts
+            );
+        }
+
+        function handleClearProducts() {
+            setIsLoading(true);
+            log("🚨 正在執行產品與交易資料庫毀滅性清空指令...");
+            try {
+                products = [];
+                tempTransactions = [];
+                activeAnalysis = {};
+                customSortMap = {};
+
+                localStorage.removeItem('db_p_baked_final');
+                localStorage.removeItem('db_tx_temp_local');
+                localStorage.removeItem('db_active_analysis_final'); 
+                localStorage.removeItem('db_custom_sort_v2'); 
+
+                if (db && isUserLoggedIn) {
+                    setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', 'products_doc'), { list: [] });
+                    setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'active_analysis', 'active_analysis_doc'), { list: {} });
+                    setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'custom_sort', 'custom_sort_doc'), { map: {} });
+                    log("🟢 雲端產品、排序、開單數據已完成重置！");
+                    setIsLoading(false);
+                    showToast("⚡ 產品與交易庫已完全重置清空");
+                } else {
+                    showToast("⚡ 本地產品資料已完全重置清空");
+                    setIsLoading(false);
+                }
+                initApp();
+                closeDangerModal();
+            } catch (e) {
+                log(`🔴 清空產品執行時發生錯誤: ${e.message}`, true);
+                setIsLoading(false);
+            }
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            filterData();
+        }
+
+        function buildNav() {
+            const nav = document.getElementById('categoryNav');
+            const cats = [...new Set(products.map(p => p.cat))].sort();
+            const countNew2026 = products.filter(p => p.launchDate && p.launchDate.includes('2026')).length;
+            
+            nav.innerHTML = `
+                <button onclick="setCategory('')" class="sidebar-btn shrink-0 md:w-full text-left px-5 py-2 md:py-3 rounded-full md:rounded-l-xl md:rounded-r-none font-bold text-sm md:text-base ${curCat === '' ? 'active' : 'text-gray-500 hover:bg-gray-50'}">全部 (${products.length})</button>
+                <!-- 🌟 2026 新品一鍵智慧篩選標籤 -->
+                <button onclick="setCategory('2026_new')" class="sidebar-btn shrink-0 md:w-full text-left px-5 py-2 md:py-3 rounded-full md:rounded-l-xl md:rounded-r-none font-bold text-sm md:text-base ${curCat === '2026_new' ? 'active' : 'text-amber-600 hover:bg-amber-50/50'} flex items-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> ✨ 2026新品 (${countNew2026})
+                </button>
+            `;
+            
+            cats.forEach(c => {
+                nav.innerHTML += `
+                    <button onclick="setCategory('${c}')" class="sidebar-btn shrink-0 md:w-full text-left px-5 py-2 md:py-3 rounded-full md:rounded-l-xl md:rounded-r-none font-bold text-sm md:text-base ${curCat === c ? 'active' : 'text-gray-500 hover:bg-gray-50'}">${c} (${products.filter(p => p.cat === c).length})</button>
+                `;
+            });
+        }
+
+        function setCategory(c) { 
+            curCat = c; 
+            document.getElementById('searchInput').value = '';
+            buildNav(); 
+            filterData(); 
+        }
+
+        // ==========================================
+        // 👑 上帝專屬排序系統與主搜尋演算法
+        // ==========================================
+        function filterData() {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            
+            // 💡 智慧邏輯定義：偵測是否符合米酒的價格特徵 (加入 250 代表 2.5公升 / 250元 米酒規格)
+            const specialRiceWineCodes = ["27", "48", "250", "45"];
+            const isSpecialRiceWineMode = (specialRiceWineCodes.includes(q) || (q === "90" && window.isQuickRiceWine90)) && window.isQuickSearchClick;
+            
+            // 💡 啤酒模式偵測：0.33, 0.5, 0.6 
+            const isBeerMode = (["0.33", "0.5", "0.6"].includes(q) && window.isBeerQuickSearch) && window.isQuickSearchClick;
+
+            // 🍜 泡麵模式偵測：單包, 碗, 紙碗
+            const isRamenMode = (["單包", "碗", "紙碗"].includes(q) && window.isRamenQuickSearch) && window.isQuickSearchClick;
+
+            window.isQuickRiceWine90 = false;
+            window.isBeerQuickSearch = false; 
+            window.isRamenQuickSearch = false; 
+            let filtered = products;
+
+            const isManualTyping = !window.isQuickSearchClick;
+            window.isQuickSearchClick = false;
+
+            // 1. 過濾階段
+            if (q !== "") {
+                if (isManualTyping) {
+                    filtered = products.filter(p => (
+                        p.name.toLowerCase().includes(q) || 
+                        p.id.toLowerCase().includes(q) || 
+                        p.r.toString().includes(q) || 
+                        p.w.toString().includes(q)
+                    ));
+                } else {
+                    if (isSpecialRiceWineMode && curCat === "省酒") {
+                        filtered = products.filter(p => p.cat === "省酒" && (p.name.includes("米酒") || p.id.startsWith("28") || p.id.startsWith("23H")));
+                    } else if (isBeerMode && curCat === "省酒") {
+                        // 🍺 品名有包含 "0.33"/"0.5"/"0.6" 又有 "啤" 
+                        filtered = products.filter(p => p.cat === "省酒" && p.name.includes("啤") && p.name.includes(q));
+                    } else if (isRamenMode && curCat === "工廠自製") {
+                        // 🍜 智慧多條件交叉泡麵搜尋規則（修正：歸屬工廠自製分類）：
+                        // 如果按「單包」，品名必含「包」字，且需含「麵」或「粉」(拉麵、米粉、冬粉等泡麵類)
+                        // 如果按「紙碗」 (值為 碗)，品名必含「碗」字，且需含「麵」或「粉」
+                        const spec = q.includes("包") ? "包" : "碗";
+                        filtered = products.filter(p => p.cat === "工廠自製" && 
+                            (p.name.includes("麵") || p.name.includes("粉") || p.name.includes("拉麵")) && 
+                            p.name.includes(spec)
+                        );
+                    } else {
+                        let base = products;
+                        if (curCat === '2026_new') {
+                            base = products.filter(p => p.launchDate && p.launchDate.includes('2026'));
+                        } else if (curCat !== "") {
+                            base = products.filter(p => p.cat === curCat);
+                        }
+                        filtered = base.filter(p => (
+                            p.name.toLowerCase().includes(q) || 
+                            p.id.toLowerCase().includes(q) || 
+                            p.r.toString().includes(q) || 
+                            p.w.toString().includes(q)
+                        ));
+                    }
+                }
+            } else {
+                if (curCat === '2026_new') {
+                    filtered = products.filter(p => p.launchDate && p.launchDate.includes('2026'));
+                } else if (curCat !== "") {
+                    filtered = products.filter(p => p.cat === curCat);
+                }
+            }
+
+            // 2. 排序階段
+            const isDecimal = /\d+\.\d+|\.\d+/.test(q) || q === '.';
+            const targetPrice = parseFloat(q);
+            const hasTargetPrice = !isNaN(targetPrice) && q !== "";
+            
+            // 抓取當前搜尋情境專屬的上帝排序快照
+            const sortKey = curCat + "||" + q;
+            const manualList = customSortMap[sortKey];
+
+            filtered.sort((a, b) => {
+                // 👑 絕對優先權：如果您有在此分類下手動上移/下移過，強制套用此客製化順序
+                if (manualList) {
+                    const idxA = manualList.indexOf(a.id);
+                    const idxB = manualList.indexOf(b.id);
+                    
+                    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                    if (idxA !== -1) return -1; 
+                    if (idxB !== -1) return 1;  
+                }
+
+                // --- 原本的智慧演算法 (當無手動排序干涉時) ---
+                const countA = activeAnalysis[a.id]?.count || 0;
+                const countB = activeAnalysis[b.id]?.count || 0;
+
+                if (isSpecialRiceWineMode) {
+                    const matchRetailA = (a.r === targetPrice) ? 1 : 0;
+                    const matchRetailB = (b.r === targetPrice) ? 1 : 0;
+                    if (matchRetailA !== matchRetailB) return matchRetailB - matchRetailA;
+
+                    const matchWholesaleA = (a.w === targetPrice) ? 1 : 0;
+                    const matchWholesaleB = (b.w === targetPrice) ? 1 : 0;
+                    if (matchWholesaleA !== matchWholesaleB) return matchWholesaleB - matchWholesaleA;
+
+                    if (countA !== countB) return countB - countA;
+                    return a.id.localeCompare(b.id);
+                } else if (isDecimal) {
+                    const isBeerA = (a.cat === '省酒' || a.name.includes('啤酒') || a.name.includes('酒')) ? 1 : 0;
+                    const isBeerB = (b.cat === '省酒' || b.name.includes('啤酒') || b.name.includes('酒')) ? 1 : 0;
+                    if (isBeerA !== isBeerB) return isBeerB - isBeerA;
+
+                    if (countA !== countB) return countB - countA;
+                    return a.id.localeCompare(b.id);
+                } else {
+                    if (hasTargetPrice) {
+                        const matchRetailA = (a.r === targetPrice) ? 1 : 0;
+                        const matchRetailB = (b.r === targetPrice) ? 1 : 0;
+                        if (matchRetailA !== matchRetailB) return matchRetailB - matchRetailA;
+
+                        const matchWholesaleA = (a.w === targetPrice) ? 1 : 0;
+                        const matchWholesaleB = (b.w === targetPrice) ? 1 : 0;
+                        if (matchWholesaleA !== matchWholesaleB) return matchWholesaleB - matchWholesaleA;
+                    }
+
+                    if (countA !== countB) return countB - countA;
+
+                    const is2026A = a.launchDate && a.launchDate.includes('2026') ? 1 : 0;
+                    const is2026B = b.launchDate && b.launchDate.includes('2026') ? 1 : 0;
+                    if (is2026A !== is2026B) return is2026A - is2026B;
+
+                    return a.id.localeCompare(b.id);
+                }
+            });
+
+            // 效能優化：重置懶加載限制，並保存當前過濾後的所有產品
+            displayedProductLimit = 100;
+            currentFilteredProducts = filtered;
+
+            renderTable(currentFilteredProducts);
+        }
+
+        // ==========================================
+        // 👑 上帝專屬拖曳排序演算法 (支援滑鼠與手機 Pointer 觸控)
+        // ==========================================
+        let draggedId = null;
+        let touchDraggedId = null;
+        let touchStartRow = null;
+
+        function handleDragStart(e, id) {
+            draggedId = id;
+            e.dataTransfer.effectAllowed = 'move';
+            // 將整行加上淡出半透明特效，更有 3D 質感
+            const tr = e.target.closest('tr');
+            if (tr) {
+                tr.classList.add('opacity-40', 'bg-blue-100');
+            }
+        }
+
+        // 智慧拖曳重排
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault(); 
+            }
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+
+        function handleDragEnter(e) {
+            const tr = e.target.closest('tr');
+            if (tr && tr.getAttribute('data-product-id') !== draggedId) {
+                tr.classList.add('drag-hover-top');
+            }
+        }
+
+        function handleDragLeave(e) {
+            const tr = e.target.closest('tr');
+            if (tr) {
+                tr.classList.remove('drag-hover-top');
+            }
+        }
+
+        function handleDrop(e, targetId) {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            const tr = e.target.closest('tr');
+            if (tr) {
+                tr.classList.remove('drag-hover-top');
+            }
+            
+            if (draggedId && draggedId !== targetId) {
+                executeReorder(draggedId, targetId, false);
+            }
+            return false;
+        }
+
+        // 拖曳結束
+        function handleDragEnd(e) {
+            const tr = e.target.closest('tr');
+            if (tr) {
+                tr.classList.remove('opacity-40', 'bg-blue-100');
+            }
+            document.querySelectorAll('tr').forEach(row => {
+                row.classList.remove('drag-hover-top', 'drag-hover-bottom');
+            });
+            draggedId = null;
+        }
+
+        // --- 手機/平板 Touch 專用高感度拖曳排序事件 ---
+        function handleTouchStart(e, id) {
+            const tr = e.target.closest('tr');
+            if (!tr) return;
+            touchDraggedId = id;
+            touchStartRow = tr;
+            tr.classList.add('bg-blue-50', 'opacity-60');
+        }
+
+        function handleTouchMove(e) {
+            if (!touchStartRow) return;
+            e.preventDefault(); // 防止拖曳時網頁整體上下滾動
+            
+            const touch = e.touches[0];
+            const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (!targetEl) return;
+            
+            const currentOverRow = targetEl.closest('tr');
+            
+            // 清理先前的指示框線
+            document.querySelectorAll('#dataTable tr').forEach(row => {
+                if (row !== currentOverRow) {
+                    row.classList.remove('drag-hover-top', 'drag-hover-bottom');
+                }
+            });
+            
+            if (currentOverRow && currentOverRow !== touchStartRow && currentOverRow.parentNode.id === 'dataTable') {
+                const rect = currentOverRow.getBoundingClientRect();
+                const relativeY = touch.clientY - rect.top;
+                // 智慧判定放開時要插在該行的上方還是下方
+                if (relativeY < rect.height / 2) {
+                    currentOverRow.classList.add('drag-hover-top');
+                    currentOverRow.classList.remove('drag-hover-bottom');
+                } else {
+                    currentOverRow.classList.add('drag-hover-bottom');
+                    currentOverRow.classList.remove('drag-hover-top');
+                }
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (!touchStartRow) return;
+            touchStartRow.classList.remove('bg-blue-50', 'opacity-60');
+            
+            const touch = e.changedTouches[0];
+            const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            document.querySelectorAll('#dataTable tr').forEach(row => {
+                row.classList.remove('drag-hover-top', 'drag-hover-bottom');
+            });
+            
+            if (targetEl) {
+                const dropRow = targetEl.closest('tr');
+                if (dropRow && dropRow.parentNode.id === 'dataTable') {
+                    const targetId = dropRow.getAttribute('data-product-id');
+                    if (targetId && touchDraggedId !== targetId) {
+                        const rect = dropRow.getBoundingClientRect();
+                        const relativeY = touch.clientY - rect.top;
+                        const isBelow = relativeY >= rect.height / 2;
+                        
+                        executeReorder(touchDraggedId, targetId, isBelow);
+                    }
+                }
+            }
+            touchStartRow = null;
+            touchDraggedId = null;
+        }
+
+        // 統一執行重排排序字典更新
+        function executeReorder(sourceId, targetId, isBelow) {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            const sortKey = curCat + "||" + q;
+            
+            // 如果此搜尋情境尚無快照，先擷取當下完整的視覺順序作為初始值
+            if (!customSortMap[sortKey]) {
+                customSortMap[sortKey] = currentFilteredProducts.map(p => p.id);
+            }
+            
+            const list = [...customSortMap[sortKey]];
+            const dragIdx = list.indexOf(sourceId);
+            let dropIdx = list.indexOf(targetId);
+            
+            if (dragIdx !== -1 && dropIdx !== -1) {
+                const [draggedItem] = list.splice(dragIdx, 1);
+                // 重新定位目標位置
+                dropIdx = list.indexOf(targetId);
+                const finalInsertIdx = isBelow ? dropIdx + 1 : dropIdx;
+                list.splice(finalInsertIdx, 0, draggedItem);
+                
+                customSortMap[sortKey] = list;
+                saveCustomSort();
+                
+                const p = products.find(x => x.id === sourceId);
+                if (p) showToast(`重新排序完成：${p.name}`);
+                
+                filterData(); // 即時重新渲染並生效排序！
+            }
+        }
+
+        // 渲染主產品表格 (利潤率紅藍框、整條價格、獨立開單次數欄位 - 支援 Lazy Loading 與上帝拖曳排序功能)
+        function renderTable(data) {
+            const body = document.getElementById('dataTable'); 
+            body.innerHTML = '';
+            
+            if (data.length === 0) {
+                body.innerHTML = `
+                    <tr class="block md:table-row bg-white p-8 text-center text-gray-400 font-bold rounded-2xl">
+                        <td colspan="12" class="p-8 text-center">
+                            <i class="fa-solid fa-square-minus text-3xl mb-2 block text-gray-300"></i>
+                            目前尚無產品資料。
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const sliceData = data.slice(0, displayedProductLimit);
+
+            sliceData.forEach(p => {
+                const profit = (p.r - p.w).toFixed(1);
+                const margin = p.r > 0 ? (((p.r - p.w) / p.r) * 100).toFixed(2) : "0.00";
+                
+                const marginVal = parseFloat(margin);
+                const borderStyle = marginVal <= 10.00 ? "profit-border-low" : "profit-border-high";
+                
+                const ratio = p.ratio || 10; 
+                const formatPrice = (n) => Number.isInteger(parseFloat(n)) ? parseInt(n) : parseFloat(n).toFixed(1);
+
+                const wholesalePack = formatPrice(p.w * ratio);
+                const retailPack = formatPrice(p.r * ratio);
+
+                const count = activeAnalysis[p.id]?.count || 0;
+                const is2026 = p.launchDate && p.launchDate.includes('2026');
+
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-product-id', p.id);
+                tr.setAttribute('draggable', 'true');
+                
+                // 綁定電腦端拖曳事件
+                tr.addEventListener('dragstart', (e) => handleDragStart(e, p.id));
+                tr.addEventListener('dragover', handleDragOver);
+                tr.addEventListener('dragenter', handleDragEnter);
+                tr.addEventListener('dragleave', handleDragLeave);
+                tr.addEventListener('drop', (e) => handleDrop(e, p.id));
+                tr.addEventListener('dragend', handleDragEnd);
+
+                tr.className = "block md:table-row bg-white mobile-card mb-3 md:mb-0 rounded-2xl border md:border-b p-4 md:p-0 transition-colors hover:bg-blue-50/50";
+                tr.innerHTML = `
+                    <!-- 👑 排序的上帝：微調拖曳排序專用手把 (電腦 & 手機觸控雙軌支援) -->
+                    <td class="p-4 text-center block md:table-cell">
+                        <div class="flex items-center justify-center text-gray-300 hover:text-indigo-600 transition-colors py-1 cursor-grab active:cursor-grabbing"
+                             ontouchstart="handleTouchStart(event, '${p.id}')"
+                             ontouchmove="event => event.stopPropagation()">
+                            <i class="fa-solid fa-grip-vertical text-lg"></i>
+                        </div>
+                    </td>
+                    <td class="p-4 block md:table-cell">
+                        <button onclick="copyText('${p.id}', '已複製代碼: ${p.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg font-mono-custom font-bold w-full md:w-auto text-left shadow-sm transition-all flex items-center justify-between md:justify-start">
+                            <span>${p.id}</span>
+                            <i class="fa-regular fa-copy text-xs ml-2 text-blue-400"></i>
+                        </button>
+                    </td>
+                    <td class="hidden md:table-cell p-4 text-center text-xs font-bold text-gray-400">${p.cat}</td>
+                    <td class="block md:table-cell p-4 font-black text-gray-800 text-base md:text-sm tracking-tight">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span>${p.name}</span>
+                            ${is2026 ? `<span class="bg-amber-100 text-amber-800 border border-amber-300 text-[10px] px-1.5 py-0.5 rounded-md font-black">✨ 2026新品</span>` : ''}
+                        </div>
+                    </td>
+                    <td class="flex md:table-cell justify-between p-4 text-sm font-bold text-gray-600 items-center md:items-start md:text-center">
+                        <span class="md:hidden text-gray-400 font-medium">單位</span>
+                        <span>${p.unit || '條'} <span class="text-xs text-gray-400 font-medium">(${ratio})</span></span>
+                    </td>
+                    <td class="flex md:table-cell justify-between p-4 text-sm font-bold text-gray-400 items-center md:items-start md:text-center">
+                        <span class="md:hidden text-gray-400 font-medium">最小單位</span>
+                        <span>${p.min_unit || '包'}</span>
+                    </td>
+                    <td class="flex md:table-cell justify-between p-4 text-sm font-bold text-slate-500 items-center md:items-start text-right">
+                        <span class="md:hidden text-gray-400 font-medium">批發價</span>
+                        <div>
+                            <div class="font-mono-custom">$${formatPrice(p.w)}</div>
+                            <div class="text-[10px] text-gray-400 font-normal font-mono-custom">$${wholesalePack} / ${p.unit || '條'}</div>
+                        </div>
+                    </td>
+                    <td class="flex md:table-cell justify-between p-4 text-sm font-black text-blue-600 items-center md:items-start text-right">
+                        <span class="md:hidden text-gray-400 font-medium">建議價</span>
+                        <div>
+                            <div class="font-mono-custom">$${formatPrice(p.r)}</div>
+                            <div class="text-[10px] text-blue-400 font-normal font-mono-custom">$${retailPack} / ${p.unit || '條'}</div>
+                        </div>
+                    </td>
+                    <td class="flex md:table-cell justify-between p-4 text-sm font-black text-emerald-600 items-center md:items-start text-right">
+                        <span class="md:hidden text-gray-400 font-medium">毛利額</span>
+                        <span class="font-mono-custom">$${profit}</span>
+                    </td>
+                    <td class="flex md:table-cell justify-between p-4 text-sm items-center md:items-center text-center">
+                        <span class="md:hidden text-gray-400 font-medium">利潤率</span>
+                        <div class="mx-auto px-3 py-1 rounded-lg text-xs font-black tracking-wide ${borderStyle}">${margin}%</div>
+                    </td>
+                    <!-- 💡 專屬獨立「開單次數」數據欄位 -->
+                    <td class="flex md:table-cell justify-between p-4 text-sm items-center md:items-center text-center">
+                        <span class="md:hidden text-gray-400 font-medium">開單次數</span>
+                        <div class="mx-auto">
+                            ${count > 0 ? `
+                            <span class="bg-red-50 border border-red-200 text-red-600 px-3 py-1.5 rounded-xl text-xs font-black inline-flex items-center gap-1 shadow-sm">
+                                <i class="fa-solid fa-fire text-[10px]"></i> ${count} 次
+                            </span>` : `
+                            <span class="text-gray-300 text-xs font-normal">0 次</span>
+                            `}
+                        </div>
+                    </td>
+                    <td class="flex md:table-cell justify-end md:justify-center p-4 pt-2 border-t md:border-0 text-center">
+                        <button onclick="openProductModal('${p.id}')" class="text-blue-500 hover:text-blue-700 font-bold text-sm bg-blue-50 md:bg-transparent px-3 py-1 rounded-lg md:p-0">修改</button>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        // 客戶名單快搜與高安全防丟失查詢庫
+        function searchCustomer() {
+            const q = document.getElementById('custSearchInput').value.trim().toLowerCase();
+            const body = document.getElementById('customerTable');
+            body.innerHTML = '';
+            
+            const filtered = customers.filter(c => {
+                const matchText = (c.name && c.name.toLowerCase().includes(q)) || 
+                                  (c.biz && c.biz.toLowerCase().includes(q)) || 
+                                  (c.id && c.id.toLowerCase().includes(q)) || 
+                                  (c.addr && c.addr.toLowerCase().includes(q));
+                let matchTel = false;
+                if (c.tel) {
+                    const qClean = q.replace(/\D/g, ''); 
+                    matchTel = c.tel.includes(q) || (qClean !== "" && c.tel.replace(/\D/g, '').includes(qClean));
+                }
+                return matchText || matchTel;
+            });
+            
+            document.getElementById('custSearchCount').innerText = filtered.length;
+            
+            displayedCustomerLimit = 100;
+            currentFilteredCustomers = filtered;
+            
+            renderCustomerTable(currentFilteredCustomers);
+
+            if (q !== "") {
+                clearTimeout(custSearchTimeout);
+                custSearchTimeout = setTimeout(() => {
+                    saveSearchToHistory(q);
+                }, 1200);
+            }
+        }
+
+        // 💡 分批渲染客戶表格函數 (Lazy Loading)
+        function renderCustomerTable(data) {
+            const body = document.getElementById('customerTable');
+            body.innerHTML = '';
+
+            const sliceData = data.slice(0, displayedCustomerLimit);
+            
+            sliceData.forEach(c => {
+                const isDebit = (typeof directDebitIds !== 'undefined' ? directDebitIds.includes(c.id?.toString()) : false) || c.pay?.includes("扣款") || c.pay?.includes("轉帳");
+                
+                // 💡 【核心修復】：完全信任 Excel 導入的「營業所」欄位值，不論是 龍潭所 或是 八德所，都直接一比一顯示！
+                let office = c.office || '';
+                let isBade = false;
+
+                if (office) {
+                    isBade = office.includes("八德");
+                } else if (c.addr) {
+                    // 容錯機制：若舊資料無營業所，才利用地址語意盲猜
+                    isBade = c.addr.includes('八德') || c.addr.includes('中壢') || c.addr.includes('桃園');
+                    office = isBade ? "八德所" : "龍潭所";
+                } else {
+                    office = "龍潭所";
+                }
+
+                let rowClass = isBade ? "office-indicator-bade" : "office-indicator-longtan";
+                let badgeClass = isBade ? "badge-bade" : "badge-longtan";
+
+                let navAddr = c.addr || '';
+                navAddr = navAddr.replace(/([縣市區鄉鎮])[^縣市區鄉鎮路街段]+?里/g, '$1').replace(/\d+鄰/g, '');
+
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-gray-50 transition-colors border-b ${rowClass}`;
+                tr.innerHTML = `
+                    <td class="p-4"><button onclick="copyText('${c.id}', '複製客戶 ${c.name}')" class="font-bold text-indigo-600 px-3 py-1 bg-indigo-50 rounded-lg flex items-center gap-1.5 w-full justify-between shadow-sm transition-all hover:bg-indigo-100"><span>${c.id}</span><i class="fa-regular fa-copy text-xs opacity-60"></i></button></td>
+                    <td class="p-4 text-center"><span class="px-3 py-1.5 rounded-lg text-xs font-black border ${badgeClass} text-nowrap">${office}</span></td>
+                    <td class="p-4 text-center"><span class="${isDebit?'bg-orange-100 text-orange-700 border border-orange-300':'bg-gray-100 text-gray-500'} px-3 py-1 rounded-full text-xs font-black">${isDebit?'轉帳委扣':'普通支付'}</span></td>
+                    <td class="p-4 font-bold text-gray-800">${c.name}</td>
+                    <td class="p-4 text-gray-655 font-bold">${c.biz}</td>
+                    <td class="p-4 font-mono text-gray-500 text-xs">${c.tel || '-'}</td>
+                    <td class="p-4 text-xs text-gray-400 max-sm truncate" title="${c.addr}">${c.addr || '-'}</td>
+                    <td class="p-4 text-center"><button onclick="window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('${navAddr}'), '_blank')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-black shadow flex items-center justify-center mx-auto" > 導航</button></td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        // ==========================================
+        // ⚡ 效能優化：設定滾動偵測增量加載監聽器 (Lazy Loading Listeners)
+        // ==========================================
+        function setupLazyLoadScrollListeners() {
+            // 1. 產品表格滾動加載
+            const productWrap = document.getElementById('productTableWrap');
+            if (productWrap) {
+                productWrap.addEventListener('scroll', () => {
+                    if (productWrap.scrollTop + productWrap.clientHeight >= productWrap.scrollHeight - 150) {
+                        if (displayedProductLimit < currentFilteredProducts.length) {
+                            displayedProductLimit += 100;
+                            renderTable(currentFilteredProducts);
+                        }
+                    }
+                });
+            }
+
+            // 2. 客戶表格滾動加載
+            const customerWrap = document.getElementById('customerTableWrap');
+            if (customerWrap) {
+                customerWrap.addEventListener('scroll', () => {
+                    if (customerWrap.scrollTop + customerWrap.clientHeight >= customerWrap.scrollHeight - 150) {
+                        if (displayedCustomerLimit < currentFilteredCustomers.length) {
+                            displayedCustomerLimit += 100;
+                            renderCustomerTable(currentFilteredCustomers);
+                        }
+                    }
+                });
+            }
+        }
+
+        // ==========================================
+        // 🕒 歷史快照暫存與讀取 (LocalStorage)
+        // ==========================================
+        function saveSearchToHistory(query) {
+            let custHistory = JSON.parse(localStorage.getItem('db_cust_history') || '[]');
+            const now = new Date();
+            const timeString = `${now.getMonth() + 1}月${now.getDate()}日 ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            // 避免連續儲存完全相同的查詢
+            if (custHistory.length === 0 || custHistory[0].query !== query) {
+                custHistory.unshift({ query, time: timeString });
+                // 限制最多儲存最近 30 筆
+                if (custHistory.length > 30) custHistory.pop();
+                localStorage.setItem('db_cust_history', JSON.stringify(custHistory));
+                buildCustHistoryUI();
+            }
+        }
+
+        function buildCustHistoryUI() {
+            const list = document.getElementById('custHistoryList');
+            if(!list) return;
+
+            const custHistory = JSON.parse(localStorage.getItem('db_cust_history') || '[]');
+            if (custHistory.length === 0) {
+                list.innerHTML = `
+                    <div class="py-8 text-center text-gray-400 text-xs font-bold">
+                        <i class="fa-solid fa-hourglass text-lg mb-2 block opacity-50"></i>
+                        目前尚無查詢歷史紀錄
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = custHistory.map((item, idx) => `
+                <div class="py-3.5 flex items-center justify-between text-xs hover:bg-indigo-50/50 px-2.5 rounded-xl transition-all border-b border-gray-50 last:border-0 group">
+                    <div class="min-w-0 flex-1 cursor-pointer" onclick="applyHistorySearch('${item.query.replace(/'/g, "\\'")}')">
+                        <p class="font-black text-slate-800 group-hover:text-indigo-600 transition-colors">"${item.query}"</p>
+                        <p class="text-[9px] text-gray-400 font-medium mt-1 flex items-center gap-1">
+                            <i class="fa-regular fa-clock text-[8px]"></i> ${item.time} 查詢
+                        </p>
+                    </div>
+                    <button onclick="deleteHistoryIndex(${idx})" class="text-gray-300 hover:text-red-500 p-1.5 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function applyHistorySearch(query) {
+            const qInput = document.getElementById('custSearchInput');
+            if (qInput) {
+                qInput.value = query;
+                searchCustomer();
+                toggleCustHistoryModal(); 
+                showToast(`已成功還原快照: "${query}"`);
+            }
+        }
+
+        function deleteHistoryIndex(idx) {
+            let custHistory = JSON.parse(localStorage.getItem('db_cust_history') || '[]');
+            custHistory.splice(idx, 1);
+            localStorage.setItem('db_cust_history', JSON.stringify(custHistory));
+            buildCustHistoryUI();
+            showToast("已成功刪除該條歷史快照");
+        }
+
+        function clearCustHistory() {
+            if(confirm("確定要徹底清除所有客戶查詢歷史紀錄嗎？")) {
+                localStorage.removeItem('db_cust_history');
+                buildCustHistoryUI();
+                showToast("已清空歷史紀錄");
+            }
+        }
+
+        function toggleCustHistoryModal() {
+            const modal = document.getElementById('custHistoryModal');
+            if(modal) {
+                modal.classList.toggle('hidden');
+                if(!modal.classList.contains('hidden')) {
+                    buildCustHistoryUI();
+                }
+            }
+        }
+
+        // ==========================================
+        // ⌨️ 全域 ESC 鍵盤秒速關閉 Modal
+        // ==========================================
+        function setupEscKeyMechanism() {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    // 秒速依序關閉所有開著的彈窗
+                    const custHistoryModal = document.getElementById('custHistoryModal');
+                    if (custHistoryModal && !custHistoryModal.classList.contains('hidden')) {
+                        custHistoryModal.classList.add('hidden');
+                        return;
+                    }
+                    
+                    const customerModal = document.getElementById('customerModal');
+                    if (customerModal && !customerModal.classList.contains('hidden')) {
+                        closeCustomerModal();
+                        return;
+                    }
+                    
+                    const importModal = document.getElementById('importModal');
+                    if (importModal && !importModal.classList.contains('hidden')) {
+                        closeImportModal();
+                        return;
+                    }
+                    
+                    const productModal = document.getElementById('productModal');
+                    if (productModal && !productModal.classList.contains('hidden')) {
+                        closeProductModal();
+                        return;
+                    }
+                    
+                    const dangerConfirmModal = document.getElementById('dangerConfirmModal');
+                    if (dangerConfirmModal && !dangerConfirmModal.classList.contains('hidden')) {
+                        closeDangerModal();
+                        return;
+                    }
+
+                    const n90PassModal = document.getElementById('n90PassModal');
+                    if (n90PassModal && !n90PassModal.classList.contains('hidden')) {
+                        closeN90PassModal();
+                        return;
+                    }
+                }
+            });
+        }
+
+        // 大量導入與「TTL 官方 Excel 規格對齊」解析器
+        function processImport() {
+            const raw = document.getElementById('importRawText').value.trim();
+            if(!raw) return;
+            setIsLoading(true);
+
+            setTimeout(() => {
+                const lines = raw.split('\n');
+                let successCount = 0;
+                
+                if(window.currentImportType === 'products') {
+                    const parsedProducts = [];
+                    // 動態標題索引解析，預設以「收入別」為第 2 欄 (Index 1)
+                    let idIdx = 0, nameIdx = 2, wIdx = 3, rIdx = 4, unitIdx = 7, ratioIdx = 8, catIdx = 1, launchDateIdx = 20, minUnitIdx = 23;
+                    let hasHeader = false;
+
+                    if (lines.length > 0 && lines[0].includes("產品代號")) {
+                        hasHeader = true;
+                        const headers = lines[0].split('\t').map(h => h.trim());
+                        if (headers.indexOf("產品代號") !== -1) idIdx = headers.indexOf("產品代號");
+                        if (headers.indexOf("產品名稱") !== -1) nameIdx = headers.indexOf("產品名稱");
+                        if (headers.indexOf("含稅批發價") !== -1) wIdx = headers.indexOf("含稅批發價");
+                        if (headers.indexOf("含稅建議價") !== -1) rIdx = headers.indexOf("含稅建議價");
+                        if (headers.indexOf("銷售單位") !== -1) unitIdx = headers.indexOf("銷售單位");
+                        if (headers.indexOf("轉換量") !== -1) ratioIdx = headers.indexOf("轉換量");
+                        if (headers.indexOf("收入別") !== -1) catIdx = headers.indexOf("收入別");
+                        if (headers.indexOf("上市日期") !== -1) launchDateIdx = headers.indexOf("上市日期");
+                        if (headers.indexOf("最小單位") !== -1) minUnitIdx = headers.indexOf("最小單位");
+                    }
+
+                    lines.forEach((line, index) => {
+                        if (hasHeader && index === 0) return; 
+                        
+                        const cols = line.split('\t');
+                        if(cols.length >= 5) {
+                            const id = cols[idIdx]?.trim();
+                            if (!id || id.includes("產品代號")) return;
+
+                            // 精準抓取對應欄位
+                            const name = cols[nameIdx]?.trim() || '';
+                            const w = parseFloat(cols[wIdx]) || 0;
+                            const r = parseFloat(cols[rIdx]) || 0;
+                            const unit = cols[unitIdx]?.trim() || '條';
+                            const ratio = parseInt(cols[ratioIdx]) || 10;
+                            const launchDate = cols[launchDateIdx]?.trim() || '';
+                            const min_unit = cols[minUnitIdx]?.trim() || '包';
+
+                            // 絕對精準：直接讀取標題對位的「收入別」欄位內容 (例如：11省菸、14省酒)
+                            let rawCat = cols[catIdx]?.trim() || '';
+                            
+                            // 去除前導數字得到乾淨的分類名稱
+                            let cat = rawCat.replace(/^\d+/, '').trim();
+                            if (!cat) cat = "其他";
+
+                            if (id && name) {
+                                parsedProducts.push({ id, cat, name, unit, min_unit, w, r, ratio, launchDate });
+                                successCount++;
+                            }
+                        }
+                    });
+                    
+                    const merged = [...products];
+                    parsedProducts.forEach(newP => {
+                        const idx = merged.findIndex(x => x.id === newP.id);
+                        if (idx >= 0) {
+                            merged[idx] = { ...merged[idx], ...newP };
+                        } else {
+                            merged.push(newP);
+                        }
+                    });
+                    products = merged;
+                    log(`📥 本地成功解析並整合 ${successCount} 款產品品項！`);
+
+                } else if (window.currentImportType === 'n90') {
+                    const parsedRecords = [];
+                    lines.forEach(line => {
+                        const cols = line.split('\t');
+                        if (cols.length >= 3) {
+                            const rawProd = cols[0] ? cols[0].trim() : '';
+                            const date = cols[1] ? cols[1].trim() : '';
+
+                            if (rawProd.includes("產品代號") || rawProd.includes("料號") || date.includes("日期") || rawProd === "") {
+                                return;
+                            }
+
+                            const qty = cols[5] ? parseFloat(cols[5].replace(/,/g, '')) : 0;
+                            const amount = cols[8] ? parseFloat(cols[8].replace(/,/g, '')) : 0;
+
+                            const prodMatch = rawProd.match(/^([a-zA-Z0-9]+)\s+(.+)$/) || [null, rawProd, rawProd];
+                            const productId = prodMatch[1] || rawProd;
+
+                            if (productId && date) {
+                                parsedRecords.push({
+                                    productId,
+                                    qty,
+                                    amount,
+                                    date
+                                });
+                                successCount++;
+                            }
+                        }
+                    });
+
+                    tempTransactions = parsedRecords;
+                    safeSaveToLocalStorage('db_tx_temp_local', tempTransactions);
+                    computeActiveAnalysis();
+                    log(`📥 本地成功匯入暫存交易記錄 ${successCount} 筆！`);
+
+                } else {
+                    // 💡 【大更新】：完全符合您提供的全新 2026 智慧客戶欄位對位解析規則！
+                    // 順序：0. 營業所 | 1. 客戶代號 | 2. 客戶姓名 | 3. 營利事業名稱 | 4. 購貨人電話 | 5. 登記營址
+                    const parsedCustomers = [];
+                    let officeIdx = 0, idIdx = 1, nameIdx = 2, bizIdx = 3, telIdx = 4, addrIdx = 5, payIdx = 6, dayIdx = 7;
+                    let hasCustHeader = false;
+
+                    if (lines.length > 0 && lines[0].includes("客戶代號")) {
+                        hasCustHeader = true;
+                        const headers = lines[0].split('\t').map(h => h.trim());
+                        if (headers.indexOf("營業所") !== -1) officeIdx = headers.indexOf("營業所");
+                        if (headers.indexOf("客戶代號") !== -1) idIdx = headers.indexOf("客戶代號");
+                        if (headers.indexOf("客戶姓名") !== -1) nameIdx = headers.indexOf("客戶姓名");
+                        if (headers.indexOf("營利事業名稱") !== -1) bizIdx = headers.indexOf("營利事業名稱");
+                        if (headers.indexOf("購貨人電話") !== -1) telIdx = headers.indexOf("購貨人電話");
+                        if (headers.indexOf("登記營址") !== -1) addrIdx = headers.indexOf("登記營址");
+                    }
+
+                    lines.forEach((line, index) => {
+                        if (hasCustHeader && index === 0) return;
+                        const cols = line.split('\t');
+                        if(cols.length >= 3) {
+                            const id = cols[idIdx]?.trim();
+                            if (!id || id.includes("客戶代號") || id === "") return;
+
+                            const office = cols[officeIdx]?.trim() || ''; // 💡 新增：精準擷取首欄的「營業所」名稱 (如：龍潭所、八德所)
+                            const name = cols[nameIdx]?.trim() || '';
+                            const biz = cols[bizIdx]?.trim() || '';
+                            const tel = cols[telIdx]?.trim() || '';
+                            const addr = cols[addrIdx]?.trim() || '';
+                            
+                            // 智慧搜尋後續多列，提取「付款方式」或「送貨日」
+                            let pay = '現金';
+                            let day = '-';
+                            for (let i = 6; i < cols.length; i++) {
+                                const val = cols[i]?.trim();
+                                if (!val) continue;
+                                if (val.includes("扣") || val.includes("轉") || val.includes("匯")) {
+                                    pay = val;
+                                } else if (val.includes("星期") || val.includes("週") || val.includes("日")) {
+                                    day = val;
+                                }
+                            }
+
+                            parsedCustomers.push({ id, office, name, biz, tel, addr, pay, day }); // 💡 寫入整合客戶物件
+                            successCount++;
+                        }
+                    });
+
+                    // 融入去重整合至全域名冊
+                    const merged = [...customers];
+                    parsedCustomers.forEach(newC => {
+                        const idx = merged.findIndex(x => x.id === newC.id);
+                        if (idx >= 0) {
+                            merged[idx] = { ...merged[idx], ...newC };
+                        } else {
+                            merged.push(newC);
+                        }
+                    });
+                    customers = merged;
+                    log(`📥 本地成功整合 ${successCount} 戶客戶資料！`);
+                }
+                save();
+                setIsLoading(false);
+                closeImportModal();
+                document.getElementById('importRawText').value = '';
+            }, 50);
+        }
+
+        // 一鍵下載備份獨立網頁檔案
+        function exportUpdatedHTML() {
+            const clonedDoc = document.documentElement.cloneNode(true);
+            let htmlContent = clonedDoc.outerHTML;
+            
+            htmlContent = htmlContent.replace(/let products = \[.*?\];/s, `let products = ${JSON.stringify(products)};`);
+            htmlContent = htmlContent.replace(/let customers = \[.*?\];/s, `let customers = ${JSON.stringify(customers)};`);
+            htmlContent = htmlContent.replace(/let tempTransactions = \[.*?\];/s, `let tempTransactions = ${JSON.stringify(tempTransactions)};`);
+            htmlContent = htmlContent.replace(/let activeAnalysis = \{.*?\};/s, `let activeAnalysis = ${JSON.stringify(activeAnalysis)};`);
+            htmlContent = htmlContent.replace(/let customSortMap = \{.*?\};/s, `let customSortMap = ${JSON.stringify(customSortMap)};`);
+            htmlContent = htmlContent.replace(/let n90Password = \'.*?\';/s, `let n90Password = '${n90Password}';`);
+            
+            const blob = new Blob(['<!DOCTYPE html>\n' + htmlContent], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+            a.download = `2026_POS_管理系統_備份_${dateStr}.html`;
+            a.click();
+            
+            showToast("💾 網頁與目前資料已一鍵打包下載成功！");
+        }
+
+        // 複製文本公用方法
+        function copyText(txt, msg = "已複製") {
+            const activeEl = document.activeElement; 
+
+            const el = document.createElement('textarea');
+            el.value = txt;
+            el.style.position = 'absolute';
+            el.style.left = '-9999px'; 
+            document.body.appendChild(el); 
+            el.select(); 
+            document.execCommand('copy'); 
+            document.body.removeChild(el);
+            
+            if (activeEl && typeof activeEl.focus === 'function') {
+                activeEl.focus(); 
+            }
+
+            showToast(msg);
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast'); 
+            document.getElementById('toastText').innerText = msg;
+            t.classList.remove('hidden'); 
+            t.classList.remove('copy-toast'); 
+            void t.offsetWidth; 
+            t.classList.add('copy-toast');
+            setTimeout(() => t.classList.add('hidden'), 1900);
+        }
+
+        function openImportModal(type) {
+            window.currentImportType = type; 
+            const m = document.getElementById('importModal');
+            const t = document.getElementById('importTitle');
+            const h = document.getElementById('importHeader');
+            const d = document.getElementById('importDesc');
+            const btn = document.getElementById('importConfirmBtn'); 
+            
+            if(type === 'products') {
+                t.innerText = "批量導入全產品資料庫 (Excel)";
+                h.className = "p-6 bg-blue-600 text-white flex justify-between items-center font-black shrink-0";
+                d.innerHTML = "請直接開啟並複製您的全產品 Excel 表格並直接貼上，系統將自動定位解析！";
+                btn.className = "flex-1 py-4 text-white bg-blue-600 hover:bg-blue-700 rounded-xl font-black shadow-lg transition-all text-center";
+            } else if(type === 'n90') {
+                t.innerText = "批量導入 N90122 暫存交易明細";
+                h.className = "p-6 bg-teal-600 text-white flex justify-between items-center font-black shrink-0";
+                d.innerHTML = "請開啟 N90122 交易明細並複製貼至此處。運算後<b>立刻於本地完全物理銷毀拋棄</b>！";
+                btn.className = "flex-1 py-4 text-white bg-teal-600 hover:bg-teal-700 rounded-xl font-black shadow-lg transition-all text-center";
+            } else {
+                t.innerText = "批量導入客戶名冊庫 (Excel)";
+                h.className = "p-6 bg-indigo-600 text-white flex justify-between items-center font-black shrink-0";
+                d.innerHTML = "請全選複製您的客戶大名單（包含營業所、代號、負責人、店名、電話、登記營址等）直接貼上！";
+                btn.className = "flex-1 py-4 text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl font-black shadow-lg transition-all text-center";
+            }
+            m.classList.remove('hidden');
+        }
+
+        // 自定義高安全毀滅性對話框
+        let dangerActionCallback = null;
+        function openDangerModal(title, msg, callback) {
+            document.getElementById('dangerConfirmModal').classList.remove('hidden');
+            document.getElementById('dangerModalMessage').innerText = msg;
+            dangerActionCallback = callback;
+            document.getElementById('dangerConfirmBtn').onclick = () => {
+                if (dangerActionCallback) dangerActionCallback();
+            };
+        }
+        function closeDangerModal() {
+            document.getElementById('dangerConfirmModal').classList.add('hidden');
+            dangerActionCallback = null;
+        }
+
+        function closeImportModal() { document.getElementById('importModal').classList.add('hidden'); }
+        function openCustomerModal() { document.getElementById('customerModal').classList.remove('hidden'); searchCustomer(); }
+        if(typeof window.closeCustomerModal === 'undefined') window.closeCustomerModal = () => document.getElementById('customerModal').classList.add('hidden');
+        function closeProductModal() { document.getElementById('productModal').classList.add('hidden'); }
+        
+        // 智慧型自動重置搜尋機制
+        function setupSearchClearMechanism() {
+            const input = document.getElementById('searchInput');
+            if (!input) return;
+
+            input.addEventListener('blur', () => {
+                if (input.value !== '') {
+                    window.searchNeedClear = true; 
+                }
+            });
+
+            const clearIfBlurred = () => {
+                if (window.searchNeedClear && input.value !== '') {
+                    clearSearch();
+                    window.searchNeedClear = false;
+                    showToast("已自動重置清空搜尋");
+                }
+            };
+
+            input.addEventListener('focus', clearIfBlurred);
+            input.addEventListener('mousedown', clearIfBlurred); 
+        }
+
+        function openProductModal(id=null) { 
+            document.getElementById('productForm').reset(); 
+            document.getElementById('productModal').classList.remove('hidden'); 
+            if(id) { 
+                const p = products.find(x=>x.id===id); 
+                document.getElementById('pId').value=p.id; 
+                document.getElementById('pCat').value=p.cat; 
+                document.getElementById('pName').value=p.name; 
+                document.getElementById('pW').value=p.w; 
+                document.getElementById('pR').value=p.r; 
+                document.getElementById('pUnit').value=p.unit||''; 
+                document.getElementById('pMinUnit').value=p.min_unit||''; 
+                document.getElementById('editKey').value=p.id; 
+            } 
+        }
+
+        // ==========================================
+        // 🔐 N90 登入密碼鑰匙圈專用互動函數 (New Feature)
+        // ==========================================
+        function updateN90PassUI() {
+            const displayEl = document.getElementById('n90PassDisplay');
+            if (displayEl) {
+                displayEl.innerText = isN90PassVisible ? n90Password : '••••••';
+            }
+        }
+
+        function toggleN90PassVisible() {
+            isN90PassVisible = !isN90PassVisible;
+            const icon = document.getElementById('n90PassToggleIcon');
+            if (icon) {
+                icon.className = isN90PassVisible ? "fa-solid fa-eye text-xs" : "fa-solid fa-eye-slash text-xs";
+            }
+            updateN90PassUI();
+        }
+
+        function copyN90Password() {
+            copyText(n90Password, '已成功複製 N90 登入密碼！');
+        }
+
+        function openChangeN90PassModal() {
+            document.getElementById('newN90PassInput').value = n90Password;
+            document.getElementById('n90PassModal').classList.remove('hidden');
+        }
+
+        function closeN90PassModal() {
+            document.getElementById('n90PassModal').classList.add('hidden');
+        }
+
+        function saveN90Password() {
+            const newPass = document.getElementById('newN90PassInput').value.trim();
+            if (!newPass) {
+                showToast("⚠️ 密碼不可為空！");
+                return;
+            }
+            n90Password = newPass;
+            localStorage.setItem('db_n90_password', n90Password);
+            updateN90PassUI();
+            closeN90PassModal();
+            showToast("🔑 N90 系統密碼已更新保存！");
+        }
+
+        // ==========================================
+        // 🔐 系統帳號密碼認證登入管理
+        // ==========================================
+        function handleSystemLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('sysUser').value.trim();
+            const p = document.getElementById('sysPass').value.trim();
+            const errorMsg = document.getElementById('loginErrorMsg');
+
+            if (u === 'gaexp8213' && p === 'aacb5833') {
+                errorMsg.classList.add('hidden');
+                localStorage.setItem('sys_auth_token_2026', 'authenticated');
+                
+                // 1. 隱藏登入頁面
+                document.getElementById('loginPortal').classList.add('hidden');
+                
+                // 2. 顯示啤酒載入動畫，拉取資料庫
+                showBeerLoaderAndInitialize();
+            } else {
+                errorMsg.classList.remove('hidden');
+                // 錯誤震動
+                if (navigator.vibrate) {
+                    navigator.vibrate(100);
+                }
+            }
+        }
+
+        function checkAuthSession() {
+            const token = localStorage.getItem('sys_auth_token_2026');
+            if (token === 'authenticated') {
+                document.getElementById('loginPortal').classList.add('hidden');
+                showBeerLoaderAndInitialize();
+            } else {
+                document.getElementById('loginPortal').classList.remove('hidden');
+                document.getElementById('beerLoadingScreen').classList.add('hidden');
+                document.getElementById('mainContent').classList.add('hidden');
+            }
+        }
+
+        function handleLogout() {
+            if (confirm("確定要安全登出系統嗎？")) {
+                localStorage.removeItem('sys_auth_token_2026');
+                checkAuthSession();
+                showToast("🚪 已安全登出系統。");
+            }
+        }
+
+        // 啤酒載入動畫與系統啟動
+        function showBeerLoaderAndInitialize() {
+            const loader = document.getElementById('beerLoadingScreen');
+            const main = document.getElementById('mainContent');
+            const statusTxt = document.getElementById('loadingStatusText');
+            
+            loader.classList.remove('hidden');
+            main.classList.add('hidden');
+
+            const steps = [
+                "正在擦亮玻璃杯...",
+                "正在緩緩倒入金黃啤酒...",
+                "正在冷卻生啤酒...",
+                "正在鋪上綿密細緻泡沫...",
+                "同步雲端數據完成，請享用！"
+            ];
+
+            let stepIdx = 0;
+            const textInterval = setInterval(() => {
+                if (stepIdx < steps.length) {
+                    statusTxt.innerText = steps[stepIdx];
+                    stepIdx++;
+                }
+            }, 600);
+
+            // 確保動畫播放完畢 (2.8 秒) 後才滑動淡出
+            setTimeout(() => {
+                clearInterval(textInterval);
+                loader.classList.add('opacity-0');
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    loader.classList.remove('opacity-0');
+                    main.classList.remove('hidden');
+                }, 500);
+            }, 3000);
+        }
+
+        // ==========================================
+        // 🔒 將全部 HTML 內聯點擊與拖曳函數綁定至全域，防止 Reference Error
+        // ==========================================
+        window.openImportModal = openImportModal;
+        window.closeImportModal = closeImportModal;
+        window.openCustomerModal = openCustomerModal;
+        window.openProductModal = openProductModal;
+        window.closeProductModal = closeProductModal;
+        window.processImport = processImport;
+        window.exportUpdatedHTML = exportUpdatedHTML;
+        window.copyText = copyText;
+        
+        // 💡 綁定拆分後的清空庫按鈕
+        window.confirmClearCustomers = confirmClearCustomers;
+        window.confirmClearProducts = confirmClearProducts;
+        
+        window.closeDangerModal = closeDangerModal;
+        window.processDataLocallyAndUpload = processDataLocallyAndUpload;
+        window.setCategory = setCategory;
+        window.clearSearch = clearSearch;
+        window.filterData = filterData;
+        window.searchCustomer = searchCustomer;
+        
+        // 🕒 客戶查詢歷史紀錄
+        window.toggleCustHistoryModal = toggleCustHistoryModal;
+        window.deleteHistoryIndex = deleteHistoryIndex;
+        window.clearCustHistory = clearCustHistory;
+        window.applyHistorySearch = applyHistorySearch;
+        
+        // 👑 綁定上帝排序專屬拖曳微調函數
+        window.handleDragStart = handleDragStart;
+        window.handleDragOver = handleDragOver;
+        window.handleDragEnter = handleDragEnter;
+        window.handleDragLeave = handleDragLeave;
+        window.handleDrop = handleDrop;
+        window.handleDragEnd = handleDragEnd;
+        window.handleTouchStart = handleTouchStart;
+        window.handleTouchMove = handleTouchMove;
+        window.handleTouchEnd = handleTouchEnd;
+
+        // 🔐 綁定 N90 密碼鑰匙圈函數至全域 (New Feature)
+        window.toggleN90PassVisible = toggleN90PassVisible;
+        window.copyN90Password = copyN90Password;
+        window.openChangeN90PassModal = openChangeN90PassModal;
+        window.closeN90PassModal = closeN90PassModal;
+        window.saveN90Password = saveN90Password;
+
+        // 🔐 系統認證認證登入綁定
+        window.handleSystemLogin = handleSystemLogin;
+        window.handleLogout = handleLogout;
+
+        window.quickSearch = (val, category = '') => {
+            window.isQuickSearchClick = true; 
+            window.isBeerQuickSearch = false;
+            window.isRamenQuickSearch = false;
+            if (category === '省酒' && val === '90') {
+                window.isQuickRiceWine90 = true;
+            }
+            // 🍺 點擊啤酒常用的 0.33, 0.5, 0.6 時，啟動啤酒特徵規則
+            if (category === '省酒' && (val === '0.33' || val === '0.5' || val === '0.6')) {
+                window.isBeerQuickSearch = true;
+            }
+            // 🍜 點擊泡麵常用的 單包, 碗, 紙碗 時，啟動泡麵特徵規則（確認對齊工廠自製分類）
+            if (category === '工廠自製' && (val === '單包' || val === '碗' || val === '紙碗')) {
+                window.isRamenQuickSearch = true;
+            }
+            document.getElementById('searchInput').value = val;
+            if (category) {
+                curCat = category;
+                buildNav();
+            }
+            filterData();
+            window.searchNeedClear = true; 
+        };
+
+        // ==========================================
+        // 💡 智慧連線與離線控管監聽器 (解決 Firestore 斷線 / 受阻時產生之控制台超時警告)
+        // ==========================================
+        window.addEventListener('online', async () => {
+            if (db) {
+                try {
+                    await enableNetwork(db);
+                    log("🟢 偵測到網路已重新連線，已為您自動啟用 Firestore 雲端同步。");
+                    isFirestoreConnected = true;
+                    updateConnectionStatusUI();
+                } catch (e) {
+                    log(`⚠️ 恢復 Firestore 網路連線失敗: ${e.message}`);
+                }
+            }
+        });
+
+        window.addEventListener('offline', async () => {
+            if (db) {
+                try {
+                    await disableNetwork(db);
+                    log("🔴 偵測到網路已斷開，已自動停用雲端通訊，改採 100% 純本機資料庫無干擾操作。");
+                    isFirestoreConnected = false;
+                    updateConnectionStatusUI();
+                } catch (e) {
+                    log(`⚠️ 關閉 Firestore 網路連線失敗: ${e.message}`);
+                }
+            }
+        });
+
+        // ==========================================
+        // ⚡ 啟動與初始化運行
+        // ==========================================
+        
+        products = localStorage.getItem('db_p_baked_final') ? JSON.parse(localStorage.getItem('db_p_baked_final')) : [];
+        customers = localStorage.getItem('db_c_baked_final') ? JSON.parse(localStorage.getItem('db_c_baked_final')) : [];
+        tempTransactions = localStorage.getItem('db_tx_temp_local') ? JSON.parse(localStorage.getItem('db_tx_temp_local')) : [];
+        
+        // 初始化讀取上帝字典快取
+        if (localStorage.getItem('db_custom_sort_v2')) {
+            customSortMap = JSON.parse(localStorage.getItem('db_custom_sort_v2'));
+        }
+
+        if (localStorage.getItem('db_active_analysis_final')) {
+            activeAnalysis = JSON.parse(localStorage.getItem('db_active_analysis_final'));
+            log("已成功還原本機快取的產品開單次數紀錄，將作為首選排序依據。");
+        } else {
+            computeActiveAnalysis();
+        }
+        
+        // 💡 優先執行鎖屏身份驗證檢查
+        checkAuthSession();
+        
+        initApp();
+        setupSearchClearMechanism();
+        initFirebase();
+        setupEscKeyMechanism();
+        setupLazyLoadScrollListeners();
+        buildCustHistoryUI();
+        updateN90PassUI(); // 💡 鑰匙圈初始明文/隱碼渲染
+
+        document.getElementById('productForm').onsubmit = (e) => {
+            e.preventDefault();
+            const key = document.getElementById('editKey').value;
+            const data = { 
+                ...products.find(x => x.id === key) || {}, 
+                id: document.getElementById('pId').value, 
+                cat: document.getElementById('pId').value.startsWith("2") ? "省酒" : document.getElementById('pCat').value, 
+                name: document.getElementById('pName').value, 
+                w: parseFloat(document.getElementById('pW').value) || 0, 
+                r: parseFloat(document.getElementById('pR').value) || 0,
+                unit: document.getElementById('pUnit').value, 
+                min_unit: document.getElementById('pMinUnit').value
+            };
+            if(key) {
+                products[products.findIndex(x=>x.id===key)] = data; 
+            } else {
+                products.unshift(data);
+            }
+            save(); 
+            buildNav(); 
+            filterData(); 
+            closeProductModal();
+        };
+    </script>
+</body>
+</html>
