@@ -318,7 +318,7 @@
                     <div class="flex flex-col gap-2.5">
                         <div class="flex gap-2 w-full items-center">
                             <div class="relative flex-1 text-nowrap" id="searchContainer">
-                                <input type="text" id="searchInput" oninput="filterData()" placeholder="可搜：代號 / 品名 / 批發價 / 建議價..." 
+                                <input type="text" id="searchInput" oninput="clearActiveQuickKeyOnInput(); filterData()" placeholder="可搜：代號 / 品名 / 批發價 / 建議價..." 
                                     class="w-full pl-11 pr-11 py-3.5 bg-white border border-gray-200 rounded-2xl shadow-sm text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all">
                                 <svg class="w-4 h-4 text-gray-400 absolute left-4 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -329,46 +329,18 @@
                                 </button>
                             </div>
                             
-                            <!-- 僅在網頁版顯示「手動新增產品」按鈕，手機版隱藏以確保簡潔 -->
+                            <!-- 僅在網頁版顯示「手動新增產品」與「管理快捷鍵」按鈕，手機版隱藏以確保簡潔 -->
                             <button onclick="openProductModal(null)" class="hidden md:inline-flex bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-4 py-3.5 rounded-2xl shadow-md transition-all active:scale-95 items-center gap-1 whitespace-nowrap">
                                 <i class="fa-solid fa-circle-plus"></i> ➕ 手動新增產品
                             </button>
+                            <button onclick="openQuickKeysModal()" class="hidden md:inline-flex bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black px-4 py-3.5 rounded-2xl shadow-md transition-all active:scale-95 items-center gap-1.5 whitespace-nowrap">
+                                <i class="fa-solid fa-sliders"></i> ⚙️ 管理快捷鍵
+                            </button>
                         </div>
 
-                        <!-- 常用快捷搜尋鍵 -->
-                        <div class="flex flex-wrap items-center gap-1.5 px-2 text-xs">
-                            <span class="font-black text-slate-500 flex items-center gap-1"><i class="fa-solid fa-wine-bottle text-red-500"></i> 米酒常用：</span>
-                            <button onclick="quickSearch('27', '省酒')" class="bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 text-red-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">27</button>
-                            <button onclick="quickSearch('45', '省酒')" class="bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 text-red-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">45</button>
-                            <button onclick="quickSearch('48', '省酒')" class="bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 text-red-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">48</button>
-                            <button onclick="quickSearch('90', '省酒')" class="bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 text-red-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">90</button>
-                            <button onclick="quickSearch('250', '省酒')" class="bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 text-red-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">250</button>
-
-                            <span class="font-black text-slate-500 flex items-center gap-1 ml-4"><i class="fa-solid fa-smoking text-blue-500"></i> 香菸常用：</span>
-                            <button onclick="quickSearch('75', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">75</button>
-                            <button onclick="quickSearch('80', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">80</button>
-                            <button onclick="quickSearch('85', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">85</button>
-                            <button onclick="quickSearch('90', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">90</button>
-                            <button onclick="quickSearch('95', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">95</button>
-                            <button onclick="quickSearch('100', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">100</button>
-                            <button onclick="quickSearch('110', '省菸')" class="bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 text-blue-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">110</button>
-
-                            <!-- 啤酒常用規格 -->
-                            <span class="font-black text-slate-500 flex items-center gap-1 ml-4"><i class="fa-solid fa-beer-mug-empty text-emerald-500"></i> 啤酒常用：</span>
-                            <button onclick="quickSearch('0.33', '省酒')" class="bg-white border border-gray-200 hover:bg-emerald-50 hover:border-emerald-300 text-emerald-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">0.33</button>
-                            <button onclick="quickSearch('0.5', '省酒')" class="bg-white border border-gray-200 hover:bg-emerald-50 hover:border-emerald-300 text-emerald-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">0.5</button>
-                            <button onclick="quickSearch('0.6', '省酒')" class="bg-white border border-gray-200 hover:bg-emerald-50 hover:border-emerald-300 text-emerald-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">0.6</button>
-
-                            <!-- 其他酒類快捷 -->
-                            <span class="font-black text-slate-500 flex items-center gap-1 ml-4"><i class="fa-solid fa-glass-water text-amber-500"></i> 其他酒類：</span>
-                            <button onclick="quickSearch('高粱', '省酒')" class="bg-white border border-gray-200 hover:bg-amber-50 hover:border-amber-300 text-amber-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">高粱</button>
-                            <button onclick="quickSearch('清酒', '省酒')" class="bg-white border border-gray-200 hover:bg-amber-50 hover:border-amber-300 text-amber-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">清酒</button>
-                            <button onclick="quickSearch('紅露酒', '省酒')" class="bg-white border border-gray-200 hover:bg-amber-50 hover:border-amber-300 text-amber-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">紅露酒</button>
-
-                            <!-- 🍜 泡麵常用快捷 (已對齊工廠自製分類) -->
-                            <span class="font-black text-slate-500 flex items-center gap-1 ml-4"><i class="fa-solid fa-bowl-food text-orange-500"></i> 泡麵常用：</span>
-                            <button onclick="quickSearch('單包', '工廠自製')" class="bg-white border border-gray-200 hover:bg-orange-50 hover:border-orange-300 text-orange-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">單包</button>
-                            <button onclick="quickSearch('碗', '工廠自製')" class="bg-white border border-gray-200 hover:bg-orange-50 hover:border-orange-300 text-orange-600 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">紙碗</button>
+                        <!-- 💡 常用快捷搜尋鍵（已更改為全動態管理機制渲染） -->
+                        <div id="quickKeysContainer" class="flex flex-wrap items-center gap-1.5 px-2 text-xs">
+                            <!-- 由 JavaScript 載入後動態生成，支援無限手動新增、刪除 -->
                         </div>
                     </div>
                     
@@ -531,6 +503,99 @@
         </div>
     </div>
 
+    <!-- ⚙️ 快捷鍵管理彈窗 (👑 上帝自由自訂快捷鍵管理系統) -->
+    <div id="quickKeysModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[110] p-4 text-left">
+        <div class="bg-white rounded-[2rem] w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
+            <div class="p-6 bg-indigo-600 text-white font-black flex justify-between items-center shrink-0">
+                <h3 class="text-xl flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>自訂與管理常用快捷鍵</span>
+                </h3>
+                <button onclick="closeQuickKeysModal()" class="text-xl font-bold hover:scale-110 transition-transform">✕</button>
+            </div>
+            
+            <!-- Modal Body (可垂直滾動) -->
+            <div class="p-6 overflow-y-auto space-y-6 text-xs font-bold divide-y divide-gray-100 no-scrollbar">
+                
+                <!-- 新增快捷鍵表單 -->
+                <div class="pb-6">
+                    <h4 class="text-sm font-black text-slate-800 mb-3 flex items-center gap-1.5 text-indigo-600">
+                        <i class="fa-solid fa-circle-plus"></i> 新增自訂快捷按鍵
+                    </h4>
+                    <form id="quickKeyForm" onsubmit="addQuickKey(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-400 font-bold mb-1">所屬常用群組</label>
+                            <select id="qkGroup" required class="w-full p-3 bg-gray-50 border rounded-xl font-bold">
+                                <option value="rice_wine">米酒常用</option>
+                                <option value="cigarettes">香菸常用</option>
+                                <option value="beer">啤酒常用</option>
+                                <option value="ramen">泡麵常用</option>
+                                <option value="others">其他酒類</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 font-bold mb-1">按鈕標籤 (Display Label)</label>
+                            <input type="text" id="qkLabel" required placeholder="例：米酒頭、300元" class="w-full p-3 bg-gray-50 border rounded-xl font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 font-bold mb-1">搜尋關鍵字 (Query)</label>
+                            <input type="text" id="qkQuery" required placeholder="例：米酒頭、300" class="w-full p-3 bg-gray-50 border rounded-xl font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 font-bold mb-1">過濾至指定分類 (Category)</label>
+                            <select id="qkCategory" class="w-full p-3 bg-gray-50 border rounded-xl font-bold">
+                                <option value="">無 (全域搜尋)</option>
+                                <option value="省酒">省酒</option>
+                                <option value="省菸">省菸</option>
+                                <option value="工廠自製">工廠自製</option>
+                                <option value="什貨">什貨</option>
+                                <option value="洋酒">洋酒</option>
+                                <option value="洋菸">洋菸</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-gray-400 font-bold mb-1">特殊過濾邏輯規則 (選填)</label>
+                            <select id="qkSpecialRule" class="w-full p-3 bg-gray-50 border rounded-xl font-bold">
+                                <option value="none">無 (一般標準搜尋：搜尋品名/代號/建議售價)</option>
+                                <option value="beer">啤酒特殊規則 (品名必含「啤」且包含此搜尋字)</option>
+                                <option value="ramen_bag">泡麵單包規格 (品名含「麵」或「粉」且包含「包」字)</option>
+                                <option value="ramen_bowl">泡麵紙碗規格 (品名含「麵」或「粉」且包含「碗」字)</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2 pt-2">
+                            <button type="submit" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black shadow-md active:scale-95 transition-all text-center text-sm">
+                                <i class="fa-solid fa-floppy-disk"></i> 儲存並同步新增快捷按鍵
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 當前快捷鍵清單 -->
+                <div class="pt-6">
+                    <h4 class="text-sm font-black text-slate-800 mb-3 flex items-center gap-1.5 text-gray-700">
+                        <i class="fa-solid fa-list-ul"></i> 當前快捷鍵清單
+                    </h4>
+                    <div class="overflow-x-auto border border-gray-100 rounded-2xl shadow-sm">
+                        <table class="w-full text-left border-collapse text-[11px] font-bold">
+                            <thead class="bg-gray-50 text-gray-400 uppercase border-b border-gray-100 text-nowrap">
+                                <tr>
+                                    <th class="p-3">群組</th>
+                                    <th class="p-3">按鈕名稱</th>
+                                    <th class="p-3">搜尋字</th>
+                                    <th class="p-3">鎖定分類</th>
+                                    <th class="p-3">特殊規則</th>
+                                    <th class="p-3 text-center w-16">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="quickKeysTableBody" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <!-- 🔐 修改 N90 密碼對話框 -->
     <div id="n90PassModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[110] p-4 text-left">
         <div class="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl p-6 space-y-4">
@@ -635,6 +700,43 @@
         let n90Password = localStorage.getItem('db_n90_password') || 'N90Password123';
         let isN90PassVisible = false;
 
+        // 👑 預設快捷鍵按鈕組資料（包含新增的「米酒頭」）
+        const DEFAULT_QUICK_KEYS = [
+            // 米酒常用 (rice_wine)
+            { id: "qk_rice_27", group: "rice_wine", label: "27", query: "27", category: "省酒", specialRule: "none" },
+            { id: "qk_rice_45", group: "rice_wine", label: "45", query: "45", category: "省酒", specialRule: "none" },
+            { id: "qk_rice_48", group: "rice_wine", label: "48", query: "48", category: "省酒", specialRule: "none" },
+            { id: "qk_rice_90", group: "rice_wine", label: "90", query: "90", category: "省酒", specialRule: "none" },
+            { id: "qk_rice_250", group: "rice_wine", label: "250", query: "250", category: "省酒", specialRule: "none" },
+            { id: "qk_rice_spirit", group: "rice_wine", label: "米酒頭", query: "米酒頭", category: "省酒", specialRule: "none" },
+
+            // 香菸常用 (cigarettes)
+            { id: "qk_cig_75", group: "cigarettes", label: "75", query: "75", category: "省菸", specialRule: "none" },
+            { id: "qk_cig_80", group: "cigarettes", label: "80", query: "80", category: "省菸", specialRule: "none" },
+            { id: "qk_cig_85", group: "cigarettes", label: "85", query: "85", category: "省菸", specialRule: "none" },
+            { id: "qk_cig_90", group: "cigarettes", label: "90", query: "90", category: "省菸", specialRule: "none" },
+            { id: "qk_cig_95", group: "cigarettes", label: "95", query: "95", category: "省菸", specialRule: "none" },
+            { id: "qk_cig_100", group: "cigarettes", label: "100", query: "100", category: "省菸", specialRule: "none" },
+            { id: "qk_cig_110", group: "cigarettes", label: "110", query: "110", category: "省菸", specialRule: "none" },
+
+            // 啤酒常用 (beer)
+            { id: "qk_beer_033", group: "beer", label: "0.33", query: "0.33", category: "省酒", specialRule: "beer" },
+            { id: "qk_beer_05", group: "beer", label: "0.5", query: "0.5", category: "省酒", specialRule: "beer" },
+            { id: "qk_beer_06", group: "beer", label: "0.6", query: "0.6", category: "省酒", specialRule: "beer" },
+
+            // 其他酒類 (others)
+            { id: "qk_oth_goaliang", group: "others", label: "高粱", query: "高粱", category: "省酒", specialRule: "none" },
+            { id: "qk_oth_sake", group: "others", label: "清酒", query: "清酒", category: "省酒", specialRule: "none" },
+            { id: "qk_oth_red", group: "others", label: "紅露酒", query: "紅露酒", category: "省酒", specialRule: "none" },
+
+            // 泡麵常用 (ramen)
+            { id: "qk_ram_pack", group: "ramen", label: "單包", query: "單包", category: "工廠自製", specialRule: "ramen_bag" },
+            { id: "qk_ram_bowl", group: "ramen", label: "紙碗", query: "碗", category: "工廠自製", specialRule: "ramen_bowl" }
+        ];
+
+        // 讀取/儲存快捷鍵
+        let quickKeys = localStorage.getItem('db_quick_keys_v2') ? JSON.parse(localStorage.getItem('db_quick_keys_v2')) : DEFAULT_QUICK_KEYS;
+
         // 效能優化核心：智慧分頁增量渲染控制變數
         let displayedProductLimit = 100;
         let displayedCustomerLimit = 100;
@@ -649,11 +751,9 @@
 
         // 全域防禦與跨組件調用標記（防未定義錯誤，直接綁定到全域 `window`）
         window.searchNeedClear = false;
-        window.isQuickRiceWine90 = false;
-        window.isBeerQuickSearch = false; // 🍺 啤酒快捷鍵專用旗標
-        window.isRamenQuickSearch = false; // 🍜 泡麵快捷鍵專用旗標
-        window.currentImportType = "products";
         window.isQuickSearchClick = false;
+        window.activeQuickKey = null; // 👑 保存當前啟動的快捷鍵配置
+        window.currentImportType = "products";
 
         function log(message, isError = false) {
             const consoleEl = document.getElementById('diagConsole');
@@ -676,6 +776,7 @@
 
         function initApp() {
             buildNav();
+            renderQuickKeys(); // 👑 渲染快捷鍵
             filterData();
             document.getElementById('totalItems').innerText = products.length;
             document.getElementById('totalCust').innerText = customers.length;
@@ -849,6 +950,20 @@
                         safeSaveToLocalStorage('db_custom_sort_v2', customSortMap);
                         filterData(); // 更新畫面上的排序
                     }
+                }
+            }, err => {});
+
+            // 👑 即時監聽訂閱雲端「自訂快捷按鍵組」
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'quick_keys', 'quick_keys_doc'), snap => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data?.list) {
+                        quickKeys = data.list;
+                        safeSaveToLocalStorage('db_quick_keys_v2', quickKeys);
+                        renderQuickKeys();
+                    }
+                } else {
+                    setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'quick_keys', 'quick_keys_doc'), { list: quickKeys }).catch(()=>{});
                 }
             }, err => {});
         }
@@ -1071,6 +1186,7 @@
         function clearSearch() {
             const input = document.getElementById('searchInput');
             input.value = '';
+            clearActiveQuickKeyOnInput();
             filterData();
         }
 
@@ -1097,74 +1213,112 @@
         function setCategory(c) { 
             curCat = c; 
             document.getElementById('searchInput').value = '';
+            clearActiveQuickKeyOnInput();
             buildNav(); 
             filterData(); 
         }
 
         // ==========================================
-        // 👑 上帝專屬排序系統與主搜尋演算法
+        // 👑 渲染快捷鍵按鈕組 (純動態渲染，不寫死 HTML)
+        // ==========================================
+        function renderQuickKeys() {
+            const container = document.getElementById('quickKeysContainer');
+            if (!container) return;
+
+            // 群組分類包裝
+            const groups = {
+                rice_wine: { name: "米酒常用", icon: "fa-wine-bottle text-red-500", list: [] },
+                cigarettes: { name: "香菸常用", icon: "fa-smoking text-blue-500", list: [] },
+                beer: { name: "啤酒常用", icon: "fa-beer-mug-empty text-emerald-500", list: [] },
+                ramen: { name: "泡麵常用", icon: "fa-bowl-food text-orange-500", list: [] },
+                others: { name: "其他酒類", icon: "fa-glass-water text-amber-500", list: [] }
+            };
+
+            // 將儲存的快捷鍵分類放入對應群組
+            quickKeys.forEach(k => {
+                if (groups[k.group]) {
+                    groups[k.group].list.push(k);
+                }
+            });
+
+            let html = '';
+            Object.keys(groups).forEach(gKey => {
+                const g = groups[gKey];
+                if (g.list.length > 0) {
+                    html += `
+                        <div class="flex items-center flex-wrap gap-1.5 mr-3 my-0.5">
+                            <span class="font-black text-slate-500 flex items-center gap-1 whitespace-nowrap">
+                                <i class="fa-solid ${g.icon}"></i> ${g.name}：
+                            </span>
+                    `;
+                    g.list.forEach(k => {
+                        html += `
+                            <button onclick="quickSearch('${k.id}')" class="bg-white border border-gray-200 hover:bg-slate-50 hover:border-slate-350 text-slate-700 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">
+                                ${k.label}
+                            </button>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 當使用者在搜尋框進行「手動輸入」時，直接切斷快捷鍵的綁定，改為普通的模糊搜尋
+        function clearActiveQuickKeyOnInput() {
+            window.activeQuickKey = null;
+            window.isQuickSearchClick = false;
+        }
+
+        // ==========================================
+        // 👑 上帝專屬排序系統與主搜尋演算法 (💡 完全重構，100% 支援動態自訂快捷鍵)
         // ==========================================
         function filterData() {
             const q = document.getElementById('searchInput').value.trim().toLowerCase();
-            
-            // 💡 智慧邏輯定義：偵測是否符合米酒的價格特徵 (加入 250 代表 2.5公升 / 250元 米酒規格)
-            const specialRiceWineCodes = ["27", "48", "250", "45"];
-            const isSpecialRiceWineMode = (specialRiceWineCodes.includes(q) || (q === "90" && window.isQuickRiceWine90)) && window.isQuickSearchClick;
-            
-            // 💡 啤酒模式偵測：0.33, 0.5, 0.6 
-            const isBeerMode = (["0.33", "0.5", "0.6"].includes(q) && window.isBeerQuickSearch) && window.isQuickSearchClick;
-
-            // 🍜 泡麵模式偵測：單包, 碗, 紙碗
-            const isRamenMode = (["單包", "碗", "紙碗"].includes(q) && window.isRamenQuickSearch) && window.isQuickSearchClick;
-
-            window.isQuickRiceWine90 = false;
-            window.isBeerQuickSearch = false; 
-            window.isRamenQuickSearch = false; 
             let filtered = products;
 
+            // 💡 判斷目前是「手動鍵盤打字」還是「點選常用快捷按鈕」
             const isManualTyping = !window.isQuickSearchClick;
-            window.isQuickSearchClick = false;
 
             // 1. 過濾階段
             if (q !== "") {
-                if (isManualTyping) {
+                // 👉 情境 A：使用者點選了其中一個自訂快捷鍵，且尚未被鍵盤輸入覆蓋
+                if (window.isQuickSearchClick && window.activeQuickKey) {
+                    const k = window.activeQuickKey;
+                    
+                    // 1-1. 如果該快捷鍵有鎖定特定分類 (例如：省酒、工廠自製)
+                    if (k.category) {
+                        filtered = products.filter(p => p.cat === k.category);
+                    }
+
+                    // 1-2. 根據設定的特殊規則進行核心比對
+                    if (k.specialRule === 'beer') {
+                        filtered = filtered.filter(p => p.name.includes("啤") && p.name.includes(k.query));
+                    } else if (k.specialRule === 'ramen_bag') {
+                        filtered = filtered.filter(p => (p.name.includes("麵") || p.name.includes("粉") || p.name.includes("拉麵")) && p.name.includes("包"));
+                    } else if (k.specialRule === 'ramen_bowl') {
+                        filtered = filtered.filter(p => (p.name.includes("麵") || p.name.includes("粉") || p.name.includes("拉麵")) && p.name.includes("碗"));
+                    } else {
+                        // 標準自訂字詞規則 (例：建議售價 27 或品名包含米酒頭)
+                        filtered = filtered.filter(p => (
+                            p.name.toLowerCase().includes(k.query.toLowerCase()) || 
+                            p.id.toLowerCase().includes(k.query.toLowerCase()) || 
+                            p.r.toString() === k.query ||
+                            p.w.toString() === k.query
+                        ));
+                    }
+                } else {
+                    // 👉 情境 B：使用者純鍵盤手動輸入，執行全域模糊搜尋
                     filtered = products.filter(p => (
                         p.name.toLowerCase().includes(q) || 
                         p.id.toLowerCase().includes(q) || 
                         p.r.toString().includes(q) || 
                         p.w.toString().includes(q)
                     ));
-                } else {
-                    if (isSpecialRiceWineMode && curCat === "省酒") {
-                        filtered = products.filter(p => p.cat === "省酒" && (p.name.includes("米酒") || p.id.startsWith("28") || p.id.startsWith("23H")));
-                    } else if (isBeerMode && curCat === "省酒") {
-                        // 🍺 品名有包含 "0.33"/"0.5"/"0.6" 又有 "啤" 
-                        filtered = products.filter(p => p.cat === "省酒" && p.name.includes("啤") && p.name.includes(q));
-                    } else if (isRamenMode && curCat === "工廠自製") {
-                        // 🍜 智慧多條件交叉泡麵搜尋規則（修正：歸屬工廠自製分類）：
-                        // 如果按「單包」，品名必含「包」字，且需含「麵」或「粉」(拉麵、米粉、冬粉等泡麵類)
-                        // 如果按「紙碗」 (值為 碗)，品名必含「碗」字，且需含「麵」或「粉」
-                        const spec = q.includes("包") ? "包" : "碗";
-                        filtered = products.filter(p => p.cat === "工廠自製" && 
-                            (p.name.includes("麵") || p.name.includes("粉") || p.name.includes("拉麵")) && 
-                            p.name.includes(spec)
-                        );
-                    } else {
-                        let base = products;
-                        if (curCat === '2026_new') {
-                            base = products.filter(p => p.launchDate && p.launchDate.includes('2026'));
-                        } else if (curCat !== "") {
-                            base = products.filter(p => p.cat === curCat);
-                        }
-                        filtered = base.filter(p => (
-                            p.name.toLowerCase().includes(q) || 
-                            p.id.toLowerCase().includes(q) || 
-                            p.r.toString().includes(q) || 
-                            p.w.toString().includes(q)
-                        ));
-                    }
                 }
             } else {
+                // 沒有檢索字詞：一般分類側邊欄篩選
                 if (curCat === '2026_new') {
                     filtered = products.filter(p => p.launchDate && p.launchDate.includes('2026'));
                 } else if (curCat !== "") {
@@ -1172,17 +1326,17 @@
                 }
             }
 
-            // 2. 排序階段
+            // 2. 排序與權重階段
             const isDecimal = /\d+\.\d+|\.\d+/.test(q) || q === '.';
             const targetPrice = parseFloat(q);
             const hasTargetPrice = !isNaN(targetPrice) && q !== "";
             
-            // 抓取當前搜尋情境專屬的上帝排序快照
+            // 抓取當前搜尋情境專屬的上帝手動拖曳排序快照
             const sortKey = curCat + "||" + q;
             const manualList = customSortMap[sortKey];
 
             filtered.sort((a, b) => {
-                // 👑 絕對優先權：如果您有在此分類下手動上移/下移過，強制套用此客製化順序
+                // 👑 絕對上帝優先權：如果您有在此分類或快捷鍵下手動上移/下移過，強制套用您的微調順序
                 if (manualList) {
                     const idxA = manualList.indexOf(a.id);
                     const idxB = manualList.indexOf(b.id);
@@ -1192,11 +1346,12 @@
                     if (idxB !== -1) return 1;  
                 }
 
-                // --- 原本的智慧演算法 (當無手動排序干涉時) ---
+                // --- 智慧排序演算法 (當無手動排序快照干涉時) ---
                 const countA = activeAnalysis[a.id]?.count || 0;
                 const countB = activeAnalysis[b.id]?.count || 0;
 
-                if (isSpecialRiceWineMode) {
+                // 2-1. 如果是快捷鍵過濾下的米酒直達模式
+                if (window.activeQuickKey && window.activeQuickKey.group === 'rice_wine') {
                     const matchRetailA = (a.r === targetPrice) ? 1 : 0;
                     const matchRetailB = (b.r === targetPrice) ? 1 : 0;
                     if (matchRetailA !== matchRetailB) return matchRetailB - matchRetailA;
@@ -1208,6 +1363,7 @@
                     if (countA !== countB) return countB - countA;
                     return a.id.localeCompare(b.id);
                 } else if (isDecimal) {
+                    // 小數點規格：啤酒或酒類規格置頂
                     const isBeerA = (a.cat === '省酒' || a.name.includes('啤酒') || a.name.includes('酒')) ? 1 : 0;
                     const isBeerB = (b.cat === '省酒' || b.name.includes('啤酒') || b.name.includes('酒')) ? 1 : 0;
                     if (isBeerA !== isBeerB) return isBeerB - isBeerA;
@@ -1215,6 +1371,7 @@
                     if (countA !== countB) return countB - countA;
                     return a.id.localeCompare(b.id);
                 } else {
+                    // 一般售價對位匹配
                     if (hasTargetPrice) {
                         const matchRetailA = (a.r === targetPrice) ? 1 : 0;
                         const matchRetailB = (b.r === targetPrice) ? 1 : 0;
@@ -1225,8 +1382,10 @@
                         if (matchWholesaleA !== matchWholesaleB) return matchWholesaleB - matchWholesaleA;
                     }
 
+                    // 動銷成交量優先
                     if (countA !== countB) return countB - countA;
 
+                    // 當交易次數皆為 0 時，新上市的 2026 新品排在舊品後面
                     const is2026A = a.launchDate && a.launchDate.includes('2026') ? 1 : 0;
                     const is2026B = b.launchDate && b.launchDate.includes('2026') ? 1 : 0;
                     if (is2026A !== is2026B) return is2026A - is2026B;
@@ -1243,7 +1402,7 @@
         }
 
         // ==========================================
-        // 👑 上帝專屬拖曳排序演算法 (支援滑鼠與手機 Pointer 觸控)
+        // 👑 【上帝專屬拖曳排序】(支援滑鼠與手機 Pointer 觸控)
         // ==========================================
         let draggedId = null;
         let touchDraggedId = null;
@@ -1252,14 +1411,12 @@
         function handleDragStart(e, id) {
             draggedId = id;
             e.dataTransfer.effectAllowed = 'move';
-            // 將整行加上淡出半透明特效，更有 3D 質感
             const tr = e.target.closest('tr');
             if (tr) {
                 tr.classList.add('opacity-40', 'bg-blue-100');
             }
         }
 
-        // 智慧拖曳重排
         function handleDragOver(e) {
             if (e.preventDefault) {
                 e.preventDefault(); 
@@ -1297,7 +1454,6 @@
             return false;
         }
 
-        // 拖曳結束
         function handleDragEnd(e) {
             const tr = e.target.closest('tr');
             if (tr) {
@@ -1320,7 +1476,7 @@
 
         function handleTouchMove(e) {
             if (!touchStartRow) return;
-            e.preventDefault(); // 防止拖曳時網頁整體上下滾動
+            e.preventDefault(); 
             
             const touch = e.touches[0];
             const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -1328,7 +1484,6 @@
             
             const currentOverRow = targetEl.closest('tr');
             
-            // 清理先前的指示框線
             document.querySelectorAll('#dataTable tr').forEach(row => {
                 if (row !== currentOverRow) {
                     row.classList.remove('drag-hover-top', 'drag-hover-bottom');
@@ -1338,7 +1493,6 @@
             if (currentOverRow && currentOverRow !== touchStartRow && currentOverRow.parentNode.id === 'dataTable') {
                 const rect = currentOverRow.getBoundingClientRect();
                 const relativeY = touch.clientY - rect.top;
-                // 智慧判定放開時要插在該行的上方還是下方
                 if (relativeY < rect.height / 2) {
                     currentOverRow.classList.add('drag-hover-top');
                     currentOverRow.classList.remove('drag-hover-bottom');
@@ -1382,7 +1536,6 @@
             const q = document.getElementById('searchInput').value.trim().toLowerCase();
             const sortKey = curCat + "||" + q;
             
-            // 如果此搜尋情境尚無快照，先擷取當下完整的視覺順序作為初始值
             if (!customSortMap[sortKey]) {
                 customSortMap[sortKey] = currentFilteredProducts.map(p => p.id);
             }
@@ -1393,7 +1546,6 @@
             
             if (dragIdx !== -1 && dropIdx !== -1) {
                 const [draggedItem] = list.splice(dragIdx, 1);
-                // 重新定位目標位置
                 dropIdx = list.indexOf(targetId);
                 const finalInsertIdx = isBelow ? dropIdx + 1 : dropIdx;
                 list.splice(finalInsertIdx, 0, draggedItem);
@@ -1404,7 +1556,7 @@
                 const p = products.find(x => x.id === sourceId);
                 if (p) showToast(`重新排序完成：${p.name}`);
                 
-                filterData(); // 即時重新渲染並生效排序！
+                filterData(); 
             }
         }
 
@@ -1447,7 +1599,6 @@
                 tr.setAttribute('data-product-id', p.id);
                 tr.setAttribute('draggable', 'true');
                 
-                // 綁定電腦端拖曳事件
                 tr.addEventListener('dragstart', (e) => handleDragStart(e, p.id));
                 tr.addEventListener('dragover', handleDragOver);
                 tr.addEventListener('dragenter', handleDragEnter);
@@ -1572,7 +1723,7 @@
             sliceData.forEach(c => {
                 const isDebit = (typeof directDebitIds !== 'undefined' ? directDebitIds.includes(c.id?.toString()) : false) || c.pay?.includes("扣款") || c.pay?.includes("轉帳");
                 
-                // 💡 【核心修復】：完全信任 Excel 導入的「營業所」欄位值，不論是 龍潭所 或是 八德所，都直接一比一顯示！
+                // 💡 完全信任 Excel 導入的「營業所」欄位值，不論是 龍潭所 或是 八德所，都直接一比一顯示！
                 let office = c.office || '';
                 let isBade = false;
 
@@ -1650,7 +1801,6 @@
             // 避免連續儲存完全相同的查詢
             if (custHistory.length === 0 || custHistory[0].query !== query) {
                 custHistory.unshift({ query, time: timeString });
-                // 限制最多儲存最近 30 筆
                 if (custHistory.length > 30) custHistory.pop();
                 localStorage.setItem('db_cust_history', JSON.stringify(custHistory));
                 buildCustHistoryUI();
@@ -1726,7 +1876,6 @@
         function setupEscKeyMechanism() {
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
-                    // 秒速依序關閉所有開著的彈窗
                     const custHistoryModal = document.getElementById('custHistoryModal');
                     if (custHistoryModal && !custHistoryModal.classList.contains('hidden')) {
                         custHistoryModal.classList.add('hidden');
@@ -1762,6 +1911,12 @@
                         closeN90PassModal();
                         return;
                     }
+
+                    const quickKeysModal = document.getElementById('quickKeysModal');
+                    if (quickKeysModal && !quickKeysModal.classList.contains('hidden')) {
+                        closeQuickKeysModal();
+                        return;
+                    }
                 }
             });
         }
@@ -1778,7 +1933,6 @@
                 
                 if(window.currentImportType === 'products') {
                     const parsedProducts = [];
-                    // 動態標題索引解析，預設以「收入別」為第 2 欄 (Index 1)
                     let idIdx = 0, nameIdx = 2, wIdx = 3, rIdx = 4, unitIdx = 7, ratioIdx = 8, catIdx = 1, launchDateIdx = 20, minUnitIdx = 23;
                     let hasHeader = false;
 
@@ -1804,7 +1958,6 @@
                             const id = cols[idIdx]?.trim();
                             if (!id || id.includes("產品代號")) return;
 
-                            // 精準抓取對應欄位
                             const name = cols[nameIdx]?.trim() || '';
                             const w = parseFloat(cols[wIdx]) || 0;
                             const r = parseFloat(cols[rIdx]) || 0;
@@ -1813,10 +1966,8 @@
                             const launchDate = cols[launchDateIdx]?.trim() || '';
                             const min_unit = cols[minUnitIdx]?.trim() || '包';
 
-                            // 絕對精準：直接讀取標題對位的「收入別」欄位內容 (例如：11省菸、14省酒)
                             let rawCat = cols[catIdx]?.trim() || '';
                             
-                            // 去除前導數字得到乾淨的分類名稱
                             let cat = rawCat.replace(/^\d+/, '').trim();
                             if (!cat) cat = "其他";
 
@@ -1875,8 +2026,6 @@
                     log(`📥 本地成功匯入暫存交易記錄 ${successCount} 筆！`);
 
                 } else {
-                    // 💡 【大更新】：完全符合您提供的全新 2026 智慧客戶欄位對位解析規則！
-                    // 順序：0. 營業所 | 1. 客戶代號 | 2. 客戶姓名 | 3. 營利事業名稱 | 4. 購貨人電話 | 5. 登記營址
                     const parsedCustomers = [];
                     let officeIdx = 0, idIdx = 1, nameIdx = 2, bizIdx = 3, telIdx = 4, addrIdx = 5, payIdx = 6, dayIdx = 7;
                     let hasCustHeader = false;
@@ -1899,13 +2048,12 @@
                             const id = cols[idIdx]?.trim();
                             if (!id || id.includes("客戶代號") || id === "") return;
 
-                            const office = cols[officeIdx]?.trim() || ''; // 💡 新增：精準擷取首欄的「營業所」名稱 (如：龍潭所、八德所)
+                            const office = cols[officeIdx]?.trim() || ''; 
                             const name = cols[nameIdx]?.trim() || '';
                             const biz = cols[bizIdx]?.trim() || '';
                             const tel = cols[telIdx]?.trim() || '';
                             const addr = cols[addrIdx]?.trim() || '';
                             
-                            // 智慧搜尋後續多列，提取「付款方式」或「送貨日」
                             let pay = '現金';
                             let day = '-';
                             for (let i = 6; i < cols.length; i++) {
@@ -1918,12 +2066,11 @@
                                 }
                             }
 
-                            parsedCustomers.push({ id, office, name, biz, tel, addr, pay, day }); // 💡 寫入整合客戶物件
+                            parsedCustomers.push({ id, office, name, biz, tel, addr, pay, day }); 
                             successCount++;
                         }
                     });
 
-                    // 融入去重整合至全域名冊
                     const merged = [...customers];
                     parsedCustomers.forEach(newC => {
                         const idx = merged.findIndex(x => x.id === newC.id);
@@ -1954,6 +2101,7 @@
             htmlContent = htmlContent.replace(/let activeAnalysis = \{.*?\};/s, `let activeAnalysis = ${JSON.stringify(activeAnalysis)};`);
             htmlContent = htmlContent.replace(/let customSortMap = \{.*?\};/s, `let customSortMap = ${JSON.stringify(customSortMap)};`);
             htmlContent = htmlContent.replace(/let n90Password = \'.*?\';/s, `let n90Password = '${n90Password}';`);
+            htmlContent = htmlContent.replace(/let quickKeys = \[.*?\];/s, `let quickKeys = ${JSON.stringify(quickKeys)};`);
             
             const blob = new Blob(['<!DOCTYPE html>\n' + htmlContent], { type: 'text/html' });
             const a = document.createElement('a');
@@ -2084,7 +2232,7 @@
         }
 
         // ==========================================
-        // 🔐 N90 登入密碼鑰匙圈專用互動函數 (New Feature)
+        // 🔐 N90 登入密碼鑰匙圈專用互動函數
         // ==========================================
         function updateN90PassUI() {
             const displayEl = document.getElementById('n90PassDisplay');
@@ -2129,6 +2277,102 @@
         }
 
         // ==========================================
+        // ⚙️ 👑 自訂常用快捷鍵模組管理邏輯 (Add / Delete / Render Tables)
+        // ==========================================
+        function openQuickKeysModal() {
+            document.getElementById('quickKeysModal').classList.remove('hidden');
+            renderQuickKeysTable();
+        }
+
+        function closeQuickKeysModal() {
+            document.getElementById('quickKeysModal').classList.add('hidden');
+        }
+
+        function renderQuickKeysTable() {
+            const tbody = document.getElementById('quickKeysTableBody');
+            if (!tbody) return;
+
+            const groupNames = {
+                rice_wine: "米酒常用",
+                cigarettes: "香菸常用",
+                beer: "啤酒常用",
+                ramen: "泡麵常用",
+                others: "其他酒類"
+            };
+
+            const ruleNames = {
+                none: "無 (普通搜尋)",
+                beer: "啤酒特殊規則",
+                ramen_bag: "泡麵單包規格",
+                ramen_bowl: "泡麵紙碗規格"
+            };
+
+            tbody.innerHTML = quickKeys.map(k => `
+                <tr class="hover:bg-gray-50/50">
+                    <td class="p-3 text-slate-500">${groupNames[k.group] || k.group}</td>
+                    <td class="p-3 text-slate-800 font-black">${k.label}</td>
+                    <td class="p-3 font-mono text-slate-600">${k.query}</td>
+                    <td class="p-3 text-gray-400">${k.category || '全域搜尋'}</td>
+                    <td class="p-3 text-gray-400">${ruleNames[k.specialRule] || k.specialRule}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="deleteQuickKey('${k.id}')" class="text-rose-500 hover:text-rose-700 p-1 transition-all" title="刪除此快捷按鍵">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function addQuickKey(e) {
+            e.preventDefault();
+            const group = document.getElementById('qkGroup').value;
+            const label = document.getElementById('qkLabel').value.trim();
+            const query = document.getElementById('qkQuery').value.trim();
+            const category = document.getElementById('qkCategory').value;
+            const specialRule = document.getElementById('qkSpecialRule').value;
+
+            if (!label || !query) return;
+
+            const newKey = {
+                id: "qk_" + Date.now().toString(),
+                group,
+                label,
+                query,
+                category,
+                specialRule
+            };
+
+            quickKeys.push(newKey);
+            saveQuickKeys();
+            
+            // 重設輸入欄
+            document.getElementById('qkLabel').value = '';
+            document.getElementById('qkQuery').value = '';
+            
+            renderQuickKeys();
+            renderQuickKeysTable();
+            showToast(`已成功新增自訂快捷鍵：【${label}】！`);
+        }
+
+        function deleteQuickKey(id) {
+            if (confirm("您確定要永久刪除這個自訂快捷鍵按鈕嗎？")) {
+                quickKeys = quickKeys.filter(x => x.id !== id);
+                saveQuickKeys();
+                renderQuickKeys();
+                renderQuickKeysTable();
+                showToast("自訂快捷按鍵已成功移除。");
+            }
+        }
+
+        function saveQuickKeys() {
+            safeSaveToLocalStorage('db_quick_keys_v2', quickKeys);
+            if (db && isUserLoggedIn && navigator.onLine) {
+                setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'quick_keys', 'quick_keys_doc'), { list: quickKeys })
+                  .catch(err => log(`🔴 雲端快捷鍵備份失敗: ${err.message}`, true));
+            }
+        }
+
+        // ==========================================
         // 🔐 系統帳號密碼認證登入管理
         // ==========================================
         function handleSystemLogin(e) {
@@ -2141,14 +2385,10 @@
                 errorMsg.classList.add('hidden');
                 localStorage.setItem('sys_auth_token_2026', 'authenticated');
                 
-                // 1. 隱藏登入頁面
                 document.getElementById('loginPortal').classList.add('hidden');
-                
-                // 2. 顯示啤酒載入動畫，拉取資料庫
                 showBeerLoaderAndInitialize();
             } else {
                 errorMsg.classList.remove('hidden');
-                // 錯誤震動
                 if (navigator.vibrate) {
                     navigator.vibrate(100);
                 }
@@ -2200,7 +2440,6 @@
                 }
             }, 600);
 
-            // 確保動畫播放完畢 (2.8 秒) 後才滑動淡出
             setTimeout(() => {
                 clearInterval(textInterval);
                 loader.classList.add('opacity-0');
@@ -2234,6 +2473,7 @@
         window.clearSearch = clearSearch;
         window.filterData = filterData;
         window.searchCustomer = searchCustomer;
+        window.clearActiveQuickKeyOnInput = clearActiveQuickKeyOnInput;
         
         // 🕒 客戶查詢歷史紀錄
         window.toggleCustHistoryModal = toggleCustHistoryModal;
@@ -2252,37 +2492,39 @@
         window.handleTouchMove = handleTouchMove;
         window.handleTouchEnd = handleTouchEnd;
 
-        // 🔐 綁定 N90 密碼鑰匙圈函數至全域 (New Feature)
+        // 🔐 綁定 N90 密碼鑰匙圈函數
         window.toggleN90PassVisible = toggleN90PassVisible;
         window.copyN90Password = copyN90Password;
         window.openChangeN90PassModal = openChangeN90PassModal;
         window.closeN90PassModal = closeN90PassModal;
         window.saveN90Password = saveN90Password;
 
+        // ⚙️ 👑 綁定自訂快捷鍵控制
+        window.openQuickKeysModal = openQuickKeysModal;
+        window.closeQuickKeysModal = closeQuickKeysModal;
+        window.addQuickKey = addQuickKey;
+        window.deleteQuickKey = deleteQuickKey;
+
         // 🔐 系統認證認證登入綁定
         window.handleSystemLogin = handleSystemLogin;
         window.handleLogout = handleLogout;
 
-        window.quickSearch = (val, category = '') => {
+        // 👑 重構後的動態快捷鍵觸發呼叫器 (完全摒棄 Brittle 硬編碼)
+        window.quickSearch = (keyId) => {
             window.isQuickSearchClick = true; 
-            window.isBeerQuickSearch = false;
-            window.isRamenQuickSearch = false;
-            if (category === '省酒' && val === '90') {
-                window.isQuickRiceWine90 = true;
-            }
-            // 🍺 點擊啤酒常用的 0.33, 0.5, 0.6 時，啟動啤酒特徵規則
-            if (category === '省酒' && (val === '0.33' || val === '0.5' || val === '0.6')) {
-                window.isBeerQuickSearch = true;
-            }
-            // 🍜 點擊泡麵常用的 單包, 碗, 紙碗 時，啟動泡麵特徵規則（確認對齊工廠自製分類）
-            if (category === '工廠自製' && (val === '單包' || val === '碗' || val === '紙碗')) {
-                window.isRamenQuickSearch = true;
-            }
-            document.getElementById('searchInput').value = val;
-            if (category) {
-                curCat = category;
+            const k = quickKeys.find(x => x.id === keyId);
+            if (!k) return;
+
+            // 緩存當前啟動之快捷鍵配置物件
+            window.activeQuickKey = k;
+            document.getElementById('searchInput').value = k.query;
+            
+            // 同步切換側邊欄導航大類別
+            if (k.category) {
+                curCat = k.category;
                 buildNav();
             }
+            
             filterData();
             window.searchNeedClear = true; 
         };
