@@ -94,6 +94,9 @@
             .line-copy-button { flex: 0 0 100%; min-height: 44px; border-radius: 12px; background: #16a34a; color: white; padding: 12px; font-size: 13px; font-weight: 900; }
             #toast { max-width: calc(100vw - 24px); width: max-content; padding: 12px 18px; text-align: center; }
         }
+        @media (max-width: 767px) {
+            .product-card > td:nth-child(12) button:not(.line-copy-button) { display: none; }
+        }
     </style>
     
     <!-- 💡 全域防護與宣告 -->
@@ -130,23 +133,24 @@
                 </div>
             </div>
             
-            <form onsubmit="loginSystem(event)" class="space-y-4 text-left font-bold text-xs">
+            <form id="loginForm" autocomplete="on" onsubmit="loginSystem(event)" class="space-y-4 text-left font-bold text-xs">
                 <div>
-                    <label class="block text-slate-500 mb-1.5 pl-1">系統管理帳號</label>
+                    <label for="loginUser" class="block text-slate-500 mb-1.5 pl-1">系統管理帳號</label>
                     <div class="relative">
-                        <input type="text" id="loginUser" required placeholder="請輸入帳號" class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-black transition-all">
+                        <input type="text" id="loginUser" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="請輸入帳號" class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-black transition-all">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><i class="fa-solid fa-user-shield"></i></div>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-slate-500 mb-1.5 pl-1">系統認證密碼</label>
+                    <label for="loginPass" class="block text-slate-500 mb-1.5 pl-1">系統認證密碼</label>
                     <div class="relative">
-                        <input type="password" id="loginPass" required placeholder="請輸入密碼" class="w-full pl-11 pr-11 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-black transition-all">
+                        <input type="password" id="loginPass" name="password" autocomplete="current-password" required placeholder="請輸入密碼" class="w-full pl-11 pr-11 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-black transition-all">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><i class="fa-solid fa-key"></i></div>
                         <button type="button" onclick="toggleLoginPassVisible()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600"><i id="loginPassEyeIcon" class="fa-solid fa-eye-slash"></i></button>
                     </div>
                 </div>
                 
+                <p class="text-[11px] text-slate-500 leading-relaxed">此裝置會保持登入並記住帳號；密碼可由瀏覽器儲存及自動填入。</p>
                 <div id="loginError" class="hidden text-rose-500 text-xs font-black text-center pt-1 animate-pulse"></div>
                 
                 <button type="submit" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black shadow-lg shadow-indigo-500/20 active:scale-95 transition-all text-sm tracking-widest uppercase flex items-center justify-center gap-2 mt-2">
@@ -287,7 +291,6 @@
                             </button>
                         </div>
                         <div id="quickKeysContainer" class="flex flex-wrap items-center gap-1.5 px-2 text-xs"></div>
-                        <button type="button" onclick="copyProductForLine(null, this)" class="md:hidden w-full rounded-xl border border-green-200 bg-green-50 text-green-700 py-3 text-xs font-black">📋 複製全部查詢結果（LINE 格式）</button>
                     </div>
                     
                     <div class="md:bg-white md:rounded-2xl md:shadow-sm md:border md:border-gray-200 md:overflow-hidden font-bold">
@@ -762,6 +765,8 @@
         // ==========================================
         /* */
         function checkLoginStatus() {
+            const userInput = document.getElementById('loginUser');
+            if (userInput && !userInput.value) userInput.value = localStorage.getItem('sys_remembered_user') || '';
             const loggedIn = localStorage.getItem('sys_logged_in') === 'true';
             const loginPage = document.getElementById('loginPage');
             const mainContent = document.getElementById('mainContent');
@@ -779,21 +784,29 @@
             }
         }
 
-        function loginSystem(e) {
+        async function validLogin(user, password) {
+            const credentials = {'gaexp8213': 'dcb050e0605c99dce57dbccba27b913318fd37c4d9b1b433be9cc04f883cb06a', '1502': '4914d66a388684096a1020e3a57fd57fa997a8f3ed16cd9c9c112bbf8ce6d244'};
+            if (!Object.prototype.hasOwnProperty.call(credentials, user)) return false;
+            const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(user + '\n' + password));
+            return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('') === credentials[user];
+        }
+        async function loginSystem(e) {
             if (e) e.preventDefault();
             const userVal = document.getElementById('loginUser').value.trim();
             const passVal = document.getElementById('loginPass').value.trim();
             const errorEl = document.getElementById('loginError');
             const cardEl = document.getElementById('loginCard');
 
-            if (userVal === 'gaexp8213' && passVal === 'aacb5833') {
+            if (await validLogin(userVal, passVal)) {
                 localStorage.setItem('sys_logged_in', 'true');
+                localStorage.setItem('sys_remembered_user', userVal);
                 if (errorEl) errorEl.classList.add('hidden');
                 showToast("🔑 安全認證成功，歡迎登入 POS 系統！");
                 
-                // 清空輸入欄位防殘留
-                document.getElementById('loginUser').value = '';
-                document.getElementById('loginPass').value = '';
+                // Delegate password persistence to the browser's credential manager.
+                if (window.PasswordCredential && navigator.credentials?.store) {
+                    navigator.credentials.store(new PasswordCredential({id: userVal, password: passVal})).catch(() => {});
+                }
                 
                 checkLoginStatus();
             } else {
@@ -1581,8 +1594,8 @@
                     <td class="flex md:table-cell justify-end md:justify-center p-2 pt-1 border-t md:border-0 text-center gap-1.5">
                         <div class="flex items-center justify-end md:justify-center gap-1.5 w-full">
                             <button type="button" data-line-product="${encodeURIComponent(p.id)}" onclick="copyProductForLine(decodeURIComponent(this.dataset.lineProduct), this)" class="line-copy-button md:hidden">💬 複製產品資訊到 LINE</button>
-                            <button onclick="openProductModal('${p.id}')" class="text-blue-500 hover:text-blue-700 font-bold text-xs bg-slate-50 md:bg-transparent px-2.5 py-1.5 rounded-lg md:p-0 border border-gray-100 md:border-none flex items-center justify-center gap-1 flex-1 md:flex-auto"><i class="fa-solid fa-pen-to-square md:hidden"></i> 修改</button>
-                            <button onclick="deleteProduct('${p.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-xs bg-slate-50 md:bg-transparent px-2.5 py-1.5 rounded-lg md:p-0 border border-gray-100 md:border-none flex items-center justify-center gap-1 flex-1 md:flex-auto"><i class="fa-solid fa-trash-can md:hidden"></i> 刪除</button>
+                            <button onclick="openProductModal('${p.id}')" class="hidden md:flex text-blue-500 hover:text-blue-700 font-bold text-xs bg-slate-50 md:bg-transparent px-2.5 py-1.5 rounded-lg md:p-0 border border-gray-100 md:border-none flex items-center justify-center gap-1 flex-1 md:flex-auto"><i class="fa-solid fa-pen-to-square md:hidden"></i> 修改</button>
+                            <button onclick="deleteProduct('${p.id}')" class="hidden md:flex text-rose-500 hover:text-rose-700 font-bold text-xs bg-slate-50 md:bg-transparent px-2.5 py-1.5 rounded-lg md:p-0 border border-gray-100 md:border-none flex items-center justify-center gap-1 flex-1 md:flex-auto"><i class="fa-solid fa-trash-can md:hidden"></i> 刪除</button>
                         </div>
                     </td>
                 `;
