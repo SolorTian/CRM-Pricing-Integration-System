@@ -77,6 +77,23 @@
             .product-card > td:nth-child(12) { margin-top: 4px; padding-top: 10px; }
             .product-card > td:nth-child(12) button { min-height: 40px; }
         }
+
+        .quick-group-tabs { display: none; }
+        @media (max-width: 767px) {
+            #quickKeysContainer { display: block; padding: 12px; background: white; border-radius: 16px; border: 1px solid #e2e8f0; }
+            .quick-group-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; }
+            .quick-group-tab { flex-shrink: 0; padding: 10px 14px; min-height: 44px; border-radius: 12px; background: #f1f5f9; color: #475569; font-weight: 900; }
+            .quick-group-tab[aria-pressed="true"] { background: #4f46e5; color: white; }
+            #quickKeysContainer .quick-group { display: none; margin: 0; }
+            #quickKeysContainer .quick-group.active { display: flex; gap: 8px; }
+            .quick-group > span { display: none; }
+            .quick-key { min-height: 44px; padding: 10px 14px; font-size: 13px; }
+            .quick-key[aria-pressed="true"] { background: #eef2ff; border-color: #6366f1; color: #4338ca; }
+            .product-card > td:nth-child(1) { display: none; }
+            .product-card > td:nth-child(12) > div { flex-wrap: wrap; }
+            .line-copy-button { flex: 0 0 100%; min-height: 44px; border-radius: 12px; background: #16a34a; color: white; padding: 12px; font-size: 13px; font-weight: 900; }
+            #toast { max-width: calc(100vw - 24px); width: max-content; padding: 12px 18px; text-align: center; }
+        }
     </style>
     
     <!-- 💡 全域防護與宣告 -->
@@ -270,6 +287,7 @@
                             </button>
                         </div>
                         <div id="quickKeysContainer" class="flex flex-wrap items-center gap-1.5 px-2 text-xs"></div>
+                        <button type="button" onclick="copyProductForLine(null, this)" class="md:hidden w-full rounded-xl border border-green-200 bg-green-50 text-green-700 py-3 text-xs font-black">📋 複製全部查詢結果（LINE 格式）</button>
                     </div>
                     
                     <div class="md:bg-white md:rounded-2xl md:shadow-sm md:border md:border-gray-200 md:overflow-hidden font-bold">
@@ -1155,6 +1173,8 @@
             });
         }
 
+        let selectedQuickGroup = null;
+        function selectQuickGroup(group) { selectedQuickGroup = group; renderQuickKeys(); }
         function renderQuickKeys() {
             const container = document.getElementById('quickKeysContainer');
             if (!container) return;
@@ -1166,13 +1186,15 @@
                 others: { name: "其他酒類", icon: "fa-glass-water text-amber-500", list: [] }
             };
             quickKeys.forEach(k => { if (groups[k.group]) groups[k.group].list.push(k); });
-            let html = '';
+            const availableGroups = Object.keys(groups).filter(key => groups[key].list.length);
+            if (!availableGroups.includes(selectedQuickGroup)) selectedQuickGroup = availableGroups[0];
+            let html = `<div class="quick-group-tabs" role="group" aria-label="常用標籤分類">${availableGroups.map(key => `<button type="button" class="quick-group-tab" aria-pressed="${key === selectedQuickGroup}" onclick="selectQuickGroup('${key}')">${groups[key].name.replace('常用', '')}</button>`).join('')}</div>`;
             Object.keys(groups).forEach(gKey => {
                 const g = groups[gKey];
                 if (g.list.length > 0) {
-                    html += `<div class="flex items-center flex-wrap gap-1.5 mr-3 my-0.5"><span class="font-black text-slate-500 flex items-center gap-1 whitespace-nowrap"><i class="fa-solid ${g.icon}"></i> ${g.name}：</span>`;
+                    html += `<div class="quick-group ${gKey === selectedQuickGroup ? 'active' : ''} flex items-center flex-wrap gap-1.5 mr-3 my-0.5"><span class="font-black text-slate-500 flex items-center gap-1 whitespace-nowrap"><i class="fa-solid ${g.icon}"></i> ${g.name}：</span>`;
                     g.list.forEach(k => {
-                        html += `<button onclick="quickSearch('${k.id}')" class="bg-white border border-gray-200 hover:bg-slate-50 hover:border-slate-350 text-slate-700 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">${k.label}</button>`;
+                        html += `<button aria-pressed="${activeQuickKey?.id === k.id}" onclick="quickSearch('${k.id}')" class="quick-key bg-white border border-gray-200 hover:bg-slate-50 hover:border-slate-350 text-slate-700 font-bold px-2.5 py-1 rounded-xl shadow-sm transition-all active:scale-95">${k.label}</button>`;
                     });
                     html += `</div>`;
                 }
@@ -1183,9 +1205,11 @@
         function clearActiveQuickKeyOnInput() {
             isQuickSearchClick = false;
             activeQuickKey = null;
+            renderQuickKeys();
         }
 
         function filterData() {
+            renderQuickKeys();
             const input = document.getElementById('searchInput');
             const q = input ? input.value.trim().toLowerCase() : '';
             let filtered = products;
@@ -1391,25 +1415,17 @@
 
                 // 手機版卡片渲染
                 const mobCard = document.createElement('div');
-                mobCard.className = "bg-white p-3 rounded-2xl border border-gray-100 shadow-sm flex flex-col cursor-pointer hover:bg-slate-50/50 active:scale-[0.98] transition-all gap-1.5";
-                mobCard.onclick = () => openCustomerDetailModal(c.id);
+                mobCard.className = "bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-3";
                 mobCard.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-2 min-w-0 pr-3">
-                            <span class="text-sm font-black text-slate-800 truncate">${c.name}</span>
-                            <span class="text-[9px] px-1.5 py-0.5 rounded border ${isBade ? 'bg-red-50 border-red-100 text-red-500' : 'bg-blue-50 border-blue-100 text-blue-500'}">${office}</span>
-                        </div>
-                        <div class="shrink-0 text-indigo-600 text-xs font-black flex items-center gap-1">
-                            <span>詳細</span>
-                            <i class="fa-solid fa-chevron-right text-[10px] opacity-60"></i>
-                        </div>
+                    <div class="flex justify-between items-start gap-3">
+                        <div class="min-w-0"><div class="text-[10px] text-slate-400 font-bold mb-1">負責人</div><div class="text-xl font-black text-slate-900 break-words">${escapeMarkup(c.name || '未填負責人')}</div></div>
+                        <span class="shrink-0 text-[10px] px-2 py-1 rounded border ${badgeClass}">${escapeMarkup(office)}</span>
                     </div>
-                    <div class="text-[11px] text-gray-400 font-bold truncate">${c.biz || '-'}</div>
-                    <div class="flex flex-wrap gap-1.5 text-[9px] mt-0.5">
-                        <span class="${isDebit ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-gray-100 text-gray-500'} px-2 py-0.5 rounded font-black">${c.pay || '普通支付'}</span>
-                        ${(c.day && c.day !== '-') ? `<span class="bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded font-black">送貨：${c.day}</span>` : ''}
-                    </div>
+                    <div><div class="text-[10px] text-slate-400 font-bold mb-1">店名</div><div class="text-base font-bold text-slate-700 break-words">${escapeMarkup(c.biz || '未填店名')}</div></div>
+                    ${c.addr && c.addr.trim() && c.addr.trim() !== '-' ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(purifyAddress(c.addr))}" target="_blank" rel="noopener noreferrer" class="block rounded-xl bg-blue-50 border border-blue-100 p-3 text-blue-700"><span class="block text-[10px] font-bold mb-1">地址 · 點一下導航 ↗</span><span class="block text-sm font-bold break-words leading-relaxed">📍 ${escapeMarkup(c.addr)}</span></a>` : '<div class="text-sm text-slate-400">地址未提供</div>'}
+                    <div class="flex justify-between items-center gap-2 border-t border-gray-100 pt-2"><span class="text-xs text-slate-400">代號 ${escapeMarkup(c.id)}</span><button type="button" class="customer-detail-button text-indigo-600 text-xs font-bold px-3 py-3 rounded-lg bg-indigo-50">查看詳細 ›</button></div>
                 `;
+                mobCard.querySelector('.customer-detail-button').onclick = () => openCustomerDetailModal(c.id);
                 mobileContainer.appendChild(mobCard);
             });
         }
@@ -1521,7 +1537,7 @@
 
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-product-id', p.id);
-                tr.setAttribute('draggable', 'true');
+                tr.setAttribute('draggable', window.matchMedia('(min-width: 768px)').matches ? 'true' : 'false');
                 tr.addEventListener('dragstart', (e) => handleDragStart(e, p.id));
                 tr.addEventListener('dragover', handleDragOver);
                 tr.addEventListener('dragenter', handleDragEnter);
@@ -1532,7 +1548,7 @@
                 tr.className = "product-card block md:table-row bg-white mobile-card mb-2 md:mb-0 rounded-2xl border md:border-b p-2.5 md:p-0 transition-colors hover:bg-blue-50/50";
                 tr.innerHTML = `
                     <td class="p-2 py-1 md:p-4 text-center block md:table-cell border-b border-dashed border-gray-50 md:border-none">
-                        <div class="flex items-center justify-center text-gray-300 hover:text-indigo-600 transition-colors cursor-grab active:cursor-grabbing" ontouchstart="handleTouchStart(event, '${p.id}')" ontouchmove="handleTouchMove(event)" ontouchend="handleTouchEnd(event)"><i class="fa-solid fa-grip-vertical text-base md:text-lg"></i></div>
+                        <div class="flex items-center justify-center text-gray-300 hover:text-indigo-600 transition-colors cursor-grab active:cursor-grabbing" ><i class="fa-solid fa-grip-vertical text-base md:text-lg"></i></div>
                     </td>
                     <td class="p-2 py-1.5 md:p-4 block md:table-cell">
                         <button onclick="copyText('${p.id}', '已複製代碼: ${p.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg font-mono-custom font-bold w-full md:w-auto text-left shadow-sm transition-all flex items-center justify-between md:justify-start"><span>${p.id}</span><i class="fa-regular fa-copy text-xs ml-2 text-blue-400"></i></button>
@@ -1564,6 +1580,7 @@
                     </td>
                     <td class="flex md:table-cell justify-end md:justify-center p-2 pt-1 border-t md:border-0 text-center gap-1.5">
                         <div class="flex items-center justify-end md:justify-center gap-1.5 w-full">
+                            <button type="button" data-line-product="${encodeURIComponent(p.id)}" onclick="copyProductForLine(decodeURIComponent(this.dataset.lineProduct), this)" class="line-copy-button md:hidden">💬 複製產品資訊到 LINE</button>
                             <button onclick="openProductModal('${p.id}')" class="text-blue-500 hover:text-blue-700 font-bold text-xs bg-slate-50 md:bg-transparent px-2.5 py-1.5 rounded-lg md:p-0 border border-gray-100 md:border-none flex items-center justify-center gap-1 flex-1 md:flex-auto"><i class="fa-solid fa-pen-to-square md:hidden"></i> 修改</button>
                             <button onclick="deleteProduct('${p.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-xs bg-slate-50 md:bg-transparent px-2.5 py-1.5 rounded-lg md:p-0 border border-gray-100 md:border-none flex items-center justify-center gap-1 flex-1 md:flex-auto"><i class="fa-solid fa-trash-can md:hidden"></i> 刪除</button>
                         </div>
@@ -1769,6 +1786,7 @@
 
         let draggedId = null; let touchDraggedId = null; let touchStartRow = null;
         function handleDragStart(e, id) {
+            if (window.matchMedia('(max-width: 767px)').matches) { e.preventDefault(); return; }
             draggedId = id; e.dataTransfer.effectAllowed = 'move';
             const tr = e.target.closest('tr'); if (tr) tr.classList.add('opacity-40', 'bg-blue-100');
         }
@@ -1786,6 +1804,7 @@
             document.querySelectorAll('tr').forEach(row => row.classList.remove('drag-hover-top', 'drag-hover-bottom')); draggedId = null;
         }
         function handleTouchStart(e, id) {
+            if (window.matchMedia('(max-width: 767px)').matches) return;
             const tr = e.target.closest('tr'); if (!tr) return;
             touchDraggedId = id; touchStartRow = tr; tr.classList.add('bg-blue-50', 'opacity-60');
         }
@@ -1881,6 +1900,8 @@
             const k = quickKeys.find(x => x.id === keyId);
             if (!k) return;
             activeQuickKey = k;
+            selectedQuickGroup = k.group;
+            renderQuickKeys();
             const searchInput = document.getElementById('searchInput');
             if(searchInput) searchInput.value = k.query;
             if (k.category) { curCat = k.category; buildNav(); }
@@ -1903,6 +1924,53 @@
             void t.offsetWidth; 
             t.classList.add('copy-toast');
             setTimeout(() => t.classList.add('hidden'), 1900);
+        }
+
+
+        function escapeMarkup(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
+        }
+        function productLineMessage(p) {
+            const money = value => Number.isFinite(Number(value)) ? Number(value).toLocaleString('zh-TW', {maximumFractionDigits: 2}) : '未提供';
+            const unit = p.unit || '條', minUnit = p.min_unit || '包', ratio = p.ratio || 10;
+            const margin = Number(p.r) > 0 ? ((p.r - p.w) / p.r * 100).toFixed(2) : '0.00';
+            return [
+                `【${p.name}】`,
+                `▸ 產品代號：${p.id}`,
+                `▸ 分類：${p.cat || '未分類'}`,
+                `📦 單位：1 ${unit}＝${ratio} ${minUnit}`,
+                '',
+                `💰 批發價：$${money(p.w)}／${minUnit}`,
+                `　 整${unit}：$${money(p.w * ratio)}／${unit}`,
+                `🏷️ 建議價：$${money(p.r)}／${minUnit}`,
+                `　 整${unit}：$${money(p.r * ratio)}／${unit}`,
+                '',
+                `📈 毛利額：$${money(p.r - p.w)}／${minUnit}`,
+                `▸ 利潤率：${margin}%`,
+                ...(p.launchDate ? [`▸ 上市日期：${p.launchDate}`] : [])
+            ].join('\n');
+        }
+        async function writeClipboardText(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                try { await navigator.clipboard.writeText(text); return true; } catch (_) {}
+            }
+            const previous = document.activeElement;
+            const field = document.createElement('textarea');
+            field.value = text; field.readOnly = true;
+            field.style.cssText = 'position:fixed;left:0;top:0;opacity:0;font-size:16px;';
+            document.body.appendChild(field); field.focus(); field.select(); field.setSelectionRange(0, text.length);
+            let copied = false;
+            try { copied = document.execCommand('copy'); } catch (_) {}
+            field.remove(); if (previous && previous.focus) previous.focus();
+            return copied;
+        }
+        async function copyProductForLine(id, button) {
+            const list = id === null ? currentFilteredProducts : products.filter(p => String(p.id) === String(id));
+            if (!list.length) { showToast('目前沒有可複製的產品'); return; }
+            const copied = await writeClipboardText(list.map(productLineMessage).join('\n\n━━━━━━━━━━━━\n\n'));
+            if (!copied) { showToast('複製失敗，請再試一次'); return; }
+            showToast(`已複製 ${list.length} 項產品，可貼到 LINE`);
+            if (button) { const label = button.textContent; button.textContent = '✓ 已複製，可貼到 LINE'; setTimeout(() => { button.textContent = label; }, 2000); }
         }
 
         function copyText(txt, msg = "已複製") {
@@ -2033,6 +2101,7 @@
             openImportModal, closeImportModal, openCustomerModal, closeCustomerModal,
             openProductModal, closeProductModal, exportUpdatedHTML, confirmClearCustomers,
             handleClearCustomers, confirmClearProducts, handleClearProducts, processDataLocallyAndUpload,
+            selectQuickGroup, copyProductForLine,
             setCategory, clearSearch, filterData, searchCustomer, clearActiveQuickKeyOnInput,
             handleDragStart, handleDragOver, handleDragEnter, handleDragLeave, handleDrop, handleDragEnd,
             handleTouchStart, handleTouchMove, handleTouchEnd, toggleN90PassVisible, copyN90Password,
