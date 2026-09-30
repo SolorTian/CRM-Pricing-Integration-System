@@ -97,6 +97,7 @@
         @media (max-width: 767px) {
             .product-card > td:nth-child(12) button:not(.line-copy-button) { display: none; }
         }
+        #custDetailModal > div { max-height: calc(100dvh - 32px); }
     </style>
     
     <!-- 💡 全域防護與宣告 -->
@@ -323,7 +324,7 @@
 
     <!-- 👥 客戶詳細資料大字卡彈窗 -->
     <div id="custDetailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[250] p-4 text-left">
-        <div class="bg-white rounded-[2.2rem] w-full max-w-md overflow-hidden shadow-2xl p-6 space-y-5 border border-gray-100 animate-fadeIn text-xs">
+        <div class="bg-white rounded-[2.2rem] w-full max-w-md overflow-y-auto shadow-2xl p-6 space-y-5 border border-gray-100 animate-fadeIn text-xs">
             <div class="flex justify-between items-center border-b border-gray-100 pb-3">
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
@@ -354,7 +355,7 @@
                         </div>
                     </div>
                     <div>
-                        <span class="text-[10px] text-slate-400 block mb-1">付款方式</span>
+                        <span id="detPayLabel" class="text-[10px] text-slate-400 block mb-1">付款方式</span>
                         <div><span id="detPay" class="px-3 py-1 rounded-full text-xs font-black"></span></div>
                     </div>
                 </div>
@@ -379,6 +380,11 @@
                     <span class="text-[10px] text-slate-400 block mb-1">登記營址</span>
                     <div id="detAddr" class="text-slate-500 font-medium leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-gray-100 text-[11px]"></div>
                 </div>
+            </div>
+            <div class="border-t border-gray-100 pt-4 space-y-2">
+                <label for="detNote" class="block text-xs font-black text-slate-700">📝 客戶備註</label>
+                <textarea id="detNote" rows="3" maxlength="4000" placeholder="輸入聯絡偏好、送貨提醒等備註…" class="w-full p-3 border border-slate-200 rounded-xl text-base text-slate-700 leading-relaxed" oninput="document.getElementById('detNoteStatus').textContent='尚未儲存'"></textarea>
+                <div class="flex items-center justify-between gap-2"><span id="detNoteStatus" role="status" class="text-[11px] text-slate-500"></span><button type="button" onclick="saveCustomerNote()" class="shrink-0 px-4 py-3 rounded-xl bg-indigo-600 text-white text-xs font-black">儲存備註</button></div>
             </div>
             <div class="pt-2 flex gap-3">
                 <button onclick="closeCustomerDetailModal()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-xl font-black text-center text-xs transition-colors">關閉視窗</button>
@@ -656,7 +662,7 @@
     <script type="module">
         import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { initializeFirestore, getFirestore, doc, setDoc, onSnapshot, persistentLocalCache, persistentMultipleTabManager, disableNetwork, enableNetwork, setLogLevel } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeFirestore, getFirestore, collection, doc, setDoc, onSnapshot, persistentLocalCache, persistentMultipleTabManager, disableNetwork, enableNetwork, setLogLevel } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // ==========================================
         // 配置與狀態變數宣告
@@ -678,6 +684,10 @@
 
         let products = safeJSONParse('db_p_baked_final', []);
         let customers = safeJSONParse('db_c_baked_final', []);
+        let customerNotes = safeJSONParse('db_customer_notes_v1', {});
+        let pendingCustomerNotes = safeJSONParse('db_customer_notes_pending_v1', {});
+        customerNotes = {...customerNotes, ...pendingCustomerNotes};
+        let notesFlushRunning = false;
         let tempTransactions = safeJSONParse('db_tx_temp_local', []);
         let activeAnalysis = safeJSONParse('db_active_analysis_final', {});
         let customSortMap = safeJSONParse('db_custom_sort_v2', {});
@@ -957,6 +967,16 @@
         function startSync() {
             if(!db || !navigator.onLine) return;
             log("正在與雲端文檔建立即時訂閱監聽...");
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'customer_notes'), snap => {
+                snap.forEach(record => {
+                    const id = decodeURIComponent(record.id);
+                    if (!pendingCustomerNotes[id]) customerNotes[id] = record.data();
+                });
+                customerNotes = {...customerNotes, ...pendingCustomerNotes};
+                try { localStorage.setItem('db_customer_notes_v1', JSON.stringify(customerNotes)); } catch (_) {}
+                refreshCustomerNotes();
+            }, () => {});
+            flushCustomerNotes();
             onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'products', 'products_doc'), snap => {
                 isFirestoreConnected = true;
                 updateConnectionStatusUI();
@@ -1351,6 +1371,81 @@
             renderCustomerTable(currentFilteredCustomers);
         }
 
+
+        function customerKey(id) { return String(id ?? '').trim(); }
+        function parsePurchaseDate(value) {
+            if (value === null || value === undefined || value === '') return null;
+            let text = String(value).trim();
+            if (/^\d{5}(?:\.\d+)?$/.test(text)) {
+                const serial = Number(text);
+                const d = new Date(Date.UTC(1899, 11, 30) + Math.floor(serial) * 86400000);
+                return d.toISOString().slice(0, 10);
+            }
+            if (/^\d{7,8}$/.test(text)) text = text.slice(0, -4) + '-' + text.slice(-4, -2) + '-' + text.slice(-2);
+            const parts = text.match(/^(\d{3,4})[\/.-](\d{1,2})[\/.-](\d{1,2})(?:\s|T|$)/);
+            if (!parts) return null;
+            let year = Number(parts[1]); if (year < 1911) year += 1911;
+            const month = Number(parts[2]), day = Number(parts[3]);
+            const d = new Date(Date.UTC(year, month - 1, day));
+            if (d.getUTCFullYear() !== year || d.getUTCMonth() !== month - 1 || d.getUTCDate() !== day) return null;
+            return d.toISOString().slice(0, 10);
+        }
+        function customerPurchaseStatus(c, now = new Date()) {
+            const parts = new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
+            const part = type => Number(parts.find(p => p.type === type).value);
+            const today = new Date(Date.UTC(part('year'),part('month')-1,part('day')));
+            const cutoff = new Date(today); cutoff.setUTCDate(1); cutoff.setUTCMonth(cutoff.getUTCMonth()-6);
+            const lastDay = new Date(Date.UTC(cutoff.getUTCFullYear(),cutoff.getUTCMonth()+1,0)).getUTCDate();
+            cutoff.setUTCDate(Math.min(today.getUTCDate(),lastDay));
+            const last = parsePurchaseDate(c.lastPurchaseDate);
+            const known = !!last && last <= today.toISOString().slice(0,10);
+            return {known, last:known ? last : null, ghost:known && last < cutoff.toISOString().slice(0,10)};
+        }
+        function customerNoteText(id) { return customerNotes[customerKey(id)]?.text || ''; }
+        function refreshCustomerNotes() {
+            const modal = document.getElementById('customerModal');
+            if (modal && !modal.classList.contains('hidden')) searchCustomer();
+        }
+        function updateCustomerNoteStatus(id) {
+            if (customerKey(activeDetailedCustId) !== customerKey(id)) return;
+            const status = document.getElementById('detNoteStatus');
+            if (status) status.textContent = pendingCustomerNotes[customerKey(id)] ? '已儲存至此裝置，待雲端同步' : '已儲存';
+        }
+        async function flushCustomerNotes() {
+            if (notesFlushRunning || !db || !isUserLoggedIn || !navigator.onLine) return;
+            notesFlushRunning = true;
+            let retryNewRevision = false;
+            try {
+                for (const id of Object.keys(pendingCustomerNotes)) {
+                    const entry = pendingCustomerNotes[id];
+                    if (!entry) continue;
+                    try {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'customer_notes', encodeURIComponent(id)), entry);
+                        if (pendingCustomerNotes[id]?.revision === entry.revision) {
+                            delete pendingCustomerNotes[id];
+                            localStorage.setItem('db_customer_notes_pending_v1', JSON.stringify(pendingCustomerNotes));
+                            updateCustomerNoteStatus(id);
+                        } else { retryNewRevision = true; }
+                    } catch (_) { updateCustomerNoteStatus(id); }
+                }
+            } finally {
+                notesFlushRunning = false;
+                if (retryNewRevision) flushCustomerNotes();
+            }
+        }
+        async function saveCustomerNote() {
+            const id = customerKey(activeDetailedCustId), field = document.getElementById('detNote');
+            if (!id || !field) return;
+            const entry = {text:field.value, revision:crypto.randomUUID(), updatedAt:Date.now()};
+            const next = {...customerNotes,[id]:entry}, pending = {...pendingCustomerNotes,[id]:entry};
+            try {
+                localStorage.setItem('db_customer_notes_pending_v1', JSON.stringify(pending));
+                localStorage.setItem('db_customer_notes_v1', JSON.stringify(next));
+            } catch (_) { showToast('備註儲存失敗，請保留文字再試一次'); return; }
+            customerNotes = next; pendingCustomerNotes = pending;
+            updateCustomerNoteStatus(id); refreshCustomerNotes(); showToast('備註已儲存');
+            await flushCustomerNotes();
+        }
         function renderCustomerTable(data) {
             const body = document.getElementById('customerTable');
             const mobileContainer = document.getElementById('customerMobileList');
@@ -1376,6 +1471,7 @@
             }
 
             sliceData.forEach(c => {
+                const purchase = customerPurchaseStatus(c);
                 const isDebit = (typeof directDebitIds !== 'undefined' ? directDebitIds.includes(c.id?.toString()) : false) || c.pay?.includes("扣款") || c.pay?.includes("轉帳");
                 let office = c.office || '';
                 let isBade = false;
@@ -1405,7 +1501,7 @@
                     <td class="p-4 text-center"><span class="px-3 py-1.5 rounded-lg text-xs font-black border ${badgeClass} text-nowrap">${office}</span></td>
                     <td class="p-4 text-center">
                         <span class="${isDebit ? 'bg-orange-100 text-orange-700 border border-orange-300' : 'bg-gray-100 text-gray-500 border border-gray-200'} px-3 py-1.5 rounded-full text-[10px] font-black">
-                            ${c.pay || '普通支付'}
+                            ${purchase.ghost ? '幽靈客戶' : escapeMarkup(c.pay || '未提供')}
                         </span>
                     </td>
                     <td class="p-4 text-center">
@@ -1435,6 +1531,12 @@
                         <span class="shrink-0 text-[10px] px-2 py-1 rounded border ${badgeClass}">${escapeMarkup(office)}</span>
                     </div>
                     <div><div class="text-[10px] text-slate-400 font-bold mb-1">店名</div><div class="text-base font-bold text-slate-700 break-words">${escapeMarkup(c.biz || '未填店名')}</div></div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="rounded-xl bg-blue-50 border border-blue-100 p-3"><span class="block text-[10px] text-blue-500 font-bold mb-1">🚚 送貨日期</span><span class="block text-sm font-black text-blue-800 break-words">${escapeMarkup(c.day && c.day !== '-' ? c.day : '未提供')}</span></div>
+                        <div class="rounded-xl ${purchase.ghost ? 'bg-slate-100 border-slate-200' : 'bg-orange-50 border-orange-100'} border p-3"><span class="block text-[10px] text-slate-500 font-bold mb-1">${purchase.ghost ? '購貨狀態' : '💳 付款方式'}</span><span class="block text-sm font-black ${purchase.ghost ? 'text-slate-700' : 'text-orange-800'} break-words">${purchase.ghost ? '👻 幽靈客戶' : escapeMarkup(c.pay || '未提供')}</span></div>
+                    </div>
+                    <div class="text-[11px] text-slate-400">${purchase.known ? '最後購貨：' + purchase.last : '購貨日期未提供'}</div>
+                    ${customerNoteText(c.id) ? `<div class="rounded-xl bg-amber-50 border border-amber-100 p-3"><span class="block text-[10px] text-amber-600 font-bold mb-1">📝 備註</span><p class="text-xs text-amber-900 whitespace-pre-wrap break-words">${escapeMarkup(customerNoteText(c.id))}</p></div>` : ''}
                     ${c.addr && c.addr.trim() && c.addr.trim() !== '-' ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(purifyAddress(c.addr))}" target="_blank" rel="noopener noreferrer" class="block rounded-xl bg-blue-50 border border-blue-100 p-3 text-blue-700"><span class="block text-[10px] font-bold mb-1">地址 · 點一下導航 ↗</span><span class="block text-sm font-bold break-words leading-relaxed">📍 ${escapeMarkup(c.addr)}</span></a>` : '<div class="text-sm text-slate-400">地址未提供</div>'}
                     <div class="flex justify-between items-center gap-2 border-t border-gray-100 pt-2"><span class="text-xs text-slate-400">代號 ${escapeMarkup(c.id)}</span><button type="button" class="customer-detail-button text-indigo-600 text-xs font-bold px-3 py-3 rounded-lg bg-indigo-50">查看詳細 ›</button></div>
                 `;
@@ -1446,7 +1548,10 @@
         function openCustomerDetailModal(id) {
             const c = customers.find(x => x.id === id);
             if (!c) return;
+            const purchase = customerPurchaseStatus(c);
             activeDetailedCustId = c.id;
+            document.getElementById('detNote').value = customerNoteText(c.id);
+            updateCustomerNoteStatus(c.id);
             activeDetailedCustTel = c.tel;
             activeCustomerForNavigation = c;
 
@@ -1480,14 +1585,16 @@
                 officeEl.className = `px-2.5 py-1 rounded-lg text-xs font-black border ${badgeClass}`;
             }
             if (idEl) idEl.innerText = c.id || '-';
+            const payLabel = document.getElementById('detPayLabel');
+            if (payLabel) payLabel.innerText = purchase.ghost ? '購貨狀態' : '付款方式';
             if (payEl) {
-                payEl.innerText = c.pay || '普通支付';
-                payEl.className = `px-3 py-1 rounded-full text-xs font-black ${isDebit ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-gray-100 text-gray-500'}`;
+                payEl.innerText = purchase.ghost ? '👻 幽靈客戶' : (c.pay || '未提供');
+                payEl.className = `px-3 py-1 rounded-full text-xs font-black ${purchase.ghost ? 'bg-slate-100 text-slate-700 border border-slate-200' : isDebit ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-gray-100 text-gray-500'}`;
             }
             if (bizEl) bizEl.innerText = c.biz || '-';
             if (telEl) telEl.innerText = c.tel || '-';
             if (dayEl) {
-                dayEl.innerHTML = `<span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-black border border-blue-300">${c.day || '-'}</span>`;
+                dayEl.innerHTML = `<span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-black border border-blue-300">${escapeMarkup(c.day || '未提供')}</span>`;
             }
             if (addrEl) addrEl.innerText = c.addr || '-';
 
@@ -1543,7 +1650,8 @@
                 const profit = (p.r - p.w).toFixed(1);
                 const margin = p.r > 0 ? (((p.r - p.w) / p.r) * 100).toFixed(2) : "0.00";
                 const borderStyle = parseFloat(margin) <= 10.00 ? "profit-border-low" : "profit-border-high";
-                const ratio = p.ratio || 10; 
+                const ratio = p.ratio || 10;
+                const preferWholeUnit = ['beer', 'cigarettes', 'ramen'].includes(activeQuickKey?.group); 
                 const formatPrice = (n) => Number.isInteger(parseFloat(n)) ? parseInt(n) : parseFloat(n).toFixed(1);
                 const count = activeAnalysis[p.id]?.count || 0;
                 const is2026 = p.launchDate && p.launchDate.includes('2026');
@@ -1577,10 +1685,10 @@
                         <span class="md:hidden text-gray-400 font-medium">最小單位</span><span>${p.min_unit || '包'}</span>
                     </td>
                     <td class="flex md:table-cell justify-between p-2 py-1 md:p-4 text-xs font-bold text-slate-500 items-center md:items-start text-right">
-                        <span class="md:hidden text-gray-400 font-medium">批發價</span><div><div class="font-mono-custom">$${formatPrice(p.w)}<span class="md:hidden text-[10px] font-normal">/${p.min_unit || '包'}</span></div><div class="text-[9px] text-gray-400 font-normal font-mono-custom">$${formatPrice(p.w * ratio)}/${p.unit || '條'}</div></div>
+                        <span class="md:hidden text-gray-400 font-medium">批發價</span><div><div class="font-mono-custom ${preferWholeUnit ? 'text-base' : ''}">$${formatPrice(preferWholeUnit ? p.w * ratio : p.w)}<span class="${preferWholeUnit ? '' : 'md:hidden'} text-[10px] font-normal">/${preferWholeUnit ? (p.unit || '條') : (p.min_unit || '包')}</span></div><div class="text-[9px] text-gray-400 font-normal font-mono-custom">$${formatPrice(preferWholeUnit ? p.w : p.w * ratio)}/${preferWholeUnit ? (p.min_unit || '包') : (p.unit || '條')}</div></div>
                     </td>
                     <td class="flex md:table-cell justify-between p-2 py-1 md:p-4 text-xs font-black text-blue-600 items-center md:items-start text-right">
-                        <span class="md:hidden text-gray-400 font-medium">建議價</span><div><div class="font-mono-custom">$${formatPrice(p.r)}<span class="md:hidden text-[10px] font-normal">/${p.min_unit || '包'}</span></div><div class="text-[9px] text-blue-400 font-normal font-mono-custom">$${formatPrice(p.r * ratio)}/${p.unit || '條'}</div></div>
+                        <span class="md:hidden text-gray-400 font-medium">建議價</span><div><div class="font-mono-custom ${preferWholeUnit ? 'text-base' : ''}">$${formatPrice(preferWholeUnit ? p.r * ratio : p.r)}<span class="${preferWholeUnit ? '' : 'md:hidden'} text-[10px] font-normal">/${preferWholeUnit ? (p.unit || '條') : (p.min_unit || '包')}</span></div><div class="text-[9px] text-blue-400 font-normal font-mono-custom">$${formatPrice(preferWholeUnit ? p.r : p.r * ratio)}/${preferWholeUnit ? (p.min_unit || '包') : (p.unit || '條')}</div></div>
                     </td>
                     <td class="flex md:table-cell justify-between p-2 py-1 md:p-4 text-xs font-black text-emerald-600 items-center md:items-start text-right">
                         <span class="md:hidden text-gray-400 font-medium">毛利額</span><span class="font-mono-custom">$${profit}</span>
@@ -1624,7 +1732,7 @@
             } else {
                 t.innerText = "批量導入客戶名冊庫 (Excel)";
                 h.className = "p-6 bg-indigo-600 text-white flex justify-between items-center font-black shrink-0";
-                d.innerHTML = "請全選複製您的客戶大名單（包含營業所、代號、負責人、店名、電話、登記營址等）直接貼上！";
+                d.innerHTML = "請全選複製您的客戶大名單（包含營業所、代號、負責人、店名、電話、登記營址等）直接貼上！可包含「最後購貨日期」欄位；客戶備註會依代號保留。";
                 btn.className = "flex-1 py-4 text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl font-black shadow-lg transition-all text-center";
             }
             m.classList.remove('hidden');
@@ -1690,20 +1798,35 @@
 
                 } else if (currentImportType === 'n90') {
                     const parsedRecords = [];
-                    lines.forEach(line => {
+                    const txHeaders = lines[0].split('\t').map(h => h.trim());
+                    const customerIdIdx = txHeaders.findIndex(h => ['客戶代號','購貨人代號','客戶編號','購貨人編號'].includes(h));
+                    const txDateIdx = txHeaders.findIndex(h => ['購貨日期','交易日期','開單日期','日期'].includes(h));
+                    const productIdx = txHeaders.findIndex(h => ['產品代號','料號'].includes(h));
+                    const qtyIdx = txHeaders.findIndex(h => ['數量','購貨數量'].includes(h));
+                    const amountIdx = txHeaders.findIndex(h => ['金額','交易金額','購貨金額'].includes(h));
+                    lines.forEach((line, lineIndex) => {
+                        if (lineIndex === 0 && (customerIdIdx >= 0 || productIdx >= 0 || txDateIdx >= 0)) return;
                         const cols = line.split('\t');
                         if (cols.length >= 3) {
-                            const rawProd = cols[0] ? cols[0].trim() : '';
-                            const date = cols[1] ? cols[1].trim() : '';
+                            const rawProd = cols[productIdx >= 0 ? productIdx : 0]?.trim() || '';
+                            const date = cols[txDateIdx >= 0 ? txDateIdx : 1]?.trim() || '';
                             if (rawProd.includes("產品代號") || rawProd.includes("料號") || date.includes("日期") || rawProd === "") return;
-                            const qty = cols[5] ? parseFloat(cols[5].replace(/,/g, '')) : 0;
-                            const amount = cols[8] ? parseFloat(cols[8].replace(/,/g, '')) : 0;
+                            const qty = parseFloat((cols[qtyIdx >= 0 ? qtyIdx : 5] || '0').replace(/,/g, ''));
+                            const amount = parseFloat((cols[amountIdx >= 0 ? amountIdx : 8] || '0').replace(/,/g, ''));
                             const prodMatch = rawProd.match(/^([a-zA-Z0-9]+)\s+(.+)$/) || [null, rawProd, rawProd];
                             const productId = prodMatch[1] || rawProd;
-                            if (productId && date) { parsedRecords.push({ productId, qty, amount, date }); successCount++; }
+                            if (productId && date) { parsedRecords.push({ productId, qty, amount, date, ...(customerIdIdx >= 0 ? {customerId:customerKey(cols[customerIdIdx]).split(/\s+/)[0]} : {}) }); successCount++; }
                         }
                     });
                     tempTransactions = parsedRecords;
+                    parsedRecords.forEach(tx => {
+                        const date = parsePurchaseDate(tx.date);
+                        const c = customers.find(c => customerKey(c.id) === customerKey(tx.customerId));
+                        if (c && date && customerPurchaseStatus({lastPurchaseDate:date}).known && ((tx.qty > 0 && tx.amount >= 0) || (tx.amount > 0 && tx.qty >= 0))) {
+                            const previous = parsePurchaseDate(c.lastPurchaseDate);
+                            if (!previous || date > previous) c.lastPurchaseDate = date;
+                        }
+                    });
                     safeSaveToLocalStorage('db_tx_temp_local', tempTransactions);
                     computeActiveAnalysis();
                     log(`📥 本地成功匯入暫存交易記錄 ${successCount} 筆！`);
@@ -1711,7 +1834,7 @@
                 } else {
                     const parsedCustomers = [];
                     let officeIdx = 0, idIdx = 1, nameIdx = 2, bizIdx = 3, telIdx = 4, addrIdx = 5, payIdx = 6, dayIdx = 7;
-                    let hasCustHeader = false;
+                    let hasCustHeader = false, lastPurchaseIdx = -1;
 
                     // 💡 智慧欄位映射分析
                     if (lines.length > 0 && (lines[0].includes("客戶代號") || lines[0].includes("代號") || lines[0].includes("姓名"))) {
@@ -1725,6 +1848,7 @@
                         if (headers.indexOf("登記營址") !== -1) addrIdx = headers.indexOf("登記營址");
                         if (headers.indexOf("付款方式") !== -1) payIdx = headers.indexOf("付款方式");
                         if (headers.indexOf("送貨日期") !== -1) dayIdx = headers.indexOf("送貨日期");
+                        lastPurchaseIdx = headers.findIndex(h => ['最後購貨日期','最近購貨日期','最後交易日期','最近交易日期','最後購貨日'].includes(h));
                     }
 
                     lines.forEach((line, index) => {
@@ -1756,7 +1880,8 @@
                                 }
                             }
                             
-                            parsedCustomers.push({ id, office, name, biz, tel, addr, pay, day }); 
+                            const lastPurchaseDate = lastPurchaseIdx >= 0 ? parsePurchaseDate(cols[lastPurchaseIdx]) : null;
+                            parsedCustomers.push({ id, office, name, biz, tel, addr, pay, day, ...(lastPurchaseDate ? {lastPurchaseDate} : {}) }); 
                             successCount++;
                         }
                     });
@@ -1778,6 +1903,7 @@
         function exportUpdatedHTML() {
             const clonedDoc = document.documentElement.cloneNode(true);
             let htmlContent = clonedDoc.outerHTML;
+            htmlContent = htmlContent.replace(/let customerNotes = safeJSONParse\('db_customer_notes_v1', \{\}\);/, () => `let customerNotes = safeJSONParse('db_customer_notes_v1', ${JSON.stringify(customerNotes).replace(/</g, '\\u003c')});`);
             
             htmlContent = htmlContent.replace(/let products = safeJSONParse\('db_p_baked_final', \[\]\);/s, `let products = ${JSON.stringify(products)};`);
             htmlContent = htmlContent.replace(/let customers = safeJSONParse\('db_c_baked_final', \[\]\);/s, `let customers = ${JSON.stringify(customers)};`);
@@ -1949,18 +2075,14 @@
             const margin = Number(p.r) > 0 ? ((p.r - p.w) / p.r * 100).toFixed(2) : '0.00';
             return [
                 `【${p.name}】`,
-                `▸ 產品代號：${p.id}`,
-                `▸ 分類：${p.cat || '未分類'}`,
+                '',
+                '',
                 `📦 單位：1 ${unit}＝${ratio} ${minUnit}`,
                 '',
                 `💰 批發價：$${money(p.w)}／${minUnit}`,
                 `　 整${unit}：$${money(p.w * ratio)}／${unit}`,
                 `🏷️ 建議價：$${money(p.r)}／${minUnit}`,
-                `　 整${unit}：$${money(p.r * ratio)}／${unit}`,
-                '',
-                `📈 毛利額：$${money(p.r - p.w)}／${minUnit}`,
-                `▸ 利潤率：${margin}%`,
-                ...(p.launchDate ? [`▸ 上市日期：${p.launchDate}`] : [])
+                `　 整${unit}：$${money(p.r * ratio)}／${unit}`
             ].join('\n');
         }
         async function writeClipboardText(text) {
@@ -2114,7 +2236,7 @@
             openImportModal, closeImportModal, openCustomerModal, closeCustomerModal,
             openProductModal, closeProductModal, exportUpdatedHTML, confirmClearCustomers,
             handleClearCustomers, confirmClearProducts, handleClearProducts, processDataLocallyAndUpload,
-            selectQuickGroup, copyProductForLine,
+            saveCustomerNote, selectQuickGroup, copyProductForLine,
             setCategory, clearSearch, filterData, searchCustomer, clearActiveQuickKeyOnInput,
             handleDragStart, handleDragOver, handleDragEnter, handleDragLeave, handleDrop, handleDragEnd,
             handleTouchStart, handleTouchMove, handleTouchEnd, toggleN90PassVisible, copyN90Password,
@@ -2159,7 +2281,7 @@
 
         window.addEventListener('online', async () => {
             if (db) {
-                try { await enableNetwork(db); window.log("🟢 偵測到網路已重新連線，已為您自動啟用 Firestore 雲端同步。"); isFirestoreConnected = true; updateConnectionStatusUI(); } 
+                try { await enableNetwork(db); window.log("🟢 偵測到網路已重新連線，已為您自動啟用 Firestore 雲端同步。"); isFirestoreConnected = true; updateConnectionStatusUI(); flushCustomerNotes(); } 
                 catch (e) { window.log(`⚠️ 恢復 Firestore 網路連線失敗: ${e.message}`); }
             }
         });
