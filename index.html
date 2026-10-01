@@ -58,9 +58,32 @@
         .shake-element { animation: shake 0.4s ease-in-out; }
 
         @media (min-width: 768px) {
-            #crmWorkspace { display: grid; grid-template-columns: 280px minmax(0, 1fr); align-items: start; }
-            #desktopCustomerPanel { display: block; min-width: 0; position: sticky; top: 24px; }
+            #crmWorkspace { display: grid; grid-template-columns: 280px minmax(0, 1fr); align-items: stretch; }
+            #desktopCustomerPanel { display: flex; flex-direction: column; align-self: stretch; height: auto; min-height: 0; min-width: 0; position: sticky; top: 24px; }
+            #desktopCustResults { flex: 1; height: 0; min-height: 0; max-height: none; overflow-y: auto; }
             #productSearchPanel { min-width: 0; }
+        }
+
+        #customerModal > .customer-modal-dialog { width: calc(100vw - 32px); max-width: 1800px; height: 92dvh; }
+        #customerTableWrap { min-height: 0; scrollbar-width: auto; }
+        #customerTableWrap table { width: 100%; min-width: 1100px; table-layout: fixed; }
+        #customerTableWrap th, #customerTableWrap td { white-space: normal; overflow-wrap: anywhere; vertical-align: top; padding: 12px; }
+        #customerTableWrap th:nth-child(1) { width: 12%; }
+        #customerTableWrap th:nth-child(2) { width: 7%; }
+        #customerTableWrap th:nth-child(3) { width: 9%; }
+        #customerTableWrap th:nth-child(4) { width: 8%; }
+        #customerTableWrap th:nth-child(5) { width: 9%; }
+        #customerTableWrap th:nth-child(6) { width: 17%; }
+        #customerTableWrap th:nth-child(7) { width: 12%; }
+        #customerTableWrap th:nth-child(8) { width: 18%; }
+        #customerTableWrap th:nth-child(9) { width: 8%; }
+        #customerTableWrap .customer-code-copy { flex-wrap: wrap; justify-content: flex-start; }
+        #customerTableWrap td:last-child > div { flex-wrap: wrap; }
+        @media (max-width: 767px) {
+            #customerModal { padding: 8px; }
+            #customerModal > .customer-modal-dialog { width: 100%; height: 94dvh; border-radius: 20px; }
+            #customerModal .customer-modal-heading { padding: 16px; gap: 12px; }
+            #customerModal h3 { font-size: 16px; line-height: 1.5; }
         }
 
         /* Product cards: paired prices and profit metrics on phones. */
@@ -375,10 +398,10 @@
 
     <!-- 客戶查詢大視窗 (Modal) -->
     <div id="customerModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[100] p-4 text-left">
-        <div class="bg-white rounded-[2rem] w-full max-w-[95vw] md:max-w-7xl overflow-hidden shadow-2xl flex flex-col h-[85vh]">
-            <div class="p-6 bg-indigo-600 flex justify-between items-center text-white shrink-0">
+        <div class="customer-modal-dialog bg-white rounded-[2rem] w-full overflow-hidden shadow-2xl flex flex-col">
+            <div class="customer-modal-heading p-6 bg-indigo-600 flex justify-between items-center text-white shrink-0">
                 <h3 class="text-xl font-black">客價查詢系統 - 客戶資料庫</h3>
-                <button onclick="closeCustomerModal()"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button onclick="closeCustomerModal()" aria-label="關閉客戶查詢" class="shrink-0 p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
             <div class="p-5 border-b bg-gray-50 flex items-center justify-between text-nowrap flex-wrap md:flex-nowrap gap-4">
                 <div class="relative flex-1 w-full">
@@ -390,9 +413,9 @@
                 </div>
             </div>
             
-            <div class="flex-1 overflow-auto bg-white p-4 no-scrollbar" id="customerTableWrap">
+            <div class="flex-1 overflow-auto bg-white p-4" id="customerTableWrap">
                 <!-- 電腦版完整表格 (調整後欄位順序：代號 -> 營業所 -> 付款方式 -> 送貨日 -> 負責人 -> 店名 -> 電話 -> 地址 -> 詳細) -->
-                <table class="hidden md:table w-full text-left border-collapse min-w-[1350px]">
+                <table class="hidden md:table w-full text-left border-collapse">
                     <thead class="text-[11px] font-black text-gray-400 uppercase border-b-2 sticky top-0 bg-white z-20 shadow-sm text-nowrap">
                         <tr>
                             <th class="py-4 px-4 w-32">客戶代號 (複製)</th>
@@ -1530,10 +1553,10 @@
                             ${c.day || '-'}
                         </span>
                     </td>
-                    <td class="p-4 font-black text-gray-800">${c.name}</td>
-                    <td class="p-4 font-bold text-gray-600">${c.biz}</td>
+                    <td class="p-4 font-black text-gray-800">${escapeMarkup(c.name || '-')}</td>
+                    <td class="p-4 font-bold text-gray-600">${escapeMarkup(c.biz || '-')}</td>
                     <td class="p-4 font-mono text-gray-500 text-xs">${escapeMarkup(c.tel || '-')}${secondaryCustomerPhone(c) ? '<br><span class="text-indigo-600">第二電話：'+escapeMarkup(secondaryCustomerPhone(c))+'</span>' : ''}</td>
-                    <td class="p-4 text-xs text-gray-400 max-sm truncate" title="${c.addr}">${c.addr || '-'}</td>
+                    <td class="p-4 text-xs text-slate-600">${escapeMarkup(c.addr || '-')}</td>
                     <td class="p-4 text-center">
                         <div class="flex items-center justify-center gap-1.5 w-full">
                             <button onclick="openCustomerDetailModal('${c.id}')" class="text-blue-500 hover:text-blue-700 font-bold text-xs bg-slate-50 px-2.5 py-1.5 rounded-lg border border-gray-100 transition-all">詳細</button>
