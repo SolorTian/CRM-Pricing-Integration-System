@@ -2034,13 +2034,26 @@
             if (button) { const label = button.textContent; button.textContent = '✓ 已複製，可貼到 LINE'; setTimeout(() => { button.textContent = label; }, 2000); }
         }
 
-        function copyText(txt, msg = "已複製") {
-            const activeEl = document.activeElement; 
-            const el = document.createElement('textarea');
-            el.value = txt; el.style.position = 'absolute'; el.style.left = '-9999px'; 
-            document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-            if (activeEl && typeof activeEl.focus === 'function') activeEl.focus(); 
-            showToast(msg);
+        async function copyText(txt, msg = "已複製") {
+            const value = String(txt ?? '');
+            try {
+                if (!navigator.clipboard?.writeText) throw new Error('clipboard unavailable');
+                await navigator.clipboard.writeText(value);
+                showToast(msg);
+                return true;
+            } catch (_) {
+                const activeEl = document.activeElement;
+                const el = document.createElement('textarea');
+                el.value = value; el.readOnly = true;
+                el.style.cssText = 'position:fixed;left:-9999px;top:0';
+                document.body.appendChild(el); el.focus(); el.select();
+                let copied = false;
+                try { copied = document.execCommand('copy'); } catch (_) {}
+                el.remove();
+                if (activeEl && typeof activeEl.focus === 'function') activeEl.focus();
+                showToast(copied ? msg : '複製未成功，請再點一次');
+                return copied;
+            }
         }
 
         let dangerActionCallback = null;
