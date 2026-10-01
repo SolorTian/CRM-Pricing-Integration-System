@@ -20,6 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
+        body:not(.admin-session) [data-admin-only] {display:none!important;}
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f0f2f5; -webkit-tap-highlight-color: transparent; }
         .font-mono-custom { font-family: 'JetBrains Mono', monospace; }
         @media (min-width: 768px) { .table-wrap { height: calc(100vh - 280px); overflow-y: auto; } }
@@ -107,11 +108,10 @@
         window.openProductModal = function() {}; window.closeProductModal = function() {};
         window.openCustomerDetailModal = function() {}; window.closeCustomerDetailModal = function() {};
         window.openQuickKeysModal = function() {}; window.closeQuickKeysModal = function() {};
-        window.openChangeN90PassModal = function() {}; window.closeN90PassModal = function() {};
         window.confirmClearCustomers = function() {}; window.confirmClearProducts = function() {};
         window.clearSearch = function() {}; window.quickSearch = function() {};
         window.processDataLocallyAndUpload = function() {}; window.copyText = function() {};
-        window.exportUpdatedHTML = function() {}; window.processImport = function() {}; 
+        window.processImport = function() {}; 
         window.deleteProduct = function() {}; window.deleteCustomer = function() {};
         window.copyDetailedId = function() {}; window.callDetailedPhone = function() {};
         window.navigateDetailedAddr = function() {};
@@ -177,9 +177,6 @@
                             <span id="headerStatusDot" class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
                             <span id="headerStatusText" class="text-xs font-black text-gray-400">本機模式</span>
                         </div>
-                        <button onclick="exportUpdatedHTML()" class="hidden md:inline-flex bg-[#ef4444] hover:bg-red-600 text-white px-3 py-2 rounded-xl text-xs font-black shadow-md active:scale-95 transition-all flex items-center gap-1 whitespace-nowrap">
-                            <i class="fa-solid fa-floppy-disk"></i> 儲存系統檔案
-                        </button>
                     </div>
                 </div>
                 
@@ -192,21 +189,21 @@
                     <button onclick="copyText('臺菸酒通字第1130018482號函', '已複製銷退函文！')" class="shrink-0 bg-amber-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-600 shadow-md transition-all flex items-center gap-1.5 whitespace-nowrap"><i class="fa-solid fa-file-lines"></i> 複製銷退函</button>
                     
                     <!-- ⚙️ 系統資料維護 收納下拉選單 (全新設計) -->
-                    <div class="relative inline-block text-left" id="maintenanceDropdownContainer">
+                    <div class="relative inline-block text-left" id="maintenanceDropdownContainer" data-admin-only>
                         <button onclick="toggleMaintenanceDropdown(event)" id="maintenanceDropdownBtn" class="bg-slate-700 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-slate-800 shadow-md text-xs active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
                             <i class="fa-solid fa-screwdriver-wrench"></i> ⚙️ 系統資料維護 <i class="fa-solid fa-chevron-down text-[10px] ml-0.5 opacity-70"></i>
                         </button>
                         
                         <!-- 下拉選單選卡 -->
                         <div id="maintenanceDropdownMenu" class="hidden absolute right-0 mt-2.5 w-56 origin-top-right bg-white rounded-2xl shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50 divide-y divide-gray-100 overflow-hidden border border-gray-100">
-                            <!-- 導入功能分組 -->
+                            <div class="py-1.5"><button onclick="openAccessHistory()" class="w-full text-left px-4 py-3 text-xs font-bold text-indigo-600">🔐 登入裝置與時間紀錄</button></div><!-- 導入功能分組 -->
                             <div class="py-1.5">
                                 <span class="block px-4 py-1 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/50">數據資料導入</span>
                                 <button onclick="openImportModal('products')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors flex items-center gap-2"><i class="fa-solid fa-file-import text-blue-500 w-4"></i> 📥 導入全產品</button>
                                 <button onclick="openImportModal('customers')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors flex items-center gap-2"><i class="fa-solid fa-users text-indigo-500 w-4"></i> 👥 導入客戶</button>
                                 <button onclick="openImportModal('n90')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors flex items-center gap-2"><i class="fa-solid fa-receipt text-teal-500 w-4"></i> 📊 導入 N90 明細</button>
                             </div>
-                            <!-- 清空重置分組 (紅色警示) -->
+                            <div class="py-1.5"><button onclick="processDataLocallyAndUpload()" class="w-full text-left px-4 py-3 text-xs font-bold text-indigo-600 hover:bg-indigo-50">⚡ 本地 analysis 並過濾</button></div><!-- 清空重置分組 (紅色警示) -->
                             <div class="py-1.5 bg-rose-50/20">
                                 <span class="block px-4 py-1 text-[10px] font-black text-rose-400 uppercase tracking-widest">系統重置維護</span>
                                 <button onclick="confirmClearCustomers()" class="w-full text-left px-4 py-2 text-xs font-black text-rose-600 hover:bg-rose-100 transition-colors flex items-center gap-2"><i class="fa-solid fa-user-slash text-rose-500 w-4"></i> 👤 清空客戶庫</button>
@@ -220,41 +217,14 @@
                 </div>
             </header>
 
-            <div class="flex flex-col md:grid md:grid-cols-[230px_1fr] gap-4 md:gap-6">
+            <div class="flex flex-col md:grid md:grid-cols-[280px_minmax(0,1fr)] gap-4 md:gap-6">
                 
                 <aside class="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 md:h-fit md:sticky md:top-6 z-30">
-                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 px-2">分類篩選</h3>
-                    <nav id="categoryNav" class="flex overflow-x-auto md:flex-col gap-2 md:gap-1 no-scrollbar pb-1 md:pb-0 font-bold mb-4"></nav>
+                    <label for="desktopCustSearch" class="block text-sm font-black text-indigo-700 mb-3">👥 客戶查詢</label><input id="desktopCustSearch" oninput="searchDesktopCustomers()" placeholder="負責人、店名、電話、地址…" class="w-full p-3 border rounded-xl text-sm"><p id="desktopCustCount" class="text-xs text-slate-400 my-3"></p><div id="desktopCustResults" class="space-y-2 max-h-[55vh] overflow-y-auto"></div>
                     
-                    <div class="mt-6 px-2 border-t border-gray-100 pt-5 text-nowrap">
-                        <p class="text-[10px] text-gray-400 font-bold mb-3 uppercase tracking-widest text-center">⚡ 本地智慧分析面板</p>
-                        <button onclick="processDataLocallyAndUpload()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black py-2.5 px-2 rounded-xl shadow-md active:scale-95 hover:from-blue-700 hover:to-indigo-700 transition-all flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-circle-radiation"></i> 本地 analysis 並過濾
-                        </button>
-                        <p class="text-[9px] text-gray-400 text-center mt-1.5 font-medium leading-relaxed whitespace-pre-wrap">分析剔除無交易舊品<br>交易明細不上傳立即銷毀</p>
-                    </div>
+                    
 
-                    <div class="mt-6 px-2 border-t border-gray-100 pt-5 text-nowrap">
-                        <p class="text-[10px] text-gray-400 font-bold mb-3 uppercase tracking-widest text-center">🔐 N90 系統登入密碼</p>
-                        <div class="bg-slate-50 p-3 rounded-2xl border border-gray-200 flex flex-col gap-2">
-                            <div class="flex items-center justify-between gap-1.5">
-                                <span id="n90PassDisplay" class="font-mono text-sm font-black text-slate-700 truncate tracking-wider">••••••</span>
-                                <div class="flex items-center gap-1.5">
-                                    <button onclick="toggleN90PassVisible()" class="text-gray-400 hover:text-slate-655 p-1" title="顯示/隱藏密碼"><i id="n90PassToggleIcon" class="fa-solid fa-eye-slash text-xs"></i></button>
-                                    <button onclick="copyN90Password()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-2.5 py-1.5 rounded-xl text-xs font-black shadow-sm flex items-center gap-1"><i class="fa-solid fa-copy text-[10px]"></i> 複製</button>
-                                </div>
-                            </div>
-                            <button onclick="openChangeN90PassModal()" class="w-full text-center text-[10px] text-blue-500 hover:text-blue-700 font-black flex items-center justify-center gap-1"><i class="fa-solid fa-key text-[9px]"></i> 修改登入密碼 (3個月更換)</button>
-                        </div>
-                    </div>
-
-                    <div class="mt-6 px-2 border-t border-gray-100 pt-5 text-center text-nowrap">
-                        <p class="text-[10px] text-gray-400 font-bold mb-3 uppercase tracking-widest text-center">📡 雲端連線診斷</p>
-                        <div class="grid grid-cols-3 gap-1 text-[9px] font-bold text-center mb-3">
-                            <div class="bg-gray-50 p-2 rounded-lg border border-gray-100"><div class="text-gray-400 mb-1">金鑰</div><div id="diagSdk" class="text-gray-400">連線中</div></div>
-                            <div class="bg-gray-50 p-2 rounded-lg border border-gray-100"><div class="text-gray-400 mb-1">登入</div><div id="diagAuth" class="text-gray-400">連線中</div></div>
-                            <div class="bg-gray-50 p-2 rounded-lg border border-gray-100"><div class="text-gray-400 mb-1">同步</div><div id="diagSync" class="text-gray-400">連線中</div></div>
-                        </div>
+                    
                         <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 text-left">
                             <p class="text-[8px] text-slate-500 font-mono-custom uppercase tracking-wider mb-1">連線診斷日誌：</p>
                             <textarea id="diagConsole" readonly class="w-full h-28 bg-slate-900 text-emerald-400 font-mono-custom text-[8px] leading-relaxed resize-none focus:outline-none no-scrollbar" placeholder="正在等待系統載入..."></textarea>
@@ -269,7 +239,7 @@
                     </div>
                 </aside>
 
-                <main class="flex flex-col gap-4 col-span-1">
+                <main class="flex flex-col gap-4 col-span-1 min-w-0"><details class="hidden md:block bg-white border rounded-xl p-3"><summary class="cursor-pointer text-xs font-bold text-slate-500">分類篩選</summary><nav id="categoryNav" class="flex overflow-x-auto md:flex-col gap-2 md:gap-1 no-scrollbar pb-1 md:pb-0 font-bold mb-4"></nav></details>
                     
                     <div class="flex flex-col gap-2.5">
                         <div class="flex gap-2 w-full items-center">
@@ -284,10 +254,10 @@
                                 </button>
                             </div>
                             
-                            <button onclick="openProductModal()" class="hidden md:inline-flex bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-4 py-3.5 rounded-2xl shadow-md transition-all active:scale-95 items-center gap-1 whitespace-nowrap">
+                            <button data-admin-only onclick="openProductModal()" class="hidden md:inline-flex bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-4 py-3.5 rounded-2xl shadow-md transition-all active:scale-95 items-center gap-1 whitespace-nowrap">
                                 <i class="fa-solid fa-circle-plus"></i> ➕ 手動新增產品
                             </button>
-                            <button onclick="openQuickKeysModal()" class="hidden md:inline-flex bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black px-4 py-3.5 rounded-2xl shadow-md transition-all active:scale-95 items-center gap-1.5 whitespace-nowrap">
+                            <button data-admin-only onclick="openQuickKeysModal()" class="hidden md:inline-flex bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black px-4 py-3.5 rounded-2xl shadow-md transition-all active:scale-95 items-center gap-1.5 whitespace-nowrap">
                                 <i class="fa-solid fa-sliders"></i> ⚙️ 管理快捷鍵
                             </button>
                         </div>
@@ -299,7 +269,7 @@
                             <table class="w-full text-left border-collapse block md:table">
                                 <thead class="hidden md:table-header-group bg-gray-50/75 sticky top-0 z-10 border-b border-gray-200 shadow-sm text-nowrap">
                                     <tr>
-                                        <th class="p-4 text-xs font-black text-gray-500 uppercase w-24 text-center">拖曳排序</th>
+                                        <th class="p-4 text-xs font-black text-gray-500 uppercase w-24 text-center">調整順序</th>
                                         <th class="p-4 text-xs font-black text-gray-500 uppercase w-32">代號 (複製)</th>
                                         <th class="p-4 text-xs font-black text-gray-500 uppercase w-20 text-center">分類</th>
                                         <th class="p-4 text-xs font-black text-gray-500 uppercase">產品名稱</th>
@@ -382,9 +352,10 @@
                 </div>
             </div>
             <div class="border-t border-gray-100 pt-4 space-y-2">
+                <label for="detTel2" class="block text-xs font-black text-slate-700">☎ 第二組聯絡電話</label><input id="detTel2" type="tel" maxlength="50" placeholder="可新增另一組手機或市話" class="w-full p-3 border border-slate-200 rounded-xl text-base" oninput="document.getElementById('detNoteStatus').textContent='尚未儲存'">
                 <label for="detNote" class="block text-xs font-black text-slate-700">📝 客戶備註</label>
                 <textarea id="detNote" rows="3" maxlength="4000" placeholder="輸入聯絡偏好、送貨提醒等備註…" class="w-full p-3 border border-slate-200 rounded-xl text-base text-slate-700 leading-relaxed" oninput="document.getElementById('detNoteStatus').textContent='尚未儲存'"></textarea>
-                <div class="flex items-center justify-between gap-2"><span id="detNoteStatus" role="status" class="text-[11px] text-slate-500"></span><button type="button" onclick="saveCustomerNote()" class="shrink-0 px-4 py-3 rounded-xl bg-indigo-600 text-white text-xs font-black">儲存備註</button></div>
+                <div class="flex items-center justify-between gap-2"><span id="detNoteStatus" role="status" class="text-[11px] text-slate-500"></span><button type="button" onclick="saveCustomerNote()" class="shrink-0 px-4 py-3 rounded-xl bg-indigo-600 text-white text-xs font-black">儲存電話與備註</button></div>
             </div>
             <div class="pt-2 flex gap-3">
                 <button onclick="closeCustomerDetailModal()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-xl font-black text-center text-xs transition-colors">關閉視窗</button>
@@ -595,26 +566,6 @@
         </div>
     </div>
 
-    <!-- 🔐 修改 N90 密碼對話框 -->
-    <div id="n90PassModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[110] p-4 text-left">
-        <div class="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl p-6 space-y-4">
-            <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
-                <i class="fa-solid fa-key text-indigo-500"></i>
-                <span>修改 N90 系統密碼</span>
-            </h3>
-            <p class="text-[10px] text-gray-400 font-bold leading-relaxed">
-                為了確保您的系統登入安全，建議每 3 個月定期更換密碼。
-            </p>
-            <div>
-                <input type="text" id="newN90PassInput" placeholder="輸入新的 N90 密碼..." class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-bold">
-            </div>
-            <div class="flex gap-2">
-                <button onclick="closeN90PassModal()" class="flex-1 py-2.5 bg-gray-100 text-gray-500 hover:bg-gray-200 rounded-xl font-bold text-xs">取消</button>
-                <button onclick="saveN90Password()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md">儲存密碼</button>
-            </div>
-        </div>
-    </div>
-
     <!-- 自定義毀滅性安全確認對話框 -->
     <div id="dangerConfirmModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[300] flex items-center justify-center hidden p-4 text-left">
         <div class="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl p-6 space-y-4">
@@ -642,7 +593,7 @@
             <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
             <span class="text-[10px] font-black">客戶查詢</span>
         </button>
-        <button onclick="openQuickKeysModal()" class="flex-1 py-3 flex flex-col items-center justify-center text-gray-400 hover:text-indigo-600 transition-colors">
+        <button data-admin-only onclick="openQuickKeysModal()" class="flex-1 py-3 flex flex-col items-center justify-center text-gray-400 hover:text-indigo-600 transition-colors">
             <i class="fa-solid fa-sliders text-xl mb-1"></i>
             <span class="text-[10px] font-black">管理快捷</span>
         </button>
@@ -653,6 +604,7 @@
         </button>
     </div>
 
+<div id="accessHistoryModal" class="hidden fixed inset-0 z-[250] bg-black/50 p-4 flex items-center justify-center"><section class="bg-white rounded-2xl p-5 w-full max-w-xl max-h-[85vh] overflow-y-auto"><div class="flex justify-between items-center mb-3"><h2 class="text-lg font-black">登入裝置與時間紀錄</h2><button onclick="document.getElementById('accessHistoryModal').classList.add('hidden')" class="p-3">關閉</button></div><p class="text-xs text-slate-500 mb-3">顯示最近 100 筆，時間採台灣時間。裝置依瀏覽器資訊判斷；IP 紀錄暫未啟用。紀錄自此功能啟用後開始。</p><div id="accessHistoryList" class="text-xs space-y-3"></div></section></div>
     <!-- Toast 彈出提醒 -->
     <div id="toast" class="fixed top-14 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-8 py-4 rounded-2xl shadow-2xl font-black hidden z-[350] copy-toast text-sm">
         <span id="toastText">已複製</span>
@@ -661,8 +613,8 @@
     <!-- Firebase 系統載入與核心同步模組 -->
     <script type="module">
         import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { initializeFirestore, getFirestore, collection, doc, setDoc, onSnapshot, persistentLocalCache, persistentMultipleTabManager, disableNetwork, enableNetwork, setLogLevel } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { initializeFirestore, getFirestore, collection, doc, setDoc, addDoc, serverTimestamp, getDocs, query, orderBy, limit, onSnapshot, persistentLocalCache, persistentMultipleTabManager, disableNetwork, enableNetwork, setLogLevel } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // ==========================================
         // 配置與狀態變數宣告
@@ -676,6 +628,8 @@
             appId: "1:1064089344457:web:e17ae0c78af3f492767018"
         };
 
+        const accountUIDs = {gaexp8213:'op0DoHi7KRZit0rpjRwCoXUgPzU2', '1502':'z7qPz7LiGAVVJnEDmt16iRN10pN2'};
+        let syncSubscriptions = [];
         let db = null; let auth = null; let appId = 'ttl-product-system-v2';
         let isSdkLoaded = false; let isUserLoggedIn = false; let isFirestoreConnected = false; let isLoading = false; 
         let curCat = "";
@@ -691,8 +645,6 @@
         let tempTransactions = safeJSONParse('db_tx_temp_local', []);
         let activeAnalysis = safeJSONParse('db_active_analysis_final', {});
         let customSortMap = safeJSONParse('db_custom_sort_v2', {});
-        let n90Password = localStorage.getItem('db_n90_password') || 'N90Password123';
-        let isN90PassVisible = false;
         
         /* */
         let isLoginPassVisible = false;
@@ -752,6 +704,7 @@
         // 🛠️ 系統資料維護選單控制本體
         // ==========================================
         function toggleMaintenanceDropdown(e) {
+            if (!requireMaintenanceAccess()) return;
             if (e) e.stopPropagation();
             const dropdown = document.getElementById('maintenanceDropdownMenu');
             if (dropdown) {
@@ -777,7 +730,7 @@
         function checkLoginStatus() {
             const userInput = document.getElementById('loginUser');
             if (userInput && !userInput.value) userInput.value = localStorage.getItem('sys_remembered_user') || '';
-            const loggedIn = localStorage.getItem('sys_logged_in') === 'true';
+            const loggedIn = isUserLoggedIn && !!sessionAccount();
             const loginPage = document.getElementById('loginPage');
             const mainContent = document.getElementById('mainContent');
             const mobileBottomNav = document.getElementById('mobileBottomNav');
@@ -788,56 +741,81 @@
                 if (mobileBottomNav) mobileBottomNav.classList.remove('hidden');
                 initApp();
             } else {
+                document.querySelectorAll('[id$=Modal], [id$=modal]').forEach(el => el.classList.add('hidden'));
                 if (loginPage) loginPage.classList.remove('hidden');
                 if (mainContent) mainContent.classList.add('hidden');
                 if (mobileBottomNav) mobileBottomNav.classList.add('hidden');
             }
         }
 
-        async function validLogin(user, password) {
-            const credentials = {'gaexp8213': 'dcb050e0605c99dce57dbccba27b913318fd37c4d9b1b433be9cc04f883cb06a', '1502': '4914d66a388684096a1020e3a57fd57fa997a8f3ed16cd9c9c112bbf8ce6d244'};
-            if (!Object.prototype.hasOwnProperty.call(credentials, user)) return false;
-            const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(user + '\n' + password));
-            return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('') === credentials[user];
+        function sessionAccount() {
+            const uid = auth?.currentUser?.uid;
+            return Object.keys(accountUIDs).find(name => accountUIDs[name] === uid) || null;
+        }
+        function isAdminUser() { return isUserLoggedIn && sessionAccount() === 'gaexp8213'; }
+        function requireMaintenanceAccess() {
+            if (isAdminUser()) return true;
+            showToast('只有管理員可以維護系統資料'); return false;
+        }
+        function updateAdminControls() {
+            document.body.classList.toggle('admin-session', isAdminUser());
         }
         async function loginSystem(e) {
             if (e) e.preventDefault();
-            const userVal = document.getElementById('loginUser').value.trim();
-            const passVal = document.getElementById('loginPass').value.trim();
-            const errorEl = document.getElementById('loginError');
-            const cardEl = document.getElementById('loginCard');
-
-            if (await validLogin(userVal, passVal)) {
-                localStorage.setItem('sys_logged_in', 'true');
-                localStorage.setItem('sys_remembered_user', userVal);
-                if (errorEl) errorEl.classList.add('hidden');
-                showToast("🔑 安全認證成功，歡迎登入 POS 系統！");
-                
-                // Delegate password persistence to the browser's credential manager.
-                if (window.PasswordCredential && navigator.credentials?.store) {
-                    navigator.credentials.store(new PasswordCredential({id: userVal, password: passVal})).catch(() => {});
-                }
-                
-                checkLoginStatus();
-            } else {
-                if (errorEl) {
-                    errorEl.innerText = "⚠️ 帳號或密碼錯誤，請重新確認輸入！";
-                    errorEl.classList.remove('hidden');
-                }
-                if (cardEl) {
-                    cardEl.classList.add('shake-element');
-                    setTimeout(() => cardEl.classList.remove('shake-element'), 400);
-                }
+            const username = document.getElementById('loginUser').value.trim();
+            const password = document.getElementById('loginPass').value;
+            const error = document.getElementById('loginError');
+            try {
+                if (!Object.prototype.hasOwnProperty.call(accountUIDs, username) || !auth) throw Error('invalid');
+                await setPersistence(auth, browserLocalPersistence);
+                const result = await signInWithEmailAndPassword(auth, username+'@my-ttl-system.firebaseapp.com', password);
+                if (result.user.uid !== accountUIDs[username]) { await signOut(auth); throw Error('invalid'); }
+                localStorage.setItem('sys_remembered_user', username);
+                error?.classList.add('hidden');
+                document.getElementById('loginPass').value = '';
+                if (window.PasswordCredential && navigator.credentials?.store) navigator.credentials.store(new PasswordCredential({id:username,password})).catch(()=>{});
+                showToast('登入成功');
+            } catch (err) {
+                if (error) { error.textContent = navigator.onLine ? '帳號或密碼錯誤，或登入服務尚未就緒' : '目前離線，請連線後再登入'; error.classList.remove('hidden'); }
             }
         }
-
+        function stopSync() { syncSubscriptions.splice(0).forEach(fn => fn()); }
+        function watchSnapshot(...args) { const unsub = onSnapshot(...args); syncSubscriptions.push(unsub); return unsub; }
         function logoutSystem() {
-            openDangerModal("🚨 安全登出系統", "您確定要安全登出此 POS 管理系統嗎？\n登出後任何未解鎖的使用者都將無法讀取資料。", () => {
-                localStorage.removeItem('sys_logged_in');
-                closeDangerModal();
-                showToast("🔒 系統已安全登出並鎖定！");
-                checkLoginStatus();
+            openDangerModal('登出系統','確定登出目前帳號？', async () => {
+                stopSync(); await signOut(auth); localStorage.removeItem('sys_logged_in');
+                closeDangerModal(); showToast('已登出'); checkLoginStatus();
             });
+        }
+        function deviceDescription() {
+            const ua = navigator.userAgent;
+            const platform = /iPad/.test(ua) || (/Mac/.test(ua) && navigator.maxTouchPoints>1) ? 'iPad' : /iPhone/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'Mac' : '其他裝置';
+            const browser = /Edg\//.test(ua) ? 'Edge' : /CriOS|Chrome/.test(ua) ? 'Chrome' : /FxiOS|Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : '其他瀏覽器';
+            return platform+' · '+browser;
+        }
+        async function recordAccessEvent() {
+            if (!db || !isUserLoggedIn || !sessionAccount()) return;
+            try {
+                let deviceId = localStorage.getItem('crm_device_id');
+                if (!deviceId) {deviceId = crypto.randomUUID(); localStorage.setItem('crm_device_id',deviceId);}
+                await addDoc(collection(db,'artifacts',appId,'public','data','access_events'),{
+                    uid:auth.currentUser.uid, account:sessionAccount(), deviceId, device:deviceDescription(),
+                    userAgent:navigator.userAgent.slice(0,512), at:serverTimestamp(), ip:'暫未啟用',
+                    kind:'登入／開啟網站'
+                });
+            } catch (_) { log('登入紀錄同步失敗，網頁仍可正常使用'); }
+        }
+        async function openAccessHistory() {
+            if (!requireMaintenanceAccess()) return;
+            document.getElementById('accessHistoryModal').classList.remove('hidden');
+            const list = document.getElementById('accessHistoryList'); list.textContent='讀取中…';
+            try {
+                const snap = await getDocs(query(collection(db,'artifacts',appId,'public','data','access_events'),orderBy('at','desc'),limit(100)));
+                list.innerHTML = snap.docs.map(doc => {
+                    const e = doc.data(), date=e.at?.toDate();
+                    return `<article class="p-3 rounded-xl border bg-slate-50 space-y-1"><strong>${escapeMarkup(e.account)} · ${escapeMarkup(e.device)}</strong><p>${date ? date.toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false}) : '時間同步中'}</p><p>IP：暫未啟用</p><p class="text-[10px] text-slate-400 break-all">裝置識別：${escapeMarkup(e.deviceId)}</p></article>`;
+                }).join('') || '尚無登入紀錄';
+            } catch (_) {list.textContent='無法讀取紀錄，請確認管理員登入與網路連線';}
         }
 
         function toggleLoginPassVisible() {
@@ -869,8 +847,9 @@
         }
 
         function initApp() {
+            searchDesktopCustomers();
             // 💡 若尚未通過登入防護，不進行任何表格加載與雲端載入以保安全
-            if (localStorage.getItem('sys_logged_in') !== 'true') return;
+            if (!isUserLoggedIn || !sessionAccount()) return;
 
             buildNav();
             renderQuickKeys(); 
@@ -892,6 +871,7 @@
         }
         
         function saveCustomSort() {
+            if (!requireMaintenanceAccess()) return;
             safeSaveToLocalStorage('db_custom_sort_v2', customSortMap);
             if (db && isUserLoggedIn && navigator.onLine) {
                 setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'custom_sort', 'custom_sort_doc'), { map: customSortMap }).catch(()=>{});
@@ -899,6 +879,7 @@
         }
 
         function save() {
+            if (!requireMaintenanceAccess()) return;
             safeSaveToLocalStorage('db_p_baked_final', products);
             safeSaveToLocalStorage('db_c_baked_final', customers);
             safeSaveToLocalStorage('db_tx_temp_local', tempTransactions);
@@ -944,19 +925,12 @@
                     log("🟢 Firebase 金鑰配置載入與容錯對接成功！");
                     updateConnectionStatusUI();
 
-                    log("開始與 Google 進行匿名驗證登入...");
-                    signInAnonymously(auth)
-                        .then(cred => {
-                            isUserLoggedIn = true;
-                            log(`🟢 匿名驗證登入成功！(UID: ${cred.user.uid})`);
-                            updateConnectionStatusUI();
-                            startSync(); 
-                        })
-                        .catch(err => {
-                            isUserLoggedIn = false;
-                            log(`🔴 驗證失敗: [${err.code}] ${err.message}`, true);
-                            updateConnectionStatusUI();
-                        });
+                    onAuthStateChanged(auth, async user => {
+                        stopSync();
+                        isUserLoggedIn = !!user && !!sessionAccount();
+                        updateAdminControls(); updateConnectionStatusUI(); checkLoginStatus();
+                        if (isUserLoggedIn) { startSync(); await recordAccessEvent(); }
+                    });
                 }
             } catch (e) {
                 log(`🔴 初始化致命崩潰: ${e.message}`, true);
@@ -965,9 +939,10 @@
         }
 
         function startSync() {
-            if(!db || !navigator.onLine) return;
+            if(!db || !isUserLoggedIn) return;
+            stopSync();
             log("正在與雲端文檔建立即時訂閱監聽...");
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'customer_notes'), snap => {
+            watchSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'customer_notes'), snap => {
                 snap.forEach(record => {
                     const id = decodeURIComponent(record.id);
                     if (!pendingCustomerNotes[id]) customerNotes[id] = record.data();
@@ -977,7 +952,7 @@
                 refreshCustomerNotes();
             }, () => {});
             flushCustomerNotes();
-            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'products', 'products_doc'), snap => {
+            watchSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'products', 'products_doc'), snap => {
                 isFirestoreConnected = true;
                 updateConnectionStatusUI();
                 if (snap.exists()) {
@@ -990,7 +965,7 @@
                 }
             }, err => { log(`🔴 雲端產品讀取受阻: ${err.message}`, true); isFirestoreConnected = false; updateConnectionStatusUI(); });
 
-            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'customers', 'customers_doc'), snap => {
+            watchSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'customers', 'customers_doc'), snap => {
                 if (snap.exists()) {
                     const data = snap.data();
                     if (data?.list?.length > 0) {
@@ -1001,7 +976,7 @@
                 }
             }, err => {});
 
-            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'active_analysis', 'active_analysis_doc'), snap => {
+            watchSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'active_analysis', 'active_analysis_doc'), snap => {
                 if (snap.exists()) {
                     const data = snap.data();
                     if (Object.keys(data?.list || {}).length > 0) {
@@ -1012,7 +987,7 @@
                 }
             }, err => {});
             
-            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'custom_sort', 'custom_sort_doc'), snap => {
+            watchSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'custom_sort', 'custom_sort_doc'), snap => {
                 if (snap.exists()) {
                     const data = snap.data();
                     if (data?.map) {
@@ -1023,7 +998,7 @@
                 }
             }, err => {});
 
-            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'quick_keys', 'quick_keys_doc'), snap => {
+            watchSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'quick_keys', 'quick_keys_doc'), snap => {
                 if (snap.exists()) {
                     const data = snap.data();
                     if (data?.list) {
@@ -1035,7 +1010,7 @@
                         safeSaveToLocalStorage('db_quick_keys_v2', quickKeys);
                         renderQuickKeys();
                     }
-                } else {
+                } else if (isAdminUser()) {
                     setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'quick_keys', 'quick_keys_doc'), { list: quickKeys }).catch(()=>{});
                 }
             }, err => {});
@@ -1071,6 +1046,7 @@
         }
 
         function processDataLocallyAndUpload() {
+            if (!requireMaintenanceAccess()) return;
             if (products.length === 0) { showToast("⚠️ 請先導入產品料號基本庫！"); return; }
             if (tempTransactions.length === 0) { showToast("⚠️ 請先導入 N90122 交易明細進行 analysis 計算！"); return; }
 
@@ -1134,6 +1110,7 @@
         }
 
         function confirmClearCustomers() {
+            if (!requireMaintenanceAccess()) return;
             openDangerModal("🚨 【警告】清空客戶資料庫", "此操作將會：\n1. 永久清空您在雲端 Firestore 的所有客戶名冊。\n2. 永久清空這台設備瀏覽器的客戶快取。\n\n此動作完全無法復原，您確定要清空客戶名冊嗎？", handleClearCustomers);
         }
 
@@ -1154,6 +1131,7 @@
         }
 
         function confirmClearProducts() {
+            if (!requireMaintenanceAccess()) return;
             openDangerModal("🚨 【警告】清空產品與交易資料庫", "此操作將會：\n1. 永久清空您在雲端 Firestore 的所有產品、排序狀態與開單次數。\n2. 永久清空這台設備瀏覽器的產品快取與暫存交易明細。\n\n此動作完全無法復原，您確定要清空產品資料庫嗎？", handleClearProducts);
         }
 
@@ -1207,7 +1185,22 @@
         }
 
         let selectedQuickGroup = null;
-        function selectQuickGroup(group) { selectedQuickGroup = group; renderQuickKeys(); }
+        let activeQuickGroupFilter = null;
+        function selectQuickGroup(group) {
+            selectedQuickGroup = group; activeQuickGroupFilter = group;
+            activeQuickKey = null; isQuickSearchClick = false; curCat = '';
+            document.getElementById('searchInput').value = '';
+            buildNav(); filterData();
+        }
+        function matchesQuickGroup(p, group) {
+            const name = String(p.name || ''), cat = String(p.cat || '');
+            if (group === 'rice_wine') return name.includes('米酒');
+            if (group === 'beer') return name.includes('啤');
+            if (group === 'cigarettes') return /菸|煙/.test(cat);
+            if (group === 'ramen') return /麵|粉/.test(name) && cat === '工廠自製';
+            if (group === 'others') return /酒/.test(cat) && !/米酒|啤/.test(name);
+            return true;
+        }
         function renderQuickKeys() {
             const container = document.getElementById('quickKeysContainer');
             if (!container) return;
@@ -1237,6 +1230,7 @@
 
         function clearActiveQuickKeyOnInput() {
             isQuickSearchClick = false;
+            activeQuickGroupFilter = null;
             activeQuickKey = null;
             renderQuickKeys();
         }
@@ -1278,10 +1272,11 @@
                 }
             }
 
+            if (activeQuickGroupFilter && !activeQuickKey) filtered = filtered.filter(p => matchesQuickGroup(p, activeQuickGroupFilter));
             const isDecimal = /\d+\.\d+|\.\d+/.test(q) || q === '.';
             const targetPrice = parseFloat(q);
             const hasTargetPrice = !isNaN(targetPrice) && q !== "";
-            const sortKey = curCat + "||" + q;
+            const sortKey = curCat + "||" + q + (activeQuickGroupFilter ? "||group:" + activeQuickGroupFilter : "");
             const manualList = customSortMap[sortKey];
 
             filtered.sort((a, b) => {
@@ -1336,6 +1331,32 @@
         // ==========================================
         // 👥 客戶搜尋與展示邏輯區塊 (優化為一開啟就顯示全名單)
         // ==========================================
+        function secondaryCustomerPhone(c) { return customerNotes[customerKey(c.id)]?.secondaryPhone ?? c.tel2 ?? ''; }
+        function customerMatches(c, q) {
+            if (!q) return true;
+            const digits = q.replace(/\D/g, '');
+            return [c.name,c.biz,c.id,c.addr].some(v => String(v || '').toLowerCase().includes(q)) ||
+                [c.tel,secondaryCustomerPhone(c)].some(v => String(v || '').includes(q) || (digits && String(v || '').replace(/\D/g,'').includes(digits)));
+        }
+        function searchDesktopCustomers() {
+            const input = document.getElementById('desktopCustSearch'), body = document.getElementById('desktopCustResults');
+            if (!input || !body) return;
+            const q = input.value.trim().toLowerCase(), list = customers.filter(c => customerMatches(c,q));
+            document.getElementById('desktopCustCount').textContent = `${list.length} 位客戶${list.length > 50 ? ' · 顯示前 50 位，可輸入縮小範圍' : ''}`;
+            body.innerHTML = list.slice(0,50).map(c => {
+                const status = customerPurchaseStatus(c), tel2 = secondaryCustomerPhone(c);
+                return `<article class="p-3 bg-indigo-50/40 border border-indigo-100 rounded-xl text-xs space-y-2">
+                  <button type="button" onclick="openCustomerDetailModal(decodeURIComponent('${encodeURIComponent(c.id).replace(/'/g,'%27')}'))" class="text-left w-full"><strong class="block text-sm text-indigo-700">${escapeMarkup(c.name || '未填負責人')}</strong><span class="block mt-1 font-bold">${escapeMarkup(c.biz || '')}</span></button>
+                  <a class="block text-blue-600 leading-relaxed" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(c.addr || '')}">📍 ${escapeMarkup(c.addr || '未填地址')}</a>
+                  <p>🚚 ${escapeMarkup(c.day || '未填送貨日')} · ${status.ghost ? '👻 幽靈客戶' : '💳 '+escapeMarkup(c.pay || '未填付款方式')}</p>
+                  <p>☎ ${escapeMarkup(c.tel || '未填電話')}${tel2 ? '<br>☎ 第二電話：'+escapeMarkup(tel2) : ''}</p>
+                </article>`;
+            }).join('') || '<p class="text-xs text-slate-400">無符合的客戶</p>';
+        }
+        function copyProductField(encodedId, field) {
+            const p = products.find(p => p.id === decodeURIComponent(encodedId));
+            if (p) copyText(field === 'name' ? p.name : p.id, `已複製 ${p.id} ${p.name}`);
+        }
         function searchCustomer() {
             const input = document.getElementById('custSearchInput');
             const q = input ? input.value.trim().toLowerCase() : '';
@@ -1346,22 +1367,7 @@
 
             let filtered = customers;
 
-            // 如果有輸入，則執行過濾，否則預設就是拉出全部名冊
-            if (q !== "") {
-                filtered = customers.filter(c => {
-                    const matchText = (c.name && c.name.toLowerCase().includes(q)) || 
-                                      (c.biz && c.biz.toLowerCase().includes(q)) || 
-                                      (c.id && c.id.toLowerCase().includes(q)) || 
-                                      (c.addr && c.addr.toLowerCase().includes(q));
-                    let matchTel = false;
-                    if (c.tel) {
-                        const qClean = q.replace(/\D/g, ''); 
-                        matchTel = c.tel.includes(q) || (qClean !== "" && c.tel.replace(/\D/g, '').includes(qClean));
-                    }
-                    return matchText || matchTel;
-                });
-            }
-            
+            filtered = customers.filter(c => customerMatches(c,q));
             const cnt = document.getElementById('custSearchCount');
             if (cnt) cnt.innerText = filtered.length;
             
@@ -1403,6 +1409,7 @@
         }
         function customerNoteText(id) { return customerNotes[customerKey(id)]?.text || ''; }
         function refreshCustomerNotes() {
+            searchDesktopCustomers();
             const modal = document.getElementById('customerModal');
             if (modal && !modal.classList.contains('hidden')) searchCustomer();
         }
@@ -1436,14 +1443,14 @@
         async function saveCustomerNote() {
             const id = customerKey(activeDetailedCustId), field = document.getElementById('detNote');
             if (!id || !field) return;
-            const entry = {text:field.value, revision:crypto.randomUUID(), updatedAt:Date.now()};
+            const entry = {...customerNotes[id], text:field.value, secondaryPhone:document.getElementById('detTel2')?.value.trim() ?? secondaryCustomerPhone({id}), revision:crypto.randomUUID(), updatedAt:Date.now()};
             const next = {...customerNotes,[id]:entry}, pending = {...pendingCustomerNotes,[id]:entry};
             try {
                 localStorage.setItem('db_customer_notes_pending_v1', JSON.stringify(pending));
                 localStorage.setItem('db_customer_notes_v1', JSON.stringify(next));
             } catch (_) { showToast('備註儲存失敗，請保留文字再試一次'); return; }
             customerNotes = next; pendingCustomerNotes = pending;
-            updateCustomerNoteStatus(id); refreshCustomerNotes(); showToast('備註已儲存');
+            updateCustomerNoteStatus(id); refreshCustomerNotes(); showToast('聯絡電話與備註已儲存');
             await flushCustomerNotes();
         }
         function renderCustomerTable(data) {
@@ -1511,12 +1518,12 @@
                     </td>
                     <td class="p-4 font-black text-gray-800">${c.name}</td>
                     <td class="p-4 font-bold text-gray-600">${c.biz}</td>
-                    <td class="p-4 font-mono text-gray-500 text-xs">${c.tel || '-'}</td>
+                    <td class="p-4 font-mono text-gray-500 text-xs">${escapeMarkup(c.tel || '-')}${secondaryCustomerPhone(c) ? '<br><span class="text-indigo-600">第二電話：'+escapeMarkup(secondaryCustomerPhone(c))+'</span>' : ''}</td>
                     <td class="p-4 text-xs text-gray-400 max-sm truncate" title="${c.addr}">${c.addr || '-'}</td>
                     <td class="p-4 text-center">
                         <div class="flex items-center justify-center gap-1.5 w-full">
                             <button onclick="openCustomerDetailModal('${c.id}')" class="text-blue-500 hover:text-blue-700 font-bold text-xs bg-slate-50 px-2.5 py-1.5 rounded-lg border border-gray-100 transition-all">詳細</button>
-                            <button onclick="deleteCustomer('${c.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-xs bg-slate-50 px-2.5 py-1.5 rounded-lg border border-gray-100 transition-all">刪除</button>
+                            <button data-admin-only onclick="deleteCustomer('${c.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-xs bg-slate-50 px-2.5 py-1.5 rounded-lg border border-gray-100 transition-all">刪除</button>
                         </div>
                     </td>
                 `;
@@ -1536,6 +1543,7 @@
                         <div class="rounded-xl ${purchase.ghost ? 'bg-slate-100 border-slate-200' : 'bg-orange-50 border-orange-100'} border p-3"><span class="block text-[10px] text-slate-500 font-bold mb-1">${purchase.ghost ? '購貨狀態' : '💳 付款方式'}</span><span class="block text-sm font-black ${purchase.ghost ? 'text-slate-700' : 'text-orange-800'} break-words">${purchase.ghost ? '👻 幽靈客戶' : escapeMarkup(c.pay || '未提供')}</span></div>
                     </div>
                     <div class="text-[11px] text-slate-400">${purchase.known ? '最後購貨：' + purchase.last : '購貨日期未提供'}</div>
+                    <div class="text-sm text-slate-600 break-words">☎ ${escapeMarkup(c.tel || '未填電話')}${secondaryCustomerPhone(c) ? '<br>☎ 第二電話：'+escapeMarkup(secondaryCustomerPhone(c)) : ''}</div>
                     ${customerNoteText(c.id) ? `<div class="rounded-xl bg-amber-50 border border-amber-100 p-3"><span class="block text-[10px] text-amber-600 font-bold mb-1">📝 備註</span><p class="text-xs text-amber-900 whitespace-pre-wrap break-words">${escapeMarkup(customerNoteText(c.id))}</p></div>` : ''}
                     ${c.addr && c.addr.trim() && c.addr.trim() !== '-' ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(purifyAddress(c.addr))}" target="_blank" rel="noopener noreferrer" class="block rounded-xl bg-blue-50 border border-blue-100 p-3 text-blue-700"><span class="block text-[10px] font-bold mb-1">地址 · 點一下導航 ↗</span><span class="block text-sm font-bold break-words leading-relaxed">📍 ${escapeMarkup(c.addr)}</span></a>` : '<div class="text-sm text-slate-400">地址未提供</div>'}
                     <div class="flex justify-between items-center gap-2 border-t border-gray-100 pt-2"><span class="text-xs text-slate-400">代號 ${escapeMarkup(c.id)}</span><button type="button" class="customer-detail-button text-indigo-600 text-xs font-bold px-3 py-3 rounded-lg bg-indigo-50">查看詳細 ›</button></div>
@@ -1551,6 +1559,7 @@
             const purchase = customerPurchaseStatus(c);
             activeDetailedCustId = c.id;
             document.getElementById('detNote').value = customerNoteText(c.id);
+            document.getElementById('detTel2').value = secondaryCustomerPhone(c);
             updateCustomerNoteStatus(c.id);
             activeDetailedCustTel = c.tel;
             activeCustomerForNavigation = c;
@@ -1615,12 +1624,19 @@
             return addr.trim().replace(/\s+/g, ' ');
         }
 
+        function moveProduct(encodedId, direction) {
+            if (!requireMaintenanceAccess() || window.matchMedia('(max-width:767px)').matches) return;
+            const id = decodeURIComponent(encodedId), index = currentFilteredProducts.findIndex(p=>p.id===id);
+            const target = currentFilteredProducts[index + direction];
+            if (index < 0 || !target) return;
+            executeReorder(id, target.id, direction > 0);
+        }
         function executeReorder(sourceId, targetId, isBelow) {
+            if (!requireMaintenanceAccess()) return;
             const input = document.getElementById('searchInput');
             const q = input ? input.value.trim().toLowerCase() : '';
-            const sortKey = curCat + "||" + q;
-            if (!customSortMap[sortKey]) customSortMap[sortKey] = currentFilteredProducts.map(p => p.id);
-            const list = [...customSortMap[sortKey]];
+            const sortKey = curCat + "||" + q + (activeQuickGroupFilter ? "||group:" + activeQuickGroupFilter : "");
+            const list = currentFilteredProducts.map(p => p.id);
             const dragIdx = list.indexOf(sourceId);
             let dropIdx = list.indexOf(targetId);
             if (dragIdx !== -1 && dropIdx !== -1) {
@@ -1651,32 +1667,27 @@
                 const margin = p.r > 0 ? (((p.r - p.w) / p.r) * 100).toFixed(2) : "0.00";
                 const borderStyle = parseFloat(margin) <= 10.00 ? "profit-border-low" : "profit-border-high";
                 const ratio = p.ratio || 10;
-                const preferWholeUnit = ['beer', 'cigarettes', 'ramen'].includes(activeQuickKey?.group); 
+                const preferWholeUnit = ['beer', 'cigarettes', 'ramen'].includes(activeQuickKey?.group || activeQuickGroupFilter); 
                 const formatPrice = (n) => Number.isInteger(parseFloat(n)) ? parseInt(n) : parseFloat(n).toFixed(1);
                 const count = activeAnalysis[p.id]?.count || 0;
                 const is2026 = p.launchDate && p.launchDate.includes('2026');
 
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-product-id', p.id);
-                tr.setAttribute('draggable', window.matchMedia('(min-width: 768px)').matches ? 'true' : 'false');
-                tr.addEventListener('dragstart', (e) => handleDragStart(e, p.id));
-                tr.addEventListener('dragover', handleDragOver);
-                tr.addEventListener('dragenter', handleDragEnter);
-                tr.addEventListener('dragleave', handleDragLeave);
-                tr.addEventListener('drop', (e) => handleDrop(e, p.id));
-                tr.addEventListener('dragend', handleDragEnd);
+
+
 
                 tr.className = "product-card block md:table-row bg-white mobile-card mb-2 md:mb-0 rounded-2xl border md:border-b p-2.5 md:p-0 transition-colors hover:bg-blue-50/50";
                 tr.innerHTML = `
                     <td class="p-2 py-1 md:p-4 text-center block md:table-cell border-b border-dashed border-gray-50 md:border-none">
-                        <div class="flex items-center justify-center text-gray-300 hover:text-indigo-600 transition-colors cursor-grab active:cursor-grabbing" ><i class="fa-solid fa-grip-vertical text-base md:text-lg"></i></div>
+                        <div data-admin-only class="hidden md:flex justify-center gap-1"><button type="button" aria-label="上移 ${escapeMarkup(p.name)}" onclick="moveProduct('${encodeURIComponent(p.id).replace(/'/g,'%27')}',-1)" class="px-2 py-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 disabled:opacity-30" ${currentFilteredProducts[0]?.id === p.id ? 'disabled' : ''}>↑</button><button type="button" aria-label="下移 ${escapeMarkup(p.name)}" onclick="moveProduct('${encodeURIComponent(p.id).replace(/'/g,'%27')}',1)" class="px-2 py-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 disabled:opacity-30" ${currentFilteredProducts.at(-1)?.id === p.id ? 'disabled' : ''}>↓</button></div>
                     </td>
                     <td class="p-2 py-1.5 md:p-4 block md:table-cell">
-                        <button onclick="copyText('${p.id}', '已複製代碼: ${p.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg font-mono-custom font-bold w-full md:w-auto text-left shadow-sm transition-all flex items-center justify-between md:justify-start"><span>${p.id}</span><i class="fa-regular fa-copy text-xs ml-2 text-blue-400"></i></button>
+                        <button onclick="copyProductField('${encodeURIComponent(p.id).replace(/'/g,'%27')}', 'id')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg font-mono-custom font-bold w-full md:w-auto text-left shadow-sm transition-all flex items-center justify-between md:justify-start"><span>${p.id}</span><i class="fa-regular fa-copy text-xs ml-2 text-blue-400"></i></button>
                     </td>
                     <td class="hidden md:table-cell p-4 text-center text-xs font-bold text-gray-400">${p.cat}</td>
                     <td class="block md:table-cell p-2 py-1.5 md:p-4 font-black text-gray-800 text-sm tracking-tight leading-snug">
-                        <div class="flex items-center gap-1.5 flex-wrap"><span>${p.name}</span>${is2026 ? `<span class="bg-amber-100 text-amber-800 border border-amber-300 text-[9px] px-1 py-0.5 rounded font-black">✨ 2026新品</span>` : ''}</div>
+                        <div class="flex items-center gap-1.5 flex-wrap"><button type="button" class="text-left hover:text-blue-600" title="點一下複製品名" onclick="copyProductField('${encodeURIComponent(p.id).replace(/'/g,'%27')}', 'name')">${escapeMarkup(p.name)}</button>${is2026 ? `<span class="bg-amber-100 text-amber-800 border border-amber-300 text-[9px] px-1 py-0.5 rounded font-black">✨ 2026新品</span>` : ''}</div>
                     </td>
                     <td class="flex md:table-cell justify-between p-2 py-1 md:p-4 text-xs font-bold text-gray-655 items-center md:items-start md:text-center">
                         <span class="md:hidden text-gray-400 font-medium">單位換算</span><span class="md:hidden">1 ${p.unit || '條'} ＝ ${ratio} ${p.min_unit || '包'}</span><span class="hidden md:inline">${p.unit || '條'} <span class="text-xs text-gray-400 font-medium">(${ratio})</span></span>
@@ -1701,9 +1712,9 @@
                     </td>
                     <td class="flex md:table-cell justify-end md:justify-center p-2 pt-1 border-t md:border-0 text-center gap-1.5">
                         <div class="flex items-center justify-end md:justify-center gap-1.5 w-full">
-                            <button type="button" data-line-product="${encodeURIComponent(p.id)}" onclick="copyProductForLine(decodeURIComponent(this.dataset.lineProduct), this)" class="line-copy-button md:hidden">💬 複製產品資訊到 LINE</button>
-                            <button onclick="openProductModal('${p.id}')" class="hidden md:flex text-blue-500 hover:text-blue-700 font-bold text-xs bg-slate-50 md:bg-transparent px-2.5 py-1.5 rounded-lg md:p-0 border border-gray-100 md:border-none flex items-center justify-center gap-1 flex-1 md:flex-auto"><i class="fa-solid fa-pen-to-square md:hidden"></i> 修改</button>
-                            <button onclick="deleteProduct('${p.id}')" class="hidden md:flex text-rose-500 hover:text-rose-700 font-bold text-xs bg-slate-50 md:bg-transparent px-2.5 py-1.5 rounded-lg md:p-0 border border-gray-100 md:border-none flex items-center justify-center gap-1 flex-1 md:flex-auto"><i class="fa-solid fa-trash-can md:hidden"></i> 刪除</button>
+                            <button type="button" data-line-product="${encodeURIComponent(p.id).replace(/'/g,'%27')}" onclick="copyProductForLine(decodeURIComponent(this.dataset.lineProduct), this)" class="line-copy-button md:hidden">💬 複製產品資訊到 LINE</button>
+                            <button data-admin-only onclick="openProductModal('${p.id}')" class="hidden md:flex text-blue-500 hover:text-blue-700 font-bold text-xs bg-slate-50 md:bg-transparent px-2.5 py-1.5 rounded-lg md:p-0 border border-gray-100 md:border-none flex items-center justify-center gap-1 flex-1 md:flex-auto"><i class="fa-solid fa-pen-to-square md:hidden"></i> 修改</button>
+                            <button data-admin-only onclick="deleteProduct('${p.id}')" class="hidden md:flex text-rose-500 hover:text-rose-700 font-bold text-xs bg-slate-50 md:bg-transparent px-2.5 py-1.5 rounded-lg md:p-0 border border-gray-100 md:border-none flex items-center justify-center gap-1 flex-1 md:flex-auto"><i class="fa-solid fa-trash-can md:hidden"></i> 刪除</button>
                         </div>
                     </td>
                 `;
@@ -1712,6 +1723,7 @@
         }
 
         function openImportModal(type) {
+            if (!requireMaintenanceAccess()) return;
             currentImportType = type; 
             const m = document.getElementById('importModal');
             const t = document.getElementById('importTitle');
@@ -1739,6 +1751,7 @@
         }
 
         function processImport() {
+            if (!requireMaintenanceAccess()) return;
             const inputEl = document.getElementById('importRawText');
             if(!inputEl) return;
             const raw = inputEl.value.trim();
@@ -1900,108 +1913,9 @@
             }, 50);
         }
 
-        function exportUpdatedHTML() {
-            const clonedDoc = document.documentElement.cloneNode(true);
-            let htmlContent = clonedDoc.outerHTML;
-            htmlContent = htmlContent.replace(/let customerNotes = safeJSONParse\('db_customer_notes_v1', \{\}\);/, () => `let customerNotes = safeJSONParse('db_customer_notes_v1', ${JSON.stringify(customerNotes).replace(/</g, '\\u003c')});`);
-            
-            htmlContent = htmlContent.replace(/let products = safeJSONParse\('db_p_baked_final', \[\]\);/s, `let products = ${JSON.stringify(products)};`);
-            htmlContent = htmlContent.replace(/let customers = safeJSONParse\('db_c_baked_final', \[\]\);/s, `let customers = ${JSON.stringify(customers)};`);
-            htmlContent = htmlContent.replace(/let tempTransactions = safeJSONParse\('db_tx_temp_local', \[\]\);/s, `let tempTransactions = ${JSON.stringify(tempTransactions)};`);
-            htmlContent = htmlContent.replace(/let activeAnalysis = safeJSONParse\('db_active_analysis_final', \{\}\);/s, `let activeAnalysis = ${JSON.stringify(activeAnalysis)};`);
-            htmlContent = htmlContent.replace(/let customSortMap = safeJSONParse\('db_custom_sort_v2', \{\}\);/s, `let customSortMap = ${JSON.stringify(customSortMap)};`);
-            htmlContent = htmlContent.replace(/let n90Password = localStorage\.getItem\('db_n90_password'\) \|\| 'N90Password123';/s, `let n90Password = '${n90Password}';`);
-            htmlContent = htmlContent.replace(/let quickKeys = safeJSONParse\('db_quick_keys_v2', DEFAULT_QUICK_KEYS\);/s, `let quickKeys = ${JSON.stringify(quickKeys)};`);
-            
-            const blob = new Blob(['<!DOCTYPE html>\n' + htmlContent], { type: 'text/html' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
-            a.download = `客價查詢系統_備份_${dateStr}.html`;
-            a.click();
-            showToast("💾 網頁與目前資料已一鍵打包下載成功！");
-        }
-
-        let draggedId = null; let touchDraggedId = null; let touchStartRow = null;
-        function handleDragStart(e, id) {
-            if (window.matchMedia('(max-width: 767px)').matches) { e.preventDefault(); return; }
-            draggedId = id; e.dataTransfer.effectAllowed = 'move';
-            const tr = e.target.closest('tr'); if (tr) tr.classList.add('opacity-40', 'bg-blue-100');
-        }
-        function handleDragOver(e) { if (e.preventDefault) e.preventDefault(); e.dataTransfer.dropEffect = 'move'; return false; }
-        function handleDragEnter(e) { const tr = e.target.closest('tr'); if (tr && tr.getAttribute('data-product-id') !== draggedId) tr.classList.add('drag-hover-top'); }
-        function handleDragLeave(e) { const tr = e.target.closest('tr'); if (tr) tr.classList.remove('drag-hover-top'); }
-        function handleDrop(e, targetId) {
-            e.stopPropagation(); e.preventDefault();
-            const tr = e.target.closest('tr'); if (tr) tr.classList.remove('drag-hover-top');
-            if (draggedId && draggedId !== targetId) executeReorder(draggedId, targetId, false);
-            return false;
-        }
-        function handleDragEnd(e) {
-            const tr = e.target.closest('tr'); if (tr) tr.classList.remove('opacity-40', 'bg-blue-100');
-            document.querySelectorAll('tr').forEach(row => row.classList.remove('drag-hover-top', 'drag-hover-bottom')); draggedId = null;
-        }
-        function handleTouchStart(e, id) {
-            if (window.matchMedia('(max-width: 767px)').matches) return;
-            const tr = e.target.closest('tr'); if (!tr) return;
-            touchDraggedId = id; touchStartRow = tr; tr.classList.add('bg-blue-50', 'opacity-60');
-        }
-        function handleTouchMove(e) {
-            if (!touchStartRow) return; e.preventDefault(); 
-            const touch = e.touches[0]; const targetEl = document.elementFromPoint(touch.clientX, touch.clientY); if (!targetEl) return;
-            const currentOverRow = targetEl.closest('tr');
-            document.querySelectorAll('#dataTable tr').forEach(row => { if (row !== currentOverRow) row.classList.remove('drag-hover-top', 'drag-hover-bottom'); });
-            if (currentOverRow && currentOverRow !== touchStartRow && currentOverRow.parentNode.id === 'dataTable') {
-                const rect = currentOverRow.getBoundingClientRect(); const relativeY = touch.clientY - rect.top;
-                if (relativeY < rect.height / 2) { currentOverRow.classList.add('drag-hover-top'); currentOverRow.classList.remove('drag-hover-bottom'); } 
-                else { currentOverRow.classList.add('drag-hover-bottom'); currentOverRow.classList.remove('drag-hover-top'); }
-            }
-        }
-        function handleTouchEnd(e) {
-            if (!touchStartRow) return; touchStartRow.classList.remove('bg-blue-50', 'opacity-60');
-            const touch = e.changedTouches[0]; const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
-            document.querySelectorAll('#dataTable tr').forEach(row => row.classList.remove('drag-hover-top', 'drag-hover-bottom'));
-            if (targetEl) {
-                const dropRow = targetEl.closest('tr');
-                if (dropRow && dropRow.parentNode.id === 'dataTable') {
-                    const targetId = dropRow.getAttribute('data-product-id');
-                    if (targetId && touchDraggedId !== targetId) {
-                        const rect = dropRow.getBoundingClientRect(); const relativeY = touch.clientY - rect.top;
-                        executeReorder(touchDraggedId, targetId, relativeY >= rect.height / 2);
-                    }
-                }
-            }
-            touchStartRow = null; touchDraggedId = null;
-        }
-
-        function updateN90PassUI() {
-            const displayEl = document.getElementById('n90PassDisplay');
-            if (displayEl) displayEl.innerText = isN90PassVisible ? n90Password : '••••••';
-        }
-
-        function toggleN90PassVisible() {
-            isN90PassVisible = !isN90PassVisible;
-            const icon = document.getElementById('n90PassToggleIcon');
-            if (icon) icon.className = isN90PassVisible ? "fa-solid fa-eye text-xs" : "fa-solid fa-eye-slash text-xs";
-            updateN90PassUI();
-        }
-
-        function copyN90Password() { copyText(n90Password, '已成功複製 N90 登入密碼！'); }
-        function openChangeN90PassModal() { const i = document.getElementById('newN90PassInput'); const m = document.getElementById('n90PassModal'); if(i) i.value = n90Password; if(m) m.classList.remove('hidden'); }
-        function closeN90PassModal() { const m = document.getElementById('n90PassModal'); if(m) m.classList.add('hidden'); }
-
-        function saveN90Password() {
-            const input = document.getElementById('newN90PassInput');
-            if(!input) return;
-            const newPass = input.value.trim();
-            if (!newPass) { showToast("⚠️ 密碼不可為空！"); return; }
-            n90Password = newPass; localStorage.setItem('db_n90_password', n90Password);
-            updateN90PassUI(); closeN90PassModal(); showToast("🔑 N90 系統密碼已更新保存！");
-        }
-
         // ⚙️ 快捷鍵管理視窗控制本體
         function openQuickKeysModal() {
+            if (!requireMaintenanceAccess()) return;
             const m = document.getElementById('quickKeysModal');
             if (m) {
                 m.classList.remove('hidden');
@@ -2017,6 +1931,7 @@
         }
 
         function addQuickKey(e) {
+            if (!requireMaintenanceAccess()) return;
             e.preventDefault();
             const label = document.getElementById('qkLabel').value.trim();
             const query = document.getElementById('qkQuery').value.trim();
@@ -2028,6 +1943,7 @@
             renderQuickKeys(); renderQuickKeysTable(); showToast(`已成功新增自訂快捷鍵：【${label}】！`);
         }
         function deleteQuickKey(id) {
+            if (!requireMaintenanceAccess()) return;
             openDangerModal("🚨 刪除快捷鍵按鈕", "您確定要永久刪除這個自訂快捷鍵按鈕嗎？此操作將會同步至雲端與其他設備。", () => {
                 quickKeys = quickKeys.filter(x => x.id !== id); safeSaveToLocalStorage('db_quick_keys_v2', quickKeys);
                 if (db && isUserLoggedIn && navigator.onLine) setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'quick_keys', 'quick_keys_doc'), { list: quickKeys }).catch(()=>{});
@@ -2035,6 +1951,7 @@
             });
         }
         function quickSearch(keyId) {
+            activeQuickGroupFilter = null;
             isQuickSearchClick = true; 
             const k = quickKeys.find(x => x.id === keyId);
             if (!k) return;
@@ -2173,7 +2090,7 @@
         function setupEscKeyMechanism() {
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
-                    const modals = ['customerModal', 'importModal', 'productModal', 'dangerConfirmModal', 'n90PassModal', 'quickKeysModal', 'custDetailModal'];
+                    const modals = ['customerModal', 'importModal', 'productModal', 'dangerConfirmModal', 'quickKeysModal', 'custDetailModal'];
                     for (const id of modals) {
                         const m = document.getElementById(id);
                         if (m && !m.classList.contains('hidden')) {
@@ -2193,6 +2110,7 @@
 
         // 刪除產品單筆
         function deleteProduct(id) {
+            if (!requireMaintenanceAccess()) return;
             const p = products.find(x => x.id === id); if (!p) return;
             openDangerModal("🚨 刪除產品", `確定要永久刪除「${p.name}」(${p.id}) 嗎？\n此操作無法復原，並會同步至雲端。`, () => {
                 products = products.filter(x => x.id !== id); save(); buildNav(); filterData(); closeDangerModal(); showToast(`🗑️ 已刪除產品：${p.name}`);
@@ -2201,13 +2119,15 @@
 
         // 刪除客戶單筆
         function deleteCustomer(id) {
+            if (!requireMaintenanceAccess()) return;
             const c = customers.find(x => x.id === id); if (!c) return;
             openDangerModal("🚨 刪除客戶", `確定要永久刪除客戶「${c.name}」(${c.id}) 嗎？\n此操作無法復原，並會同步至雲端。`, () => {
                 customers = customers.filter(x => x.id !== id); save(); searchCustomer(); closeDangerModal(); showToast(`🗑️ 已刪除客戶：${c.name}`);
             });
         }
 
-        function openProductModal(id=null) { 
+        function openProductModal(id=null) {
+            if (!requireMaintenanceAccess()) return; 
             const form = document.getElementById('productForm');
             const modal = document.getElementById('productModal');
             if(form) form.reset(); 
@@ -2234,13 +2154,13 @@
         // ==========================================
         Object.assign(window, {
             openImportModal, closeImportModal, openCustomerModal, closeCustomerModal,
-            openProductModal, closeProductModal, exportUpdatedHTML, confirmClearCustomers,
+            openProductModal, closeProductModal, confirmClearCustomers,
             handleClearCustomers, confirmClearProducts, handleClearProducts, processDataLocallyAndUpload,
-            saveCustomerNote, selectQuickGroup, copyProductForLine,
+            moveProduct, openAccessHistory, saveCustomerNote, selectQuickGroup, copyProductForLine, searchDesktopCustomers, copyProductField,
             setCategory, clearSearch, filterData, searchCustomer, clearActiveQuickKeyOnInput,
-            handleDragStart, handleDragOver, handleDragEnter, handleDragLeave, handleDrop, handleDragEnd,
-            handleTouchStart, handleTouchMove, handleTouchEnd, toggleN90PassVisible, copyN90Password,
-            openChangeN90PassModal, closeN90PassModal, saveN90Password, openQuickKeysModal, closeQuickKeysModal,
+                 
+                
+               openQuickKeysModal, closeQuickKeysModal,
             addQuickKey, deleteQuickKey, openCustomerDetailModal, closeCustomerDetailModal,
             quickSearch, processImport, deleteProduct, deleteCustomer, toggleMaintenanceDropdown,
             loginSystem, logoutSystem, toggleLoginPassVisible, copyText,
@@ -2251,7 +2171,7 @@
             
             saveData: save, save: save, initApp: initApp, computeActiveAnalysis: computeActiveAnalysis,
             buildNav: buildNav, renderTable: renderTable, renderCustomerTable: renderCustomerTable,
-            renderQuickKeys: renderQuickKeys, executeReorder: executeReorder, updateN90PassUI: updateN90PassUI,
+            renderQuickKeys: renderQuickKeys, executeReorder: executeReorder, 
             renderQuickKeysTable: renderQuickKeysTable, setIsLoading: setIsLoading, log: log,
             openDangerModal: openDangerModal, closeDangerModal: closeDangerModal, showToast: showToast
         });
@@ -2263,6 +2183,7 @@
         if(productFormEl) {
             productFormEl.addEventListener('submit', (e) => {
                 e.preventDefault();
+                if (!requireMaintenanceAccess()) return;
                 const key = document.getElementById('editKey').value;
                 const data = { 
                     ...products.find(x => x.id === key) || {}, 
@@ -2302,8 +2223,10 @@
         initFirebase();
         setupEscKeyMechanism();
         setupLazyLoadScrollListeners();
-        updateN90PassUI(); 
+ 
 
     </script>
 </body>
 </html>
+
+
