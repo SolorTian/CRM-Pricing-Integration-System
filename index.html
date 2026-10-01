@@ -38,8 +38,16 @@
         .badge-bade { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
         .profit-border-low { border: 1px solid #fee2e2; background-color: #fef2f2; color: #b91c1c; }
         .profit-border-high { border: 1px solid #d1fae5; background-color: #ecfdf5; color: #047857; }
-        @keyframes slideUp { 0% { opacity: 0; transform: translate(-50%, 20px); } 10% { opacity: 1; transform: translate(-50%, 0); } 90% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -20px); } }
-        .copy-toast { animation: slideUp 2s ease-in-out forwards; }
+        @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        .copy-toast { animation: toastIn 180ms ease-out; }
+        #toast { position: fixed; top: auto; bottom: 32px; left: 50%; transform: translateX(-50%); max-width: calc(100vw - 32px); width: max-content; font-size: 18px; line-height: 1.5; padding: 16px 24px; }
+        #connectionDiagnostics { position: relative; }
+        #connectionDiagnostics summary { list-style: none; cursor: pointer; }
+        #connectionDiagnostics summary::-webkit-details-marker { display: none; }
+        #connectionDiagnostics .diagnostic-panel { position: absolute; right: 0; top: calc(100% + 8px); width: min(400px, calc(100vw - 48px)); z-index: 60; }
+        #headerCounts { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: #64748b; margin-top: 6px; }
+        #headerCounts strong { font-size: 12px; }
+        @media (max-width: 767px) { #toast { bottom: 84px; font-size: 16px; } }
         
         /* */
         @keyframes shake {
@@ -170,10 +178,11 @@
             
             <header class="mb-4 md:mb-6 bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-gray-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 sticky top-0 z-40 md:relative">
                 <div class="flex flex-wrap items-center justify-between w-full xl:w-auto gap-4">
-                    <div class="flex items-center">
+                    <div><div class="flex items-center">
                         <div class="bg-indigo-600 text-white font-black px-3.5 py-1.5 rounded-xl mr-3 text-sm md:text-base tracking-wider shadow-sm italic uppercase">SYS</div>
                         <h1 class="text-xl md:text-2xl font-black text-gray-800 tracking-tight whitespace-nowrap">2026 POS 管理系統</h1>
                     </div>
+                    <div id="headerCounts"><span>總品項數 <strong id="totalItems">0</strong></span><span>客戶總數 <strong id="totalCust">0</strong></span></div></div>
                     <div class="flex items-center gap-3">
                         <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-gray-200 whitespace-nowrap">
                             <span id="headerStatusDot" class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
@@ -187,6 +196,14 @@
                     <!-- 客戶查詢 (保留在外) -->
                     <button onclick="openCustomerModal()" class="shrink-0 bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-indigo-700 shadow-md text-xs active:scale-95 transition-all flex items-center gap-1.5"><i class="fa-solid fa-user-gear"></i> 客戶查詢</button>
                     
+                    <details id="connectionDiagnostics">
+                        <summary class="bg-slate-100 border border-slate-200 text-slate-600 px-3 py-2.5 rounded-xl text-xs font-bold">連線診斷 ▾</summary>
+                        <div class="diagnostic-panel bg-slate-900 p-3 rounded-xl border border-slate-800 shadow-xl">
+                            <label for="diagConsole" class="block text-xs text-slate-300 font-bold mb-2">連線診斷日誌</label>
+                            <textarea id="diagConsole" readonly class="w-full h-36 bg-slate-900 text-emerald-300 font-mono-custom text-xs leading-relaxed resize-none focus:outline-none" placeholder="正在等待系統載入..."></textarea>
+                        </div>
+                    </details>
+
                     <!-- 複製銷退函 (保留在外，全新改名) -->
                     <button onclick="copyText('臺菸酒通字第1130018482號函', '已複製銷退函文！')" class="shrink-0 bg-amber-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-600 shadow-md transition-all flex items-center gap-1.5 whitespace-nowrap"><i class="fa-solid fa-file-lines"></i> 複製銷退函</button>
                     
@@ -227,17 +244,6 @@
                     
 
                     
-                        <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 text-left">
-                            <p class="text-[8px] text-slate-500 font-mono-custom uppercase tracking-wider mb-1">連線診斷日誌：</p>
-                            <textarea id="diagConsole" readonly class="w-full h-28 bg-slate-900 text-emerald-400 font-mono-custom text-[8px] leading-relaxed resize-none focus:outline-none no-scrollbar" placeholder="正在等待系統載入..."></textarea>
-                        </div>
-
-                    <div class="mt-6 px-2 border-t border-gray-100 pt-5 text-center text-nowrap">
-                        <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase tracking-widest">總品項數</p>
-                        <div id="totalItems" class="text-3xl font-mono-custom font-black text-gray-800 mb-6">0</div>
-                        <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase tracking-wider">客戶總數</p>
-                        <div id="totalCust" class="text-3xl font-mono-custom font-black text-indigo-600">0</div>
-                    </div>
                 </aside>
 
                 <main id="productSearchPanel" class="flex flex-col gap-4 col-span-1 min-w-0"><details class="hidden md:block bg-white border rounded-xl p-3"><summary class="cursor-pointer text-xs font-bold text-slate-500">分類篩選</summary><nav id="categoryNav" class="flex overflow-x-auto md:flex-col gap-2 md:gap-1 no-scrollbar pb-1 md:pb-0 font-bold mb-4"></nav></details>
@@ -607,7 +613,7 @@
 
 <div id="accessHistoryModal" class="hidden fixed inset-0 z-[250] bg-black/50 p-4 flex items-center justify-center"><section class="bg-white rounded-2xl p-5 w-full max-w-xl max-h-[85vh] overflow-y-auto"><div class="flex justify-between items-center mb-3"><h2 class="text-lg font-black">登入裝置與時間紀錄</h2><button onclick="document.getElementById('accessHistoryModal').classList.add('hidden')" class="p-3">關閉</button></div><p class="text-xs text-slate-500 mb-3">顯示最近 100 筆，時間採台灣時間。裝置依瀏覽器資訊判斷；IP 紀錄暫未啟用。紀錄自此功能啟用後開始。</p><div id="accessHistoryList" class="text-xs space-y-3"></div></section></div>
     <!-- Toast 彈出提醒 -->
-    <div id="toast" class="fixed top-14 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-8 py-4 rounded-2xl shadow-2xl font-black hidden z-[350] copy-toast text-sm">
+    <div id="toast" role="status" aria-live="polite" aria-atomic="true" class="fixed top-14 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-8 py-4 rounded-2xl shadow-2xl font-black hidden z-[350] copy-toast">
         <span id="toastText">已複製</span>
     </div>
 
@@ -1981,16 +1987,17 @@
             tbody.innerHTML = quickKeys.map(k => `<tr class="hover:bg-gray-50/50"><td class="p-3 text-slate-500">${groupNames[k.group] || k.group}</td><td class="p-3 text-slate-800 font-black">${k.label}</td><td class="p-3 font-mono text-slate-600">${k.query}</td><td class="p-3 text-gray-400">${k.category || '全域搜尋'}</td><td class="p-3 text-gray-400">${ruleNames[k.specialRule] || k.specialRule}</td><td class="p-3 text-center"><button onclick="deleteQuickKey('${k.id}')" class="text-rose-500 hover:text-rose-700 p-1 transition-all"><i class="fa-solid fa-trash-can"></i></button></td></tr>`).join('');
         }
 
+        let toastHideTimer = null;
         function showToast(msg) {
-            const t = document.getElementById('toast'); 
-            if(!t) return;
+            const t = document.getElementById('toast');
+            if (!t) return;
+            clearTimeout(toastHideTimer);
             document.getElementById('toastText').innerText = msg;
-            t.classList.remove('hidden', 'copy-toast'); 
-            void t.offsetWidth; 
+            t.classList.remove('hidden', 'copy-toast');
+            void t.offsetWidth;
             t.classList.add('copy-toast');
-            setTimeout(() => t.classList.add('hidden'), 1900);
+            toastHideTimer = setTimeout(() => { t.classList.add('hidden'); toastHideTimer = null; }, 4000);
         }
-
 
         function escapeMarkup(value) {
             return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
