@@ -205,6 +205,7 @@
                         <div class="bg-indigo-600 text-white font-black px-3.5 py-1.5 rounded-xl mr-3 text-sm md:text-base tracking-wider shadow-sm italic uppercase">SYS</div>
                         <h1 class="text-xl md:text-2xl font-black text-gray-800 tracking-tight whitespace-nowrap">2026 POS 管理系統</h1>
                     </div>
+                    <button data-admin-only onclick="openAccessHistory('1502')" class="my-2 bg-indigo-50 border border-indigo-200 text-indigo-700 px-3 py-2 rounded-xl text-xs font-bold">🔐 1502 登入紀錄</button>
                     <div id="headerCounts"><span>總品項數 <strong id="totalItems">0</strong></span><span>客戶總數 <strong id="totalCust">0</strong></span></div></div>
                     <div class="flex items-center gap-3">
                         <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-gray-200 whitespace-nowrap">
@@ -634,7 +635,7 @@
         </button>
     </div>
 
-<div id="accessHistoryModal" class="hidden fixed inset-0 z-[250] bg-black/50 p-4 flex items-center justify-center"><section class="bg-white rounded-2xl p-5 w-full max-w-xl max-h-[85vh] overflow-y-auto"><div class="flex justify-between items-center mb-3"><h2 class="text-lg font-black">登入裝置與時間紀錄</h2><button onclick="document.getElementById('accessHistoryModal').classList.add('hidden')" class="p-3">關閉</button></div><p class="text-xs text-slate-500 mb-3">顯示最近 100 筆，時間採台灣時間。裝置依瀏覽器資訊判斷；IP 紀錄暫未啟用。紀錄自此功能啟用後開始。</p><div id="accessHistoryList" class="text-xs space-y-3"></div></section></div>
+<div id="accessHistoryModal" class="hidden fixed inset-0 z-[250] bg-black/50 p-4 flex items-center justify-center"><section class="bg-white rounded-2xl p-5 w-full max-w-xl max-h-[85vh] overflow-y-auto"><div class="flex justify-between items-center mb-3"><h2 id="accessHistoryTitle" class="text-lg font-black">登入裝置與時間紀錄</h2><button onclick="document.getElementById('accessHistoryModal').classList.add('hidden')" class="p-3">關閉</button></div><p class="text-xs text-slate-500 mb-3">顯示最近 100 筆，時間採台灣時間。裝置依瀏覽器資訊判斷；IP 紀錄暫未啟用。紀錄自此功能啟用後開始。</p><div id="accessHistoryList" class="text-xs space-y-3"></div></section></div>
     <!-- Toast 彈出提醒 -->
     <div id="toast" role="status" aria-live="polite" aria-atomic="true" class="fixed top-14 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-8 py-4 rounded-2xl shadow-2xl font-black hidden z-[350] copy-toast">
         <span id="toastText">已複製</span>
@@ -644,7 +645,7 @@
     <script type="module">
         import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { initializeFirestore, getFirestore, collection, doc, setDoc, addDoc, serverTimestamp, getDocs, query, orderBy, limit, onSnapshot, persistentLocalCache, persistentMultipleTabManager, disableNetwork, enableNetwork, setLogLevel } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeFirestore, getFirestore, collection, doc, setDoc, addDoc, serverTimestamp, getDocs, query, where, orderBy, limit, onSnapshot, persistentLocalCache, persistentMultipleTabManager, disableNetwork, enableNetwork, setLogLevel } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // ==========================================
         // 配置與狀態變數宣告
@@ -835,15 +836,18 @@
                 });
             } catch (_) { log('登入紀錄同步失敗，網頁仍可正常使用'); }
         }
-        async function openAccessHistory() {
+        async function openAccessHistory(account = null) {
             if (!requireMaintenanceAccess()) return;
+            document.getElementById('accessHistoryTitle').textContent = account === '1502' ? '1502 登入紀錄' : '登入裝置與時間紀錄';
             document.getElementById('accessHistoryModal').classList.remove('hidden');
             const list = document.getElementById('accessHistoryList'); list.textContent='讀取中…';
             try {
-                const snap = await getDocs(query(collection(db,'artifacts',appId,'public','data','access_events'),orderBy('at','desc'),limit(100)));
-                list.innerHTML = snap.docs.map(doc => {
+                const events = collection(db,'artifacts',appId,'public','data','access_events');
+                const snap = await getDocs(account === '1502' ? query(events,where('account','==','1502')) : query(events,orderBy('at','desc'),limit(100)));
+                const recent = [...snap.docs].sort((a,b) => (b.data().at?.toMillis() || 0) - (a.data().at?.toMillis() || 0)).slice(0,100);
+                list.innerHTML = recent.map(doc => {
                     const e = doc.data(), date=e.at?.toDate();
-                    return `<article class="p-3 rounded-xl border bg-slate-50 space-y-1"><strong>${escapeMarkup(e.account)} · ${escapeMarkup(e.device)}</strong><p>${date ? date.toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false}) : '時間同步中'}</p><p>IP：暫未啟用</p><p class="text-[10px] text-slate-400 break-all">裝置識別：${escapeMarkup(e.deviceId)}</p></article>`;
+                    return `<article class="p-3 rounded-xl border bg-slate-50 space-y-1"><strong>${escapeMarkup(e.account)} · ${escapeMarkup(e.device)}</strong><p>${date ? date.toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false}) : '時間同步中'}</p><p>IP：${escapeMarkup(e.ip || '未記錄')}</p><p>位置：${escapeMarkup(e.location || '尚未啟用')}</p><p class="text-[10px] text-slate-400 break-all">裝置識別：${escapeMarkup(e.deviceId)}</p></article>`;
                 }).join('') || '尚無登入紀錄';
             } catch (_) {list.textContent='無法讀取紀錄，請確認管理員登入與網路連線';}
         }
@@ -1368,22 +1372,41 @@
             return [c.name,c.biz,c.id,c.addr].some(v => String(v || '').toLowerCase().includes(q)) ||
                 [c.tel,secondaryCustomerPhone(c)].some(v => String(v || '').includes(q) || (digits && String(v || '').replace(/\D/g,'').includes(digits)));
         }
+        function taipeiDeliveryWeekday(now = new Date()) {
+            return new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',weekday:'short'}).format(now);
+        }
+        function isDeliveryToday(c, now = new Date()) {
+            const weekday = {Sun:7,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[taipeiDeliveryWeekday(now)];
+            const day = String(c.day || '').replace(/星期|禮拜|礼拜|週|周/g,'週');
+            if (/每天|每日|天天/.test(day)) return true;
+            const digits = token => '一二三四五六日'.indexOf(token)+1 || Number(token) || (token==='天'?7:0);
+            const days = new Set();
+            for (const match of day.matchAll(/週([一二三四五六日天1-7])(?:[至到~～－-]([一二三四五六日天1-7]))?((?:[、，,/／與及和\s]+[一二三四五六日天1-7])*)/g)) {
+                const start=digits(match[1]), end=digits(match[2]);
+                days.add(start);
+                if (end) for(let d=start;d<= (end<start?end+7:end);d++) days.add((d-1)%7+1);
+                for (const token of match[3].match(/[一二三四五六日天1-7]/g) || []) days.add(digits(token));
+            }
+            return days.has(weekday);
+        }
         function searchDesktopCustomers() {
             const input = document.getElementById('desktopCustSearch'), body = document.getElementById('desktopCustResults');
             if (!input || !body) return;
             const q = input.value.trim().toLowerCase(), list = customers.filter(c => customerMatches(c,q));
-            document.getElementById('desktopCustCount').textContent = `${list.length} 位客戶${list.length > 50 ? ' · 顯示前 50 位，可輸入縮小範圍' : ''}`;
+            if (!q) list.sort((a,b) => Number(isDeliveryToday(b))-Number(isDeliveryToday(a)));
+            document.getElementById('desktopCustCount').textContent = `${list.length} 位客戶${!q ? ' · 今日送貨優先' : ''}${list.length > 50 ? ' · 顯示前 50 位，可輸入縮小範圍' : ''}`;
             body.innerHTML = list.slice(0,50).map(c => {
                 const status = customerPurchaseStatus(c), tel2 = secondaryCustomerPhone(c);
                 return `<article class="p-3 bg-indigo-50/40 border border-indigo-100 rounded-xl text-xs space-y-2">
                   <button type="button" onclick="openCustomerDetailModal(decodeURIComponent('${encodeURIComponent(c.id).replace(/'/g,'%27')}'))" class="text-left w-full"><strong class="block text-sm text-indigo-700">${escapeMarkup(c.name || '未填負責人')}</strong><span class="block mt-1 font-bold">${escapeMarkup(c.biz || '')}</span></button>
                   ${customerCodeButton(c)}
                   <a class="block text-blue-600 leading-relaxed" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(c.addr || '')}">📍 ${escapeMarkup(c.addr || '未填地址')}</a>
-                  <p>🚚 ${escapeMarkup(c.day || '未填送貨日')} · ${status.ghost ? '👻 幽靈客戶' : '💳 '+escapeMarkup(c.pay || '未填付款方式')}</p>
+                  <p>🚚 ${escapeMarkup(c.day || '未填送貨日')}${isDeliveryToday(c) ? ' <strong class="text-emerald-700">今日送貨</strong>' : ''} · ${status.ghost ? '👻 幽靈客戶' : '💳 '+escapeMarkup(c.pay || '未填付款方式')}</p>
                   <p>☎ ${escapeMarkup(c.tel || '未填電話')}${tel2 ? '<br>☎ 第二電話：'+escapeMarkup(tel2) : ''}</p>
                 </article>`;
             }).join('') || '<p class="text-xs text-slate-400">無符合的客戶</p>';
         }
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) searchDesktopCustomers(); });
         function customerCodeButton(c) {
             const encodedId = encodeURIComponent(String(c.id ?? '')).replace(/'/g, '%27');
             return `<button type="button" class="customer-code-copy inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-indigo-200 bg-white text-indigo-700 font-bold text-xs min-h-[40px] max-w-full" onclick="copyCustomerCode('${encodedId}')" title="點一下複製客戶代號" aria-label="複製客戶代號 ${escapeMarkup(c.id ?? '')}"><span class="text-slate-400">客戶代號</span><span class="break-all">${escapeMarkup(c.id ?? '')}</span><span aria-hidden="true">⧉</span></button>`;
@@ -2280,5 +2303,3 @@
     </script>
 </body>
 </html>
-
-
