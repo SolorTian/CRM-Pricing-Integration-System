@@ -635,7 +635,7 @@
         </button>
     </div>
 
-<div id="accessHistoryModal" class="hidden fixed inset-0 z-[250] bg-black/50 p-4 flex items-center justify-center"><section class="bg-white rounded-2xl p-5 w-full max-w-xl max-h-[85vh] overflow-y-auto"><div class="flex justify-between items-center mb-3"><h2 id="accessHistoryTitle" class="text-lg font-black">登入裝置與時間紀錄</h2><button onclick="document.getElementById('accessHistoryModal').classList.add('hidden')" class="p-3">關閉</button></div><p class="text-xs text-slate-500 mb-3">顯示最近 100 筆，時間採台灣時間。裝置依瀏覽器資訊判斷；IP 紀錄暫未啟用。紀錄自此功能啟用後開始。</p><div id="accessHistoryList" class="text-xs space-y-3"></div></section></div>
+<div id="accessHistoryModal" class="hidden fixed inset-0 z-[250] bg-black/50 p-4 flex items-center justify-center"><section class="bg-white rounded-2xl p-5 w-full max-w-xl max-h-[85vh] overflow-y-auto"><div class="flex justify-between items-center mb-3"><h2 id="accessHistoryTitle" class="text-lg font-black">登入裝置與時間紀錄</h2><button onclick="document.getElementById('accessHistoryModal').classList.add('hidden')" class="p-3">關閉</button></div><p class="text-xs text-slate-500 mb-3">顯示最近 100 筆，時間採台灣時間。裝置依瀏覽器資訊判斷；IP／城市由瀏覽器透過免費 ipwho.is 回報，可能受 VPN 影響，不代表即時在線或精確位置。查詢失敗仍保留時間與裝置；舊紀錄無法補回 IP。</p><div id="accessHistoryList" class="text-xs space-y-3"></div></section></div>
     <!-- Toast 彈出提醒 -->
     <div id="toast" role="status" aria-live="polite" aria-atomic="true" class="fixed top-14 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-8 py-4 rounded-2xl shadow-2xl font-black hidden z-[350] copy-toast">
         <span id="toastText">已複製</span>
@@ -824,14 +824,33 @@
             const browser = /Edg\//.test(ua) ? 'Edge' : /CriOS|Chrome/.test(ua) ? 'Chrome' : /FxiOS|Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : '其他瀏覽器';
             return platform+' · '+browser;
         }
+        async function lookupAccessLocation() {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 5000);
+            try {
+                const response = await fetch('https://ipwho.is/?fields=success,ip,country,region,city', {
+                    signal:controller.signal, credentials:'omit', referrerPolicy:'no-referrer', cache:'no-store'
+                });
+                if (!response.ok) throw new Error('IP lookup unavailable');
+                const data = await response.json();
+                if (data.success !== true || typeof data.ip !== 'string' || !/^[0-9a-fA-F:.]{3,64}$/.test(data.ip)) throw new Error('Invalid IP response');
+                const location = [...new Set([data.country,data.region,data.city].filter(v => typeof v === 'string' && v.trim()).map(v => v.trim()))].join(' · ').slice(0,200);
+                return {ip:data.ip, location:location || '未提供城市'};
+            } catch (_) {
+                return {ip:'未取得', location:'未取得（網路或免費服務限制）'};
+            } finally { clearTimeout(timeout); }
+        }
         async function recordAccessEvent() {
             if (!db || !isUserLoggedIn || !sessionAccount()) return;
+            const uid = auth.currentUser.uid, account = sessionAccount();
             try {
+                const location = await lookupAccessLocation();
+                if (auth.currentUser?.uid !== uid || !isUserLoggedIn) return;
                 let deviceId = localStorage.getItem('crm_device_id');
                 if (!deviceId) {deviceId = crypto.randomUUID(); localStorage.setItem('crm_device_id',deviceId);}
                 await addDoc(collection(db,'artifacts',appId,'public','data','access_events'),{
-                    uid:auth.currentUser.uid, account:sessionAccount(), deviceId, device:deviceDescription(),
-                    userAgent:navigator.userAgent.slice(0,512), at:serverTimestamp(), ip:'暫未啟用',
+                    uid, account, deviceId, device:deviceDescription(),
+                    userAgent:navigator.userAgent.slice(0,512), at:serverTimestamp(), ...location,
                     kind:'登入／開啟網站'
                 });
             } catch (_) { log('登入紀錄同步失敗，網頁仍可正常使用'); }
@@ -847,7 +866,7 @@
                 const recent = [...snap.docs].sort((a,b) => (b.data().at?.toMillis() || 0) - (a.data().at?.toMillis() || 0)).slice(0,100);
                 list.innerHTML = recent.map(doc => {
                     const e = doc.data(), date=e.at?.toDate();
-                    return `<article class="p-3 rounded-xl border bg-slate-50 space-y-1"><strong>${escapeMarkup(e.account)} · ${escapeMarkup(e.device)}</strong><p>${date ? date.toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false}) : '時間同步中'}</p><p>IP：${escapeMarkup(e.ip || '未記錄')}</p><p>位置：${escapeMarkup(e.location || '尚未啟用')}</p><p class="text-[10px] text-slate-400 break-all">裝置識別：${escapeMarkup(e.deviceId)}</p></article>`;
+                    return `<article class="p-3 rounded-xl border bg-slate-50 space-y-1"><strong>${escapeMarkup(e.account)} · ${escapeMarkup(e.device)}</strong><p>${date ? date.toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false}) : '時間同步中'}</p><p>IP（瀏覽器回報）：${escapeMarkup(e.ip || '未記錄')}</p><p>大約位置：${escapeMarkup(e.location || '尚未啟用')}</p><p class="text-[10px] text-slate-400 break-all">裝置識別：${escapeMarkup(e.deviceId)}</p></article>`;
                 }).join('') || '尚無登入紀錄';
             } catch (_) {list.textContent='無法讀取紀錄，請確認管理員登入與網路連線';}
         }
