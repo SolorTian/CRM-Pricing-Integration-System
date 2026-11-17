@@ -12,6 +12,7 @@ def get(url, data=None):
     r.encoding = r.apparent_encoding
     return BeautifulSoup(r.text, "html.parser")
 page = get(BASE)
+print("PAGER_HTML", str(page)[-24000:], flush=True)
 links = set()
 seen = set()
 for number in range(1, 101):
