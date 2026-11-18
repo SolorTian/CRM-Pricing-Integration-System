@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 
 SOURCES={'corporate':('https://www.ttl.com.tw/index.aspx','台酒官網'),'shop':('https://eshop.ttl.com.tw/news','台酒購物網'),'deals':('https://eshop.ttl.com.tw/即期惜福','即期惜福')}
 STAMP=datetime.now(timezone.utc).isoformat()
+SOURCES.update({'p9news':('https://www.p9.com.tw/News/NewsList.aspx','P9 酒類新聞'),'p9topics':('https://www.p9.com.tw/Index.aspx','P9 熱門話題')})
 def text(el): return ' '.join(el.stripped_strings) if el else ''
 def date(s):
  m=re.search(r'(20\d{2})[./-](\d{1,2})[./-](\d{1,2})',s)
@@ -58,6 +59,34 @@ def products(html,base):
  if not items and not soup.select_one('.no-result,.no-products'):raise ValueError('沒有辨識到商品清單')
  pages=[safe(base,a['href']) for a in soup.select('.pager a[href]')]
  return items,[u for u in pages if u and urlparse(u).path==urlparse(base).path]
+def p9(html,base,kind):
+ soup=BeautifulSoup(html,'html.parser');items=[];seen=set()
+ if kind=='p9topics':
+  marker=soup.find(string=re.compile(r'^\s*熱門話題\s*$'))
+  if marker is None:marker=soup.find('img',alt=re.compile('熱門話題'))
+  if marker is None:raise ValueError('找不到熱門話題區塊')
+  candidates=[]
+  for node in marker.next_elements:
+   if getattr(node,'name',None) is None and re.search(r'Where to buy|優惠情報',str(node),re.I):break
+   if getattr(node,'name',None)=='a':candidates.append(node)
+ else:candidates=soup.select('a[href]')
+ for a in candidates:
+  title=text(a);url=safe(base,a.get('href',''))
+  if not url or url in seen or len(title)<5 or title in ('更多話題','[詳全文]'):continue
+  if kind=='p9news' and not re.search(r'(?:News\d+|NewsDetail)\.aspx',url,re.I):continue
+  if kind=='p9topics' and not re.search(r'AdRedirect\.aspx|Forum|Topic',url,re.I):continue
+  published=''
+  if kind=='p9news':
+   container=a
+   for _ in range(6):
+    if container is None:break
+    published=date(text(container))
+    if published:break
+    container=container.parent
+   if not published:continue
+  seen.add(url);items.append({'title':title,'url':url,'date':published})
+ if not items:raise ValueError('沒有辨識到 P9 內容')
+ return items[:20]
 def fetch(url):
  r=requests.get(url,timeout=(15,45),headers={'User-Agent':'Mozilla/5.0 (compatible; TTL-news-index/1.0)'})
  r.raise_for_status();r.encoding='utf-8';return r.text
@@ -75,6 +104,7 @@ def main():
      if page in visited:continue
      visited.add(page);extra,_=products(fetch(page),url);items+=extra
     items=list({p['url']:p for p in items}.values())
+   elif key.startswith('p9'):items=p9(html,url,key)
    else:items=news(html,url,key)
    result['sources'][key]={'label':label,'url':url,'checkedAt':STAMP,'updatedAt':STAMP,'status':'ok','items':items}
    print(key,len(items),'items')
@@ -83,3 +113,4 @@ def main():
    result['sources'][key]={**previous,'label':label,'url':url,'checkedAt':STAMP,'status':'error','items':previous.get('items',[]),'error':'官網暫時無法更新，顯示上次成功資料。'}
  with open(path,'w',encoding='utf-8')as f:json.dump(result,f,ensure_ascii=False,indent=2)
 if __name__=='__main__':main()
+
