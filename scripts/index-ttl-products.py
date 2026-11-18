@@ -35,10 +35,13 @@ for number in range(1, 101):
     time.sleep(.2)
 path = Path("ttl-product-images.json")
 catalog = {}
-matched = 0
-for url in sorted(links):
+from concurrent.futures import ThreadPoolExecutor
+def fetch_product(url):
     try:
-        doc = get(url)
+        response = requests.get(url, timeout=20)
+        response.raise_for_status()
+        response.encoding = response.apparent_encoding
+        doc = BeautifulSoup(response.text, "html.parser")
         text = doc.get_text(" ", strip=True)
         match = re.search(r"產品編碼[：:\s]*([A-Za-z0-9]+)", text)
         images = [urljoin(url, i["src"]) for i in doc.select("img[src]") if "/product_files/" in i["src"]]
@@ -50,17 +53,26 @@ for url in sorted(links):
             description = re.split(r"產品分類|產品編碼", description)[0].strip()
             description = description.replace("本網站公告之酒品售價，以各營業據點之實際售價為準。", "").strip()
             image = images[0].replace("http://", "https://")
-            response = session.get(image, timeout=25, stream=True)
+            response = requests.get(image, timeout=10, stream=True)
             valid = response.ok and response.headers.get("Content-Type", "").lower().startswith("image/")
             response.close()
             if not valid:
                 print("Image unavailable", code, flush=True)
-                continue
-            catalog[code] = {"url": url, "image": image, "title": title, "description": description}
-            matched += 1
+                return None
+            return code, {"url": url, "image": image, "title": title, "description": description}
     except Exception as e:
         print("Failed", url, str(e), flush=True)
-    time.sleep(.15)
+    return None
+
+matched = 0
+with ThreadPoolExecutor(max_workers=4) as pool:
+    for result in pool.map(fetch_product, sorted(links)):
+        if result:
+            code, entry = result
+            catalog[code] = entry
+            matched += 1
+        if matched and matched % 25 == 0:
+            print("Verified so far", matched, flush=True)
 if not matched:
     raise SystemExit("No verified products; keeping existing catalog")
 path.write_text(json.dumps(catalog, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
