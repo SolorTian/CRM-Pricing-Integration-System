@@ -12,6 +12,6 @@ def get(url, data=None):
     r.encoding = r.apparent_encoding
     return BeautifulSoup(r.text, "html.parser")
 page = get(BASE)
-print("CONTROLS", [(x.name, str(x)) for x in page.select("select, input[type=submit]")], flush=True)
-print("PRODUCT_MARKUP", [str(x) for x in page.select("[onclick], img") if "product" in str(x).lower()], flush=True)
-raise SystemExit("Inspect new catalog before replacing existing index")
+print("PRODUCT_PARENT", str(page.select_one(".product_img").parent.parent.parent), flush=True)
+print("PRODUCT_SCRIPTS", [str(x) for x in page.select("script") if any(t in str(x).lower() for t in ["product", "fancybox", "modal"])], flush=True)
+raise SystemExit("Inspect main catalog product links")
