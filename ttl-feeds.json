@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-11-18T13:31:56.875098+00:00",
+  "updatedAt": "2026-11-18T14:15:04.454282+00:00",
   "sources": {
     "corporate": {
       "label": "台酒官網",
       "url": "https://www.ttl.com.tw/index.aspx",
-      "checkedAt": "2026-11-18T13:31:56.875098+00:00",
-      "updatedAt": "2026-11-18T13:31:56.875098+00:00",
+      "checkedAt": "2026-11-18T14:15:04.454282+00:00",
+      "updatedAt": "2026-11-18T14:15:04.454282+00:00",
       "status": "ok",
       "items": [
         {
@@ -73,8 +73,8 @@
     "shop": {
       "label": "台酒購物網",
       "url": "https://eshop.ttl.com.tw/news",
-      "checkedAt": "2026-11-18T13:31:56.875098+00:00",
-      "updatedAt": "2026-11-18T13:31:56.875098+00:00",
+      "checkedAt": "2026-11-18T14:15:04.454282+00:00",
+      "updatedAt": "2026-11-18T14:15:04.454282+00:00",
       "status": "ok",
       "items": [
         {
@@ -132,8 +132,8 @@
     "deals": {
       "label": "即期惜福",
       "url": "https://eshop.ttl.com.tw/即期惜福",
-      "checkedAt": "2026-11-18T13:31:56.875098+00:00",
-      "updatedAt": "2026-11-18T13:31:56.875098+00:00",
+      "checkedAt": "2026-11-18T14:15:04.454282+00:00",
+      "updatedAt": "2026-11-18T14:15:04.454282+00:00",
       "status": "ok",
       "items": [
         {
@@ -163,6 +163,174 @@
           "price": "NT$239",
           "originalPrice": "",
           "expiry": ""
+        }
+      ]
+    },
+    "p9news": {
+      "label": "P9 酒類新聞",
+      "url": "https://www.p9.com.tw/News/NewsList.aspx",
+      "checkedAt": "2026-11-18T14:15:04.454282+00:00",
+      "updatedAt": "2026-11-18T14:15:04.454282+00:00",
+      "status": "ok",
+      "items": [
+        {
+          "title": "格蘭菲迪《探境系列》 全球旅遊零售通路獨家鉅獻",
+          "url": "https://www.p9.com.tw/News/%E6%A0%BC%E8%98%AD%E8%8F%B2%E8%BF%AA%E3%80%8A%E6%8E%A2%E5%A2%83%E7%B3%BB%E5%88%97%E3%80%8B-%E5%85%A8%E7%90%83%E6%97%85%E9%81%8A%E9%9B%B6%E5%94%AE%E9%80%9A%E8%B7%AF%E7%8D%A8%E5%AE%B6%E9%89%85%E7%8D%BB--%E5%A8%81%E5%A3%AB%E5%BF%8C-News16877.aspx",
+          "date": "2026-11-18"
+        },
+        {
+          "title": "交信企業舉辦《自由的藝術》無酒精品飲會",
+          "url": "https://www.p9.com.tw/News/%E4%BA%A4%E4%BF%A1%E4%BC%81%E6%A5%AD%E8%88%89%E8%BE%A6%E3%80%8A%E8%87%AA%E7%94%B1%E7%9A%84%E8%97%9D%E8%A1%93%E3%80%8B%E7%84%A1%E9%85%92%E7%B2%BE%E5%93%81%E9%A3%B2%E6%9C%83-%E8%91%A1%E8%90%84%E9%85%92-News16876.aspx",
+          "date": "2026-11-18"
+        },
+        {
+          "title": "質感微醺享受！Mia C’bon「2026微醺生活節」登場",
+          "url": "https://www.p9.com.tw/News/%E8%B3%AA%E6%84%9F%E5%BE%AE%E9%86%BA%E4%BA%AB%E5%8F%97%EF%BC%81Mia-C%E2%80%99bon%E3%80%8C2026%E5%BE%AE%E9%86%BA%E7%94%9F%E6%B4%BB%E7%AF%80%E3%80%8D%E7%99%BB%E5%A0%B4--News16875.aspx",
+          "date": "2026-11-18"
+        },
+        {
+          "title": "慕赫無界系列 重磅揭開第二篇章16年 突破雪莉風味疆界",
+          "url": "https://www.p9.com.tw/News/%E6%85%95%E8%B5%AB%E7%84%A1%E7%95%8C%E7%B3%BB%E5%88%97-%E9%87%8D%E7%A3%85%E6%8F%AD%E9%96%8B%E7%AC%AC%E4%BA%8C%E7%AF%87%E7%AB%A016%E5%B9%B4-%E7%AA%81%E7%A0%B4%E9%9B%AA%E8%8E%89%E9%A2%A8%E5%91%B3%E7%96%86%E7%95%8C-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16874.aspx",
+          "date": "2026-11-17"
+        },
+        {
+          "title": "長崎縣史上首款純麥日威誕生！梅枝酒造發表「長崎」威士忌",
+          "url": "https://www.p9.com.tw/News/%E9%95%B7%E5%B4%8E%E7%B8%A3%E5%8F%B2%E4%B8%8A%E9%A6%96%E6%AC%BE%E7%B4%94%E9%BA%A5%E6%97%A5%E5%A8%81%E8%AA%95%E7%94%9F%EF%BC%81%E6%A2%85%E6%9E%9D%E9%85%92%E9%80%A0%E7%99%BC%E8%A1%A8%E3%80%8C%E9%95%B7%E5%B4%8E%E3%80%8D%E5%A8%81%E5%A3%AB%E5%BF%8C-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16873.aspx",
+          "date": "2026-11-17"
+        },
+        {
+          "title": "Orion發表「WATTA 沖繩之櫻＆山形櫻桃調酒」",
+          "url": "https://www.p9.com.tw/News/Orion%E7%99%BC%E8%A1%A8%E3%80%8CWATTA-%E6%B2%96%E7%B9%A9%E4%B9%8B%E6%AB%BB%EF%BC%86%E5%B1%B1%E5%BD%A2%E6%AB%BB%E6%A1%83%E8%AA%BF%E9%85%92%E3%80%8D-%E5%95%A4%E9%85%92%EF%BC%8E%E4%BD%8E%E9%85%92%E7%B2%BE%E9%A3%B2%E6%96%99-News16872.aspx",
+          "date": "2026-11-17"
+        },
+        {
+          "title": "約翰走路藍牌 羊年限定版 巴黎藝術家操刀限量開搶",
+          "url": "https://www.p9.com.tw/News/%E7%B4%84%E7%BF%B0%E8%B5%B0%E8%B7%AF%E8%97%8D%E7%89%8C-%E7%BE%8A%E5%B9%B4%E9%99%90%E5%AE%9A%E7%89%88-%E5%B7%B4%E9%BB%8E%E8%97%9D%E8%A1%93%E5%AE%B6%E6%93%8D%E5%88%80%E9%99%90%E9%87%8F%E9%96%8B%E6%90%B6-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16871.aspx",
+          "date": "2026-11-16"
+        },
+        {
+          "title": "奢華龍舌蘭唐．胡立歐羊年新春限定版上市",
+          "url": "https://www.p9.com.tw/News/%E5%A5%A2%E8%8F%AF%E9%BE%8D%E8%88%8C%E8%98%AD%E5%94%90%EF%BC%8E%E8%83%A1%E7%AB%8B%E6%AD%90%E7%BE%8A%E5%B9%B4%E6%96%B0%E6%98%A5%E9%99%90%E5%AE%9A%E7%89%88%E4%B8%8A%E5%B8%82-%E9%BE%8D%E8%88%8C%E8%98%AD-News16870.aspx",
+          "date": "2026-11-16"
+        },
+        {
+          "title": "葡萄牙火鳥莊園發表「80 年茶色波特酒」全球限量 450 瓶",
+          "url": "https://www.p9.com.tw/News/%E8%91%A1%E8%90%84%E7%89%99%E7%81%AB%E9%B3%A5%E8%8E%8A%E5%9C%92%E7%99%BC%E8%A1%A8%E3%80%8C80-%E5%B9%B4%E8%8C%B6%E8%89%B2%E6%B3%A2%E7%89%B9%E9%85%92%E3%80%8D%E5%85%A8%E7%90%83%E9%99%90%E9%87%8F-450-%E7%93%B6-%E8%91%A1%E8%90%84%E9%85%92-News16869.aspx",
+          "date": "2026-11-16"
+        },
+        {
+          "title": "口哨豬發表12 年楓糖法式烤布蕾過桶版威士忌",
+          "url": "https://www.p9.com.tw/News/%E5%8F%A3%E5%93%A8%E8%B1%AC%E7%99%BC%E8%A1%A812-%E5%B9%B4%E6%A5%93%E7%B3%96%E6%B3%95%E5%BC%8F%E7%83%A4%E5%B8%83%E8%95%BE%E9%81%8E%E6%A1%B6%E7%89%88%E5%A8%81%E5%A3%AB%E5%BF%8C-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16868.aspx",
+          "date": "2026-11-15"
+        },
+        {
+          "title": "三郎丸發表首款權杖王牌單桶威士忌 限量上市.",
+          "url": "https://www.p9.com.tw/News/%E4%B8%89%E9%83%8E%E4%B8%B8%E7%99%BC%E8%A1%A8%E9%A6%96%E6%AC%BE%E6%AC%8A%E6%9D%96%E7%8E%8B%E7%89%8C%E5%96%AE%E6%A1%B6%E5%A8%81%E5%A3%AB%E5%BF%8C-%E9%99%90%E9%87%8F%E4%B8%8A%E5%B8%82%EF%BC%8E-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16867.aspx",
+          "date": "2026-11-14"
+        },
+        {
+          "title": "小諸蒸餾所首款單一麥芽威士忌 KOMORO ORIGIN 上市",
+          "url": "https://www.p9.com.tw/News/%E5%B0%8F%E8%AB%B8%E8%92%B8%E9%A4%BE%E6%89%80%E9%A6%96%E6%AC%BE%E5%96%AE%E4%B8%80%E9%BA%A5%E8%8A%BD%E5%A8%81%E5%A3%AB%E5%BF%8C-KOMORO-ORIGIN-%E4%B8%8A%E5%B8%82-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16866.aspx",
+          "date": "2026-11-13"
+        },
+        {
+          "title": "不外流傳奇！石川東酒造攜手「霧島天然水」發表夢幻清酒",
+          "url": "https://www.p9.com.tw/News/%E4%B8%8D%E5%A4%96%E6%B5%81%E5%82%B3%E5%A5%87%EF%BC%81%E7%9F%B3%E5%B7%9D%E6%9D%B1%E9%85%92%E9%80%A0%E6%94%9C%E6%89%8B%E3%80%8C%E9%9C%A7%E5%B3%B6%E5%A4%A9%E7%84%B6%E6%B0%B4%E3%80%8D%E7%99%BC%E8%A1%A8%E5%A4%A2%E5%B9%BB%E6%B8%85%E9%85%92-%E6%B8%85%E9%85%92%EF%BC%8E%E7%87%92%E9%85%8E-News16865.aspx",
+          "date": "2026-11-13"
+        },
+        {
+          "title": "約翰走路發表 Sabrina Carpenter 全新電影級廣告短片",
+          "url": "https://www.p9.com.tw/News/%E7%B4%84%E7%BF%B0%E8%B5%B0%E8%B7%AF%E7%99%BC%E8%A1%A8-Sabrina-Carpenter-%E5%85%A8%E6%96%B0%E9%9B%BB%E5%BD%B1%E7%B4%9A%E5%BB%A3%E5%91%8A%E7%9F%AD%E7%89%87-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16864.aspx",
+          "date": "2026-11-13"
+        },
+        {
+          "title": "全新格蘭利威《13 年雪莉狂想曲》匯聚三大洲桶藏 獨獻台灣",
+          "url": "https://www.p9.com.tw/News/%E5%85%A8%E6%96%B0%E6%A0%BC%E8%98%AD%E5%88%A9%E5%A8%81%E3%80%8A13-%E5%B9%B4%E9%9B%AA%E8%8E%89%E7%8B%82%E6%83%B3%E6%9B%B2%E3%80%8B%E5%8C%AF%E8%81%9A%E4%B8%89%E5%A4%A7%E6%B4%B2%E6%A1%B6%E8%97%8F-%E7%8D%A8%E7%8D%BB%E5%8F%B0%E7%81%A3-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16863.aspx",
+          "date": "2026-11-12"
+        },
+        {
+          "title": "麥卡倫「春宴系列 The Finale」最終章 全台好市多獨家販售",
+          "url": "https://www.p9.com.tw/News/%E9%BA%A5%E5%8D%A1%E5%80%AB%E3%80%8C%E6%98%A5%E5%AE%B4%E7%B3%BB%E5%88%97-The-Finale%E3%80%8D%E6%9C%80%E7%B5%82%E7%AB%A0-%E5%85%A8%E5%8F%B0%E5%A5%BD%E5%B8%82%E5%A4%9A%E7%8D%A8%E5%AE%B6%E8%B2%A9%E5%94%AE-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16862.aspx",
+          "date": "2026-11-12"
+        },
+        {
+          "title": "羊年首發「揚名天下」霸氣亮相！ 金門酒廠進駐台北國際酒展",
+          "url": "https://www.p9.com.tw/News/%E7%BE%8A%E5%B9%B4%E9%A6%96%E7%99%BC%E3%80%8C%E6%8F%9A%E5%90%8D%E5%A4%A9%E4%B8%8B%E3%80%8D%E9%9C%B8%E6%B0%A3%E4%BA%AE%E7%9B%B8%EF%BC%81-%E9%87%91%E9%96%80%E9%85%92%E5%BB%A0%E9%80%B2%E9%A7%90%E5%8F%B0%E5%8C%97%E5%9C%8B%E9%9A%9B%E9%85%92%E5%B1%95-%E4%B8%AD%E5%BC%8F%E7%83%88%E9%85%92-News16861.aspx",
+          "date": "2026-11-12"
+        },
+        {
+          "title": "美國西部精釀風味登台！WUSATA 率美西酒飲品牌訪台",
+          "url": "https://www.p9.com.tw/News/%E7%BE%8E%E5%9C%8B%E8%A5%BF%E9%83%A8%E7%B2%BE%E9%87%80%E9%A2%A8%E5%91%B3%E7%99%BB%E5%8F%B0%EF%BC%81WUSATA-%E7%8E%87%E7%BE%8E%E8%A5%BF%E9%85%92%E9%A3%B2%E5%93%81%E7%89%8C%E8%A8%AA%E5%8F%B0-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16860.aspx",
+          "date": "2026-11-10"
+        },
+        {
+          "title": "帝亞吉歐發表珍稀系列第2彈 康法摩爾41年╳達爾維尼36年",
+          "url": "https://www.p9.com.tw/News/%E5%B8%9D%E4%BA%9E%E5%90%89%E6%AD%90%E7%99%BC%E8%A1%A8%E7%8F%8D%E7%A8%80%E7%B3%BB%E5%88%97%E7%AC%AC2%E5%BD%88-%E5%BA%B7%E6%B3%95%E6%91%A9%E7%88%BE41%E5%B9%B4%E2%95%B3%E9%81%94%E7%88%BE%E7%B6%AD%E5%B0%BC36%E5%B9%B4-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16859.aspx",
+          "date": "2026-11-10"
+        },
+        {
+          "title": "台北國際酒展年度壓軸！台酒好酒、限定優惠一次滿足",
+          "url": "https://www.p9.com.tw/News/%E5%8F%B0%E5%8C%97%E5%9C%8B%E9%9A%9B%E9%85%92%E5%B1%95%E5%B9%B4%E5%BA%A6%E5%A3%93%E8%BB%B8%EF%BC%81%E5%8F%B0%E9%85%92%E5%A5%BD%E9%85%92%E3%80%81%E9%99%90%E5%AE%9A%E5%84%AA%E6%83%A0%E4%B8%80%E6%AC%A1%E6%BB%BF%E8%B6%B3--News16858.aspx",
+          "date": "2026-11-10"
+        }
+      ]
+    },
+    "p9topics": {
+      "label": "P9 熱門話題",
+      "url": "https://www.p9.com.tw/Index.aspx",
+      "checkedAt": "2026-11-18T14:15:04.454282+00:00",
+      "updatedAt": "2026-11-18T14:15:04.454282+00:00",
+      "status": "ok",
+      "items": [
+        {
+          "title": "一芯入酒 風味起舞 粱芯-舞",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15269",
+          "date": ""
+        },
+        {
+          "title": "品飲分享：董酒(白董), 貴州遵義",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15273",
+          "date": ""
+        },
+        {
+          "title": "TTL穀蘊威士忌 115國慶紀念",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15266",
+          "date": ""
+        },
+        {
+          "title": "—— M12 - 奢華雪莉甜點 ——",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15267",
+          "date": ""
+        },
+        {
+          "title": "創世者桶陳金高 No.3 品酒會",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15272",
+          "date": ""
+        },
+        {
+          "title": "國慶紀念酒玉山大曲十年窖藏",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15265",
+          "date": ""
+        },
+        {
+          "title": "COEDO 伽羅 Kyara IPA",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15270",
+          "date": ""
+        },
+        {
+          "title": "粱芯金門高粱酒（禪）品飲心得",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15274",
+          "date": ""
+        },
+        {
+          "title": "戰酒黑金龍「消暑的凍飲之旅」",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15271",
+          "date": ""
+        },
+        {
+          "title": "【粱芯 · 舞】品飲心得分享",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15268",
+          "date": ""
         }
       ]
     }
