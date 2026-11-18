@@ -258,6 +258,7 @@
                     <!-- -->
                     <button onclick="logoutSystem()" class="shrink-0 bg-slate-500 hover:bg-slate-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-1.5 whitespace-nowrap"><i class="fa-solid fa-right-from-bracket"></i> 🔒 安全登出</button>
                 </div>
+            <button type="button" onclick="openExpiryForm()" class="shrink-0 bg-indigo-50 text-indigo-700 border border-indigo-200 px-4 py-2.5 rounded-xl font-bold hover:bg-indigo-100 text-xs">即期價申請</button>
             <button type="button" onclick="openBorrowForm()" class="shrink-0 bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-indigo-700 shadow-md text-xs" aria-label="開啟員工借貨申請單">📋 借貨申請單</button>
             </header>
 
@@ -1802,7 +1803,8 @@
                         <span class="md:hidden text-gray-400 font-medium">開單次數</span><div class="mx-auto">${count > 0 ? `<span class="bg-red-50 border border-red-200 text-red-600 px-2 py-0.5 rounded-lg text-[10px] font-black inline-flex items-center gap-1"><i class="fa-solid fa-fire text-[9px]"></i> ${count}次</span>` : `<span class="text-gray-300 text-[10px] font-normal">0次</span>`}</div>
                     </td>
                     <td class="flex md:table-cell justify-end md:justify-center p-2 pt-1 border-t md:border-0 text-center gap-1.5">
-<button type="button" onclick="viewProductPhoto(decodeURIComponent('${encodeURIComponent(String(p.id)).replace(/'/g,'%27')}'))" class="text-indigo-700 hover:bg-indigo-100 bg-indigo-50 border border-indigo-200 px-2.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap" title="查看官方產品照片">照片</button>
+<button type="button" onclick="openExpiryForm(decodeURIComponent('${encodeURIComponent(String(p.id)).replace(/'/g,'%27')}'))" class="text-indigo-700 hover:bg-indigo-100 bg-indigo-50 border border-indigo-200 px-2.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap">即期</button>
+${window.TTLPhotos?.has(p.id) ? `<button type="button" onclick="viewProductPhoto(decodeURIComponent('${encodeURIComponent(String(p.id)).replace(/'/g,'%27')}'))" class="text-indigo-700 hover:bg-indigo-100 bg-indigo-50 border border-indigo-200 px-2.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap" title="查看產品照片與介紹">詳細</button>` : ''}
                         <button type="button" onclick="borrowProduct(decodeURIComponent('${encodeURIComponent(String(p.id)).replace(/'/g,'%27')}'))" class="text-indigo-700 hover:bg-indigo-100 bg-indigo-50 border border-indigo-200 px-2.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap" title="預填此產品至借貨申請單">📋 借貨</button>
                         <div class="flex items-center justify-end md:justify-center gap-1.5 w-full">
                             <button type="button" data-line-product="${encodeURIComponent(p.id).replace(/'/g,'%27')}" onclick="copyProductForLine(decodeURIComponent(this.dataset.lineProduct), this)" class="line-copy-button md:hidden">💬 複製產品資訊到 LINE</button>
@@ -2323,6 +2325,13 @@
 
         // ==========================================
 
+        window.addEventListener('ttl-catalog-ready', () => { if (isUserLoggedIn) renderTable(currentFilteredProducts); });
+        window.openExpiryForm = function(id) {
+            if (!isUserLoggedIn || !sessionAccount()) { showToast('請先登入系統'); return; }
+            const product=id==null?null:products.find(p=>String(p.id)===String(id));
+            if (!window.ExpiryForm) { showToast('即期申請載入中，請稍後再試'); return; }
+            window.ExpiryForm.open(products,product);
+        };
         window.viewProductPhoto = function(id) {
             if (!isUserLoggedIn || !sessionAccount()) { showToast('請先登入系統'); return; }
             const p = products.find(p => String(p.id) === String(id));
@@ -2372,36 +2381,43 @@ window.BorrowForm={open(list,selected){init();products=Array.isArray(list)?list:
 <script>
 (function(){
 'use strict';
-let root, dialog, catalogPromise, request=0;
+let root, dialog, catalogPromise, catalog={}, request=0;
 const safeURL=(s,hosts)=>{try{const u=new URL(s);return u.protocol==='https:'&&hosts.includes(u.hostname)?u.href:null}catch{return null}};
 function init(){
  if(root)return;
  const host=document.createElement('div');document.body.appendChild(host);root=host.attachShadow({mode:'open'});
- root.innerHTML=`<style>*{box-sizing:border-box}dialog{position:fixed;inset:0;margin:auto;padding:0;width:min(560px,94vw);max-height:92dvh;overflow:auto;border:1px solid #e2e8f0;border-radius:22px;background:white;color:#334155;font:15px system-ui,"Microsoft JhengHei",sans-serif;box-shadow:0 24px 80px #0f172a40}dialog::backdrop{background:#0f172a99}header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #e2e8f0}h2{font-size:18px;color:#312e81;margin:0}button,a{font:inherit;font-weight:700;border-radius:10px;padding:10px 14px;color:#4338ca;background:#eef2ff;border:0;cursor:pointer;text-decoration:none}main{padding:22px}h3{font-size:17px;margin:0 0 8px}p{line-height:1.6;color:#64748b}img{width:100%;height:340px;object-fit:contain;background:white}footer{padding:18px 22px;background:#f8fafc;display:flex;gap:10px;flex-wrap:wrap}[hidden]{display:none!important}button:focus-visible,a:focus-visible{outline:3px solid #a5b4fc}</style><dialog aria-labelledby="title"><header><h2 id="title">官方產品照片</h2><button id="close">關閉</button></header><main><h3 id="name"></h3><p id="code"></p><p id="status" role="status"></p><img id="photo" hidden></main><footer><a id="detail" target="_blank" rel="noopener noreferrer" hidden>開啟官方產品頁 ↗</a><a href="https://sale.ttl.com.tw/04product/pro_a_list.aspx" target="_blank" rel="noopener noreferrer">台酒商品目錄 ↗</a></footer></dialog>`;
+ root.innerHTML=`<style>*{box-sizing:border-box}dialog{position:fixed;inset:0;margin:auto;padding:0;width:min(560px,94vw);max-height:92dvh;overflow:auto;border:1px solid #e2e8f0;border-radius:22px;background:white;color:#334155;font:15px system-ui,"Microsoft JhengHei",sans-serif;box-shadow:0 24px 80px #0f172a40}dialog::backdrop{background:#0f172a99}header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #e2e8f0}h2{font-size:18px;color:#312e81;margin:0}button,a{font:inherit;font-weight:700;border-radius:10px;padding:10px 14px;color:#4338ca;background:#eef2ff;border:0;cursor:pointer;text-decoration:none}main{padding:22px}h3{font-size:17px;margin:0 0 8px}p{line-height:1.6;color:#64748b}img{width:100%;height:340px;object-fit:contain;background:white}footer{padding:18px 22px;background:#f8fafc;display:flex;gap:10px;flex-wrap:wrap}[hidden]{display:none!important}button:focus-visible,a:focus-visible{outline:3px solid #a5b4fc}</style><dialog aria-labelledby="title"><header><h2 id="title">產品詳細資料</h2><button id="close">關閉</button></header><main><h3 id="name"></h3><p id="code"></p><p id="status" role="status"></p><img id="photo" hidden><h3 style="margin-top:20px">產品介紹</h3><div id="description" style="white-space:pre-line;line-height:1.85;color:#475569"></div></main><footer><a id="detail" target="_blank" rel="noopener noreferrer" hidden>開啟官方產品頁 ↗</a><a href="https://www.ttl.com.tw/products/products_list.aspx?sn=22" target="_blank" rel="noopener noreferrer">台酒商品目錄 ↗</a></footer></dialog>`;
  dialog=root.querySelector('dialog');root.getElementById('close').onclick=()=>dialog.close();
  dialog.addEventListener('close',()=>{request++;const img=root.getElementById('photo');img.onload=img.onerror=null;img.removeAttribute('src');img.hidden=true});
 }
 async function open(p){
  init();const token=++request;const $=id=>root.getElementById(id),img=$('photo');
  img.onload=img.onerror=null;img.removeAttribute('src');img.hidden=true;$('detail').hidden=true;
- $('name').textContent=p.name;$('code').textContent='產品編碼：'+String(p.id);$('status').textContent='正在查詢官方產品照片…';
+ $('description').textContent='';$('name').textContent=p.name;$('code').textContent='產品編碼：'+String(p.id);$('status').textContent='正在查詢官方產品照片…';
  if(!dialog.open)dialog.showModal();
  try{
-  if(!catalogPromise)catalogPromise=fetch('ttl-product-images.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error();return r.json()}).catch(e=>{catalogPromise=null;throw e});
-  const catalog=await catalogPromise;if(token!==request)return;
+  await loadCatalog();if(token!==request)return;
   const key=String(p.id).trim().toUpperCase(),entry=Object.hasOwn(catalog,key)?catalog[key]:null;
   if(!entry){$('status').textContent='目前官方照片索引沒有相同產品編碼，可前往台酒商品目錄查詢。';return}
-  const image=safeURL(entry.image,['www.ttl.com.tw','sale.ttl.com.tw']),url=safeURL(entry.url,['sale.ttl.com.tw']);
+  const image=safeURL(entry.image,['www.ttl.com.tw','sale.ttl.com.tw']),url=safeURL(entry.url,['www.ttl.com.tw']);
   if(!image||!url)throw Error();
-  $('detail').href=url;$('detail').hidden=false;
+  $('description').textContent=entry.description||'官方目前未提供產品介紹。';$('detail').href=url;$('detail').hidden=false;
   img.alt=String(p.name)+'（'+key+'）';img.referrerPolicy='no-referrer';
   img.onload=()=>{if(token!==request)return;img.hidden=false;$('status').textContent='來源：台灣菸酒官方商品頁'};
-  img.onerror=()=>{if(token!==request)return;img.hidden=true;$('status').textContent='照片暫時無法載入，請點「開啟官方產品頁」查看。'};
+  img.onerror=()=>{if(token!==request)return;img.hidden=true;delete catalog[key];window.dispatchEvent(new Event('ttl-catalog-ready'));$('status').textContent='照片暫時無法載入，請點「開啟官方產品頁」查看。'};
   img.src=image;
  }catch(e){if(token===request)$('status').textContent='照片索引暫時無法載入，請稍後再試或開啟台酒商品目錄。'}
 }
-window.TTLPhotos={open};
+function has(id){const key=String(id).trim().toUpperCase();return Object.hasOwn(catalog,key)&&!!safeURL(catalog[key].image,['www.ttl.com.tw'])&&!!safeURL(catalog[key].url,['www.ttl.com.tw'])}
+function loadCatalog(){
+ if(!catalogPromise)catalogPromise=fetch('ttl-product-images.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error();return r.json()}).then(data=>{catalog=data;window.dispatchEvent(new Event('ttl-catalog-ready'));return catalog}).catch(e=>{catalogPromise=null;throw e});
+ return catalogPromise;
+}
+window.TTLPhotos={open,has};
+loadCatalog().catch(()=>{});
+
 })();
 </script>
+<script src="expiry-form.js?v=20261118"></script>
 </body>
 </html>
