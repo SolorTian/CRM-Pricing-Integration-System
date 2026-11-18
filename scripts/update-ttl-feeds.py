@@ -41,10 +41,21 @@ def products(html,base):
   if not url or not title:continue
   price=text(card.select_one('.actual-price'));old=text(card.select_one('.old-price'))
   items.append({'title':title,'url':url,'price':price,'originalPrice':old,'expiry':date(title)})
- if not items and not soup.select_one('.no-result,.no-products'):
-  print('PRODUCT DIAGNOSTICS',str(soup.select('[class*="product"]')[:12])[:10000])
-  print('PRODUCT SCRIPTS',[s.get('src') for s in soup.select('script[src]')])
-  raise ValueError('沒有辨識到商品清單')
+ if not items:
+  for a in soup.select('a[href]'):
+   title=text(a);url=safe(base,a.get('href',''))
+   if not url or len(title)<8 or not re.search(r'即期|賞味|出清',title):continue
+   node=a
+   for _ in range(5):
+    node=node.parent
+    if node is None:break
+    content=text(node)
+    if len(content)>1500:break
+    prices=re.findall(r'NT\$\s*([\d,]+)',content)
+    if prices:
+     items.append({'title':title,'url':url,'price':'NT$'+prices[-1],'originalPrice':'NT$'+prices[0] if len(prices)>1 else '', 'expiry':date(title)})
+     break
+ if not items and not soup.select_one('.no-result,.no-products'):raise ValueError('沒有辨識到商品清單')
  pages=[safe(base,a['href']) for a in soup.select('.pager a[href]')]
  return items,[u for u in pages if u and urlparse(u).path==urlparse(base).path]
 def fetch(url):
