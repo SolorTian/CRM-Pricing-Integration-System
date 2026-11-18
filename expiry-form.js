@@ -23,14 +23,7 @@ function mapTemplate(cells,merges){
  function anchor(c,r){const a=addr(c,r);const m=anchors.find(([x,y=x])=>col(x)<=c&&col(y)>=c&&row(x)<=r&&row(y)>=r);return m?m[0]:a}
  return {columns,rows,anchor};
 }
-function salePrice(p){
- const base=Number(p.base),rate=Number(p.rate);
- if(!Number.isFinite(base)||base<0)throw Error('請輸入正確原價。');
- if(p.cat==='菸'&&p.method!=='direct')throw Error('菸品請填寫已核算含稅捐的申請售價。');
- if(p.method==='direct'){const v=Number(p.sale);if(p.sale===''||!Number.isFinite(v)||v<0)throw Error('請填寫申請售價。');return Math.round(v)}
- if(p.rate===''||!Number.isFinite(rate)||rate<0||(p.method==='discount'&&(rate<=0||rate>10)))throw Error('折數須大於 0 且不超過 10；加成百分比不得小於 0。');
- return Math.round(base*(p.method==='discount'?rate/10:1+rate/100)+Number.EPSILON);
-}
+function salePrice(p){return window.ExpiryRules.calculate(p)}
 function patchCell(xml,ref,value){
  const numeric=typeof value==='number';
  const content=numeric?'<v>'+value+'</v>':'<is><t xml:space="preserve">'+esc(value)+'</t></is>';
@@ -84,9 +77,9 @@ function changesFor(t,items,month,office){
   if(!p)continue;
   if(!p.id.trim()||!p.name.trim()||!p.unit.trim()||!p.shelf.trim()||!p.expiry||!p.cat||!p.period)throw Error('請補齊產品料號、品名、單位、保存期限、到期日、類別及距保存期限情形。');
   if(!Number.isInteger(Number(p.qty))||Number(p.qty)<=0)throw Error('屆期數量須為正整數。');
-  if(p.period==='其他'&&!p.notes.trim())throw Error('距保存期限選其他時，請在備註填寫說明。');
+  if(!window.ExpiryRules.parseDate(p.expiry)||p.expiry<window.ExpiryRules.today())throw Error('請填寫有效且尚未過期的到期日。');
   if(p.base==='')throw Error('請填寫原價。');
-  const values={...p,qty:Number(p.qty),base:Number(p.base),sale:salePrice(p),rate:p.method==='discount'?p.rate+'折':p.method==='markup'?p.rate+'%':'依核算',expiry:p.expiry.replaceAll('-','/')};
+  const values={...p,qty:Number(p.qty),base:Number(p.base),sale:salePrice(p),rate:p.rate+'折',expiry:p.expiry.replaceAll('-','/'),notes:[p.notes,p.cat==='菸'?'批發價扣除健康捐及菸稅 '+p.tax+' 元後，按 '+p.rate+' 折計算再加回稅捐':''].filter(Boolean).join('；')};
   for(const field of fields)changes[m.anchor(m.columns[field],r)]=values[field];
   for(const field of ['cat','period']){
    const c=m.columns[field],next=Math.min(...Object.values(m.columns).filter(n=>n>c));
@@ -113,36 +106,109 @@ function changesFor(t,items,month,office){
  for(const [a,v]of Object.entries(t.cells))if(row(a)<m.rows[0]&&v.includes('龍潭營業所'))changes[a]=v.replace('龍潭營業所',office);
  return changes;
 }
-let root,dialog,items=[],results=[],template=null;
-const $=id=>root.getElementById(id);
+let root,dialog,items=[],results=[],allProducts=[],template=null,catalog={},catalogPromise;
+const $=id=>root.getElementById(id),rules=()=>window.ExpiryRules;
+function loadCatalog(){
+ if(!catalogPromise)catalogPromise=fetch('ttl-product-images.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error();return r.json()}).then(data=>{catalog=data;return data}).catch(()=>{catalogPromise=null;return {}});
+ return catalogPromise;
+}
+function meta(id){return catalog[String(id||'').trim().toUpperCase()]||{}}
+function apply(p,reset=false){
+ if(reset){p.manualRate=false;p.manualPeriod=false}
+ const rec=rules().recommend(p);
+ p.ruleMessage=rec.message;
+ if(!p.manualPeriod){const value=rules().period(p.expiry);p.period=value==='已到期'?'其他':value}
+ if(!p.manualRate)p.rate=rec.rate;
+}
+function enrich(p){
+ const m=meta(p.id);p.officialTitle=m.title||'';
+ if(!p.manualCat)p.cat=rules().classify({cat:p.dbCat},m);
+ if(!p.manualShelf)p.shelf=rules().shelf((m.description||'')+'\n'+(m.notes||''));
+ p.source=m.url||'';apply(p);
+}
 function init(){
- if(root)return;const host=document.createElement('div');document.body.appendChild(host);root=host.attachShadow({mode:'open'});
- root.innerHTML=`<style>*{box-sizing:border-box}dialog{position:fixed;inset:0;margin:auto;width:min(1080px,96vw);max-height:94dvh;overflow:auto;padding:0;border:1px solid #e2e8f0;border-radius:22px;background:#f8fafc;color:#334155;font:15px system-ui,"Microsoft JhengHei",sans-serif}dialog::backdrop{background:#0f172a99}header,footer{padding:20px 24px;background:white;display:flex;justify-content:space-between;gap:12px;align-items:center;position:sticky;z-index:2}header{top:0;border-bottom:1px solid #e2e8f0}footer{bottom:0;border-top:1px solid #e2e8f0}h2{font-size:21px;color:#312e81;margin:0}main{padding:22px}button,input,select{font:inherit;border-radius:10px;padding:10px;border:1px solid #cbd5e1;background:white;color:#334155;min-width:0}button{cursor:pointer;font-weight:700;color:#4338ca;border-color:#e0e7ff}button:hover{background:#eef2ff}input:focus,select:focus{outline:3px solid #e0e7ff;border-color:#6366f1}.primary{background:#4f46e5;color:white}.primary:hover{background:#4338ca}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700}section{padding:18px;background:white;border:1px solid #e2e8f0;border-radius:16px;margin:14px 0}.wide{grid-column:span 2}.muted{font-size:13px;color:#64748b;line-height:1.7}.result{display:block;width:100%;text-align:left;margin:5px 0}.results{max-height:180px;overflow:auto}.bar{display:flex;gap:10px;align-items:center}.bar input{flex:1}.error{color:#b91c1c;white-space:pre-line}h3{font-size:16px;margin:0 0 16px}.remove{color:#dc2626;margin-top:12px}@media(max-width:650px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:12px}header,footer{padding:14px;flex-wrap:wrap}h2{font-size:18px}}</style>
+ if(root)return;
+ const host=document.createElement('div');document.body.appendChild(host);root=host.attachShadow({mode:'open'});
+ root.innerHTML=`<style>*{box-sizing:border-box}dialog{position:fixed;inset:0;margin:auto;width:min(1040px,96vw);max-height:94dvh;overflow:auto;padding:0;border:1px solid #e2e8f0;border-radius:22px;background:#f8fafc;color:#334155;font:15px system-ui,"Microsoft JhengHei",sans-serif}dialog::backdrop{background:#0f172a99}header,footer{padding:18px 24px;background:white;display:flex;justify-content:space-between;gap:12px;align-items:center;position:sticky;z-index:2}header{top:0;border-bottom:1px solid #e2e8f0}footer{bottom:0;border-top:1px solid #e2e8f0}h2{font-size:21px;color:#312e81;margin:0}main{padding:22px}button,input,select{font:inherit;border-radius:10px;padding:10px;border:1px solid #cbd5e1;background:white;color:#334155;min-width:0}button{cursor:pointer;font-weight:700;color:#4338ca;border-color:#e0e7ff}button:hover{background:#eef2ff}button:disabled{opacity:.5;cursor:wait}input:focus,select:focus{outline:3px solid #e0e7ff;border-color:#6366f1}input[readonly]{background:#f1f5f9}.primary{background:#4f46e5;color:white}.primary:hover{background:#4338ca}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700}section{padding:20px;background:white;border:1px solid #e2e8f0;border-radius:16px;margin:14px 0}.wide{grid-column:span 2}.muted{font-size:13px;color:#64748b;line-height:1.7}.result{display:block;width:100%;text-align:left;margin:5px 0}.results{max-height:200px;overflow:auto}.bar{display:flex;gap:10px;align-items:center}.bar input{flex:1}.error{color:#b91c1c;white-space:pre-line}.item-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.item-title h3{margin:0;font-size:17px;color:#312e81}.remove{color:#dc2626;padding:6px 12px}.price{background:#eef2ff;padding:13px 16px;border-radius:12px;margin-top:16px;display:flex;justify-content:space-between;gap:12px;align-items:center}.price strong{color:#4338ca;font-size:19px}.rule{margin:10px 0 0;font-size:13px;color:#64748b}.meta{display:flex;gap:18px;align-items:end}.meta label{width:210px}.source{font-size:12px;color:#6366f1;margin-top:10px;display:inline-block}details{margin:14px 0;font-size:13px;color:#64748b}summary{cursor:pointer}.restore{font-size:12px;padding:6px 10px}#addSection{border:1px dashed #a5b4fc;background:#f5f7ff}.tax[hidden]{display:none}@media(max-width:767px), (max-height:500px) and (pointer:coarse){dialog{display:none!important}}</style>
  <dialog aria-labelledby="title"><header><h2 id="title">即期品售價申請</h2><button id="close">關閉</button></header><main>
- <section><div class="grid"><label class="wide">原 Excel 範本<input id="template" type="file" accept=".xlsx,.xlsm"></label><label>申請年月<input id="month" type="month"></label><label>營業所<input id="office" value="龍潭營業所"></label></div><p id="templateStatus" class="muted">選擇公司原始 Excel 範本，匯出時保留原表字型、格線及簽核區。本次開啟期間可重複使用。</p></section>
- <section><h3>加入產品（每張最多 4 項）</h3><div class="bar"><input id="search" placeholder="代號／品名／批發價／建議價"><button id="manual">手動新增</button></div><div id="matches" class="results"></div></section>
- <div id="items"></div><p class="muted">原價與數量請使用相同單位。折數範例：7 代表七折；加成 10 代表加計 10%。申請售價四捨五入至元，仍須依公司規定簽核。</p><p id="error" class="error" role="alert"></p>
- </main><footer><span id="count"></span><button id="export" class="primary">下載原格式 Excel 簽核單</button></footer></dialog>`;
- dialog=root.querySelector('dialog');$('month').value=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit'}).format(new Date()).slice(0,7);
- $('close').onclick=()=>dialog.close();
- $('template').onchange=async()=>{template=null;const f=$('template').files[0];if(!f)return;$('templateStatus').textContent='正在核對原表欄位…';try{template=await parseTemplate(f);$('templateStatus').textContent='已選取：'+f.name+'；已確認 4 列明細與原表欄位。';$('error').textContent=''}catch(e){$('templateStatus').textContent='範本尚未載入';$('error').textContent=e.message}};
+ <div class="meta"><label>申請日期<input id="date" type="date" readonly></label><label>營業所<input id="office" value="龍潭營業所"></label></div>
+ <div id="items"></div>
+ <section id="addSection"><h3>＋ 加入下一項產品</h3><div class="bar"><input id="search" placeholder="代號／品名／批發價／建議價"><button id="manual">手動新增</button></div><div id="matches" class="results"></div><p class="muted">每張依原表填寫最多 4 項。</p></section>
+ <details id="templateRecovery"><summary id="templateStatus">列印範本</summary><input id="template" type="file" accept=".xlsx,.xlsm"><p class="muted">已選取的範本會沿用至關閉網頁。</p></details>
+ <p id="error" class="error" role="alert"></p>
+ </main><footer><span id="count"></span><button id="export" class="primary">下載簽核單</button></footer></dialog>`;
+ dialog=root.querySelector('dialog');$('date').value=rules().today();$('close').onclick=()=>dialog.close();
+ $('template').onchange=async()=>{const f=$('template').files[0];if(!f)return;try{template=await parseTemplate(f);$('templateStatus').textContent='已載入原範本';$('templateRecovery').open=false;$('error').textContent=''}catch(e){$('error').textContent=e.message}};
  $('search').oninput=search;$('manual').onclick=()=>add({});
  $('matches').onclick=e=>{const b=e.target.closest('[data-add]');if(b)add(results[Number(b.dataset.add)])};
- $('items').oninput=e=>{const {index,field}=e.target.dataset;if(index===undefined||!field)return;items[Number(index)][field]=e.target.value;updatePrices()};
- $('items').onclick=e=>{const b=e.target.closest('[data-remove]');if(b){items.splice(Number(b.dataset.remove),1);render()}};
- $('export').onclick=async()=>{const b=$('export');b.disabled=true;try{if(!template)throw Error('請先選擇公司原始 Excel 範本。');const changes=changesFor(template,items,$('month').value,$('office').value.trim());let xml=template.xml;for(const [a,v]of Object.entries(changes))xml=patchCell(xml,a,v);xmlDoc(xml);const Zip=await loadZip(),zip=await Zip.loadAsync(template.buffer);zip.file(template.path,xml);
- if(zip.file('xl/calcChain.xml')){zip.remove('xl/calcChain.xml');const relpath='xl/_rels/workbook.xml.rels';zip.file(relpath,(await zip.file(relpath).async('string')).replace(/<Relationship\b[^>]*Type="[^"]*\/calcChain"[^>]*\/>/g,''));zip.file('[Content_Types].xml',(await zip.file('[Content_Types].xml').async('string')).replace(/<Override\b[^>]*PartName="\/xl\/calcChain.xml"[^>]*\/>/g,''));}
- const blob=await zip.generateAsync({type:'blob',mimeType:template.filename.endsWith('.xlsm')?'application/vnd.ms-excel.sheet.macroEnabled.12':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='即期品簽核單_'+$('month').value+(template.filename.endsWith('.xlsm')?'.xlsm':'.xlsx');a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);$('error').textContent=''}catch(e){$('error').textContent=e.message}finally{b.disabled=false}};
+ $('items').oninput=e=>{
+  const {index,field}=e.target.dataset;if(index===undefined||!field)return;const p=items[Number(index)];p[field]=e.target.value;
+  if(field==='rate')p.manualRate=true;
+  if(field==='period')p.manualPeriod=true;
+  if(field==='shelf')p.manualShelf=true;
+  if(field==='cat')p.manualCat=true;
+  if(field==='id'){p.dbCat=String(allProducts.find(x=>String(x.id).toUpperCase()===p.id.trim().toUpperCase())?.cat||'');p.manualShelf=false;p.manualCat=false;enrich(p)}
+  apply(p);updateItem(Number(index),field);
+ };
+ $('items').onclick=e=>{let b=e.target.closest('[data-remove]');if(b){items.splice(Number(b.dataset.remove),1);render();return}b=e.target.closest('[data-restore]');if(b){apply(items[Number(b.dataset.restore)],true);render()}};
+ $('export').onclick=exportFile;
+ setInterval(()=>{if(dialog.open&&$('date').value!==rules().today()){$('date').value=rules().today();items.forEach(p=>apply(p));render()}},60000);
+ window.addEventListener('resize',()=>{if(window.matchMedia('(max-width:767px), (max-height:500px) and (pointer:coarse)').matches&&dialog.open)dialog.close()});
  render();
 }
-function add(p){if(items.length>=4){$('error').textContent='原表每張 4 項，請先匯出這張再填寫下一張。';return}
- items.push({id:String(p.id||''),name:String(p.name||''),qty:'',unit:String(p.min_unit||''),shelf:'',expiry:'',cat:'',period:'',base:p.w==null?'':String(p.w),method:'discount',rate:'',sale:'',notes:''});render();$('error').textContent=''}
-function search(){results=window.searchBorrowProducts?.($('search').value)||[];$('matches').innerHTML=results.slice(0,50).map((p,i)=>'<button class="result" data-add="'+i+'">'+esc(p.id)+'　'+esc(p.name)+'　＋</button>').join('')}
-function render(){
- const fields=[['id','產品代號'],['name','產品名稱'],['qty','屆期數量','number'],['unit','單位'],['shelf','保存期限（例：6個月）'],['expiry','到期年月日','date'],['cat','產品類別',['','菸','酒','啤酒','非菸酒']],['period','距保存期限情形',['','1個月內','2個月內','3個月內','4個月內','6個月內','其他']],['base','原價（與數量同單位）','number'],['method','計價方式',[['discount','折扣'],['markup','加成'],['direct','直接填售價']]],['rate','折數／加成百分比','number'],['sale','直接填售價','number'],['notes','備註／即期說明']];
- $('items').innerHTML=items.map((p,i)=>'<section><h3>第 '+(i+1)+' 項　<span id="price'+i+'"></span></h3><div class="grid">'+fields.map(([k,label,type])=>'<label class="'+(['name','notes'].includes(k)?'wide':'')+'">'+label+(Array.isArray(type)?'<select data-index="'+i+'" data-field="'+k+'">'+type.map(o=>{const [v,l]=Array.isArray(o)?o:[o,o||'請選擇'];return '<option value="'+esc(v)+'" '+(p[k]===v?'selected':'')+'>'+esc(l)+'</option>'}).join('')+'</select>':'<input data-index="'+i+'" data-field="'+k+'" type="'+(type||'text')+'" value="'+esc(p[k])+'" '+(type==='number'?'min="0" step="'+(k==='qty'?'1':'any')+'"':'maxlength="100"')+'>')+'</label>').join('')+'</div><button class="remove" data-remove="'+i+'">移除此項</button></section>').join('');
- $('count').textContent=items.length+' / 4 項';updatePrices();
+async function exportFile(){
+ const b=$('export');b.disabled=true;
+ try{
+  if(!template)throw Error('列印範本尚未載入，填寫內容已保留。');
+  $('date').value=rules().today();items.forEach(p=>apply(p));
+  const changes=changesFor(template,items,$('date').value.slice(0,7),$('office').value.trim());
+  let xml=template.xml;for(const [a,v]of Object.entries(changes))xml=patchCell(xml,a,v);xmlDoc(xml);
+  const Zip=await loadZip(),zip=await Zip.loadAsync(template.buffer);zip.file(template.path,xml);
+  if(zip.file('xl/calcChain.xml')){
+   zip.remove('xl/calcChain.xml');
+   const relpath='xl/_rels/workbook.xml.rels';
+   zip.file(relpath,(await zip.file(relpath).async('string')).replace(/<Relationship\b[^>]*Type="[^"]*\/calcChain"[^>]*\/>/g,''));
+   zip.file('[Content_Types].xml',(await zip.file('[Content_Types].xml').async('string')).replace(/<Override\b[^>]*PartName="\/xl\/calcChain.xml"[^>]*\/>/g,''));
+  }
+  const blob=await zip.generateAsync({type:'blob',mimeType:template.filename.endsWith('.xlsm')?'application/vnd.ms-excel.sheet.macroEnabled.12':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='即期品簽核單_'+$('date').value+(template.filename.endsWith('.xlsm')?'.xlsm':'.xlsx');a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);$('error').textContent='';
+ }catch(e){$('error').textContent=e.message}finally{b.disabled=false}
 }
-function updatePrices(){items.forEach((p,i)=>{try{$('price'+i).textContent='申請售價：'+salePrice(p)+' 元'}catch{$('price'+i).textContent='待填寫價格'}})}
-window.ExpiryForm={open(products,p){init();if(p)add(p);search();if(!dialog.open)dialog.showModal()},mapTemplate,salePrice,patchCell,changesFor};
+function add(p){
+ if(items.length>=4){$('error').textContent='原表每張 4 項，請先匯出這張。';return}
+ const item={id:String(p.id||''),name:String(p.name||''),dbCat:String(p.cat||''),qty:'',unit:String(p.min_unit||''),shelf:'',expiry:'',cat:'',period:'',base:p.w==null?'':String(p.w),rate:'',tax:'',notes:'',manualRate:false,manualPeriod:false,manualShelf:false,manualCat:false};
+ enrich(item);items.push(item);$('search').value='';$('matches').innerHTML='';render();$('error').textContent='';
+}
+function search(){
+ const q=$('search').value.trim();if(!q){results=[];$('matches').innerHTML='';return}
+ results=window.searchBorrowProducts?.(q)||[];
+ $('matches').innerHTML=results.slice(0,50).map((p,i)=>'<button class="result" data-add="'+i+'">'+esc(p.id)+'　'+esc(p.name)+'　＋</button>').join('')||'<p class="muted">查無產品，可手動新增。</p>';
+}
+function render(){
+ const fields=[['id','產品代號'],['name','產品名稱'],['qty','本批屆期數量','number'],['unit','單位'],['shelf','保存期限'],['expiry','到期年月日','date'],['cat','產品類別',['','菸','酒','啤酒','非菸酒']],['period','距保存期限情形',['','1個月內','2個月內','3個月內','4個月內','6個月內','其他']],['base','批發價（與數量同單位）','number'],['rate','折數（7＝七折）','number'],['tax','健康捐＋菸稅（同單位）','number'],['notes','備註／即期說明']];
+ $('items').innerHTML=items.map((p,i)=>'<section class="product"><div class="item-title"><h3>第 '+(i+1)+' 項產品</h3><button class="remove" data-remove="'+i+'">移除</button></div><div class="grid">'+fields.map(([k,label,type])=>'<label class="'+(['name','notes'].includes(k)?'wide ':'')+(k==='tax'?'tax':'')+'" '+(k==='tax'&&p.cat!=='菸'?'hidden':'')+'>'+label+(Array.isArray(type)?'<select data-index="'+i+'" data-field="'+k+'">'+type.map(v=>'<option value="'+esc(v)+'" '+(p[k]===v?'selected':'')+'>'+esc(v||'請選擇')+'</option>').join('')+'</select>':'<input data-index="'+i+'" data-field="'+k+'" type="'+(type||'text')+'" value="'+esc(p[k])+'" '+(type==='number'?'min="0" step="'+(k==='qty'?'1':'any')+'"':'maxlength="100"')+(k==='shelf'?' placeholder="官網無資料時請填寫，例如 6個月"':'')+'>')+'</label>').join('')+'</div><div class="price"><span>申請售價（元以下四捨五入）</span><strong id="price'+i+'"></strong></div><p class="rule" id="rule'+i+'"></p><button class="restore" data-restore="'+i+'">重新套用規則</button>'+(p.source?'<a class="source" href="'+esc(p.source)+'" target="_blank" rel="noopener noreferrer">　查看官網資料 ↗</a>':'')+'</section>').join('')||'<p class="muted">從下方搜尋並加入第一項產品。</p>';
+ $('count').textContent=items.length+' / 4 項';items.forEach((p,i)=>updateItem(i));$('manual').disabled=items.length>=4;
+}
+function updateItem(i,editing){
+ const p=items[i];
+ for(const field of ['shelf','cat','period','rate']){
+  if(field===editing)continue;const input=root.querySelector('[data-index="'+i+'"][data-field="'+field+'"]');if(input)input.value=p[field];
+ }
+ const tax=root.querySelector('[data-index="'+i+'"][data-field="tax"]');if(tax)tax.parentElement.hidden=p.cat!=='菸';
+ try{$('price'+i).textContent=salePrice(p)+' 元'}catch(e){$('price'+i).textContent=p.cat==='菸'&&p.tax===''?'待補稅捐':'—'}
+ $('rule'+i).textContent=p.ruleMessage+(p.manualRate?'；折數已手動調整':'')+(p.manualPeriod?'；距到期情形已手動調整':'');
+}
+let rulesPromise;
+async function ensureRules(){
+ if(window.ExpiryRules)return true;
+ if(!rulesPromise)rulesPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='expiry-rules.js?v=20261118-2';script.onload=resolve;script.onerror=()=>{rulesPromise=null;reject(Error('規則載入失敗'))};document.head.appendChild(script)});
+ try{await rulesPromise;return !!window.ExpiryRules}catch(e){window.showToast?.('即期申請規則載入失敗，請重新整理後再試');return false}
+}
+window.ExpiryForm={async open(products,p){
+ if(window.matchMedia('(max-width:767px), (max-height:500px) and (pointer:coarse)').matches)return;
+ if(!await ensureRules())return;
+ init();allProducts=Array.isArray(products)?products:[];$('date').value=rules().today();await loadCatalog();
+ items.forEach(item=>{enrich(item)});
+ if(p)add(p);else render();if(!dialog.open)dialog.showModal();
+},mapTemplate,salePrice,patchCell,changesFor};
 })();
