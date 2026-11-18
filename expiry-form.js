@@ -27,7 +27,7 @@ function salePrice(p){return window.ExpiryRules.calculate(p)}
 function patchCell(xml,ref,value){
  const numeric=typeof value==='number';
  const content=numeric?'<v>'+value+'</v>':'<is><t xml:space="preserve">'+esc(value)+'</t></is>';
- const re=new RegExp('<c\\b([^>]*\\br="'+ref+'"[^>]*)(?:/>|>([\\s\\S]*?)</c>)');
+ const re=new RegExp('<c\\b([^>]*\\br="'+ref+'"[^>]*?)(?:/>|>([\\s\\S]*?)</c>)');
  const hit=xml.match(re);
  if(hit){const attrs=hit[1].replace(/\s+t="[^"]*"/,'');return xml.replace(re,'<c'+attrs+(numeric?'':' t="inlineStr"')+'>'+content+'</c>')}
  const r=row(ref),rr=new RegExp('(<row\\b[^>]*\\br="'+r+'"[^>]*>)([\\s\\S]*?)(</row>)');
@@ -35,7 +35,7 @@ function patchCell(xml,ref,value){
  return xml.replace(rr,(_,start,body,end)=>{
   const cell='<c r="'+ref+'"'+(numeric?'':' t="inlineStr"')+'>'+content+'</c>';
   let inserted=false;
-  body=body.replace(/<c\b[^>]*\br="([A-Z]+\d+)"[^>]*(?:\/>|>[\s\S]*?<\/c>)/g,(v,a)=>{if(!inserted&&col(a)>col(ref)){inserted=true;return cell+v}return v});
+  body=body.replace(/<c\b[^>]*\br="([A-Z]+\d+)"[^>]*?(?:\/>|>[\s\S]*?<\/c>)/g,(v,a)=>{if(!inserted&&col(a)>col(ref)){inserted=true;return cell+v}return v});
   return start+body+(inserted?'':cell)+end;
  });
 }
@@ -104,7 +104,7 @@ function changesFor(t,items,month,office){
  if(!year||!mon||year<1912)throw Error('請填寫申請年月。');
  if(!/年\s*.*月/.test(header[1]))throw Error('無法辨識原表的申請年月欄。');
  changes[header[0]]=header[1].replace(/(?:\d+\s*)?年\s*(?:\d+\s*)?月/,(year-1911)+'年 '+mon+'月');
- for(const [a,v]of Object.entries(t.cells))if(row(a)<m.rows[0]&&v.includes('龍潭營業所'))changes[a]=v.replace('龍潭營業所',office);
+ for(const [a,v]of Object.entries(t.cells))if(row(a)<m.rows[0]&&v.includes('龍潭營業所'))changes[a]=(changes[a]??v).replace('龍潭營業所',office);
  return changes;
 }
 let root,dialog,items=[],results=[],allProducts=[],template=null,catalog={},catalogPromise,templatePromise;
@@ -114,7 +114,7 @@ async function loadBuiltinTemplate(){
   $('templateStatus').textContent='正在載入原格式範本…';
   $('export').disabled=true;
   try{
-   const response=await fetch('expiry-template.xlsx',{cache:'no-cache'});
+   const response=await fetch('expiry-template.xlsx?v=20261118-1',{cache:'no-cache'});
    if(!response.ok)throw Error('範本尚未就緒');
    const buffer=await response.arrayBuffer();
    template=await parseTemplate({name:'expiry-template.xlsx',arrayBuffer:async()=>buffer});
@@ -236,3 +236,4 @@ window.ExpiryForm={async open(products,p){
  if(p)add(p);else render();if(!dialog.open)dialog.showModal();void loadBuiltinTemplate();
 },mapTemplate,salePrice,patchCell,changesFor};
 })();
+
