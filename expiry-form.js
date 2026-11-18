@@ -75,6 +75,7 @@ function changesFor(t,items,month,office){
   const endRow=i<3?m.rows[i+1]:r+(m.rows[1]-m.rows[0]);
   for(const [a,v]of Object.entries(t.cells))if(row(a)>=r&&row(a)<endRow&&col(a)>=m.columns.cat&&col(a)<m.columns.base&&/[☑■]/.test(v))changes[a]=v.replace(/[☑■]/g,'□');
   if(!p)continue;
+  if(!office)throw Error('請填寫營業所。');
   if(!p.id.trim()||!p.name.trim()||!p.unit.trim()||!p.shelf.trim()||!p.expiry||!p.cat||!p.period)throw Error('請補齊產品料號、品名、單位、保存期限、到期日、類別及距保存期限情形。');
   if(!Number.isInteger(Number(p.qty))||Number(p.qty)<=0)throw Error('屆期數量須為正整數。');
   if(!window.ExpiryRules.parseDate(p.expiry)||p.expiry<window.ExpiryRules.today())throw Error('請填寫有效且尚未過期的到期日。');
@@ -106,7 +107,30 @@ function changesFor(t,items,month,office){
  for(const [a,v]of Object.entries(t.cells))if(row(a)<m.rows[0]&&v.includes('龍潭營業所'))changes[a]=v.replace('龍潭營業所',office);
  return changes;
 }
-let root,dialog,items=[],results=[],allProducts=[],template=null,catalog={},catalogPromise;
+let root,dialog,items=[],results=[],allProducts=[],template=null,catalog={},catalogPromise,templatePromise;
+async function loadBuiltinTemplate(){
+ if(template)return template;
+ if(!templatePromise)templatePromise=(async()=>{
+  $('templateStatus').textContent='正在載入原格式範本…';
+  $('export').disabled=true;
+  try{
+   const response=await fetch('expiry-template.xlsx',{cache:'no-cache'});
+   if(!response.ok)throw Error('範本尚未就緒');
+   const buffer=await response.arrayBuffer();
+   template=await parseTemplate({name:'expiry-template.xlsx',arrayBuffer:async()=>buffer});
+   $('templateStatus').textContent='已載入原格式範本';
+   $('retryTemplate').hidden=true;
+   $('export').disabled=false;
+   return template;
+  }catch(e){
+   $('templateStatus').textContent='原格式範本尚未就緒，目前可先填寫，暫時無法下載。';
+   $('retryTemplate').hidden=false;
+   templatePromise=null;
+   return null;
+  }
+ })();
+ return templatePromise;
+}
 const $=id=>root.getElementById(id),rules=()=>window.ExpiryRules;
 function loadCatalog(){
  if(!catalogPromise)catalogPromise=fetch('ttl-product-images.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error();return r.json()}).then(data=>{catalog=data;return data}).catch(()=>{catalogPromise=null;return {}});
@@ -129,16 +153,16 @@ function enrich(p){
 function init(){
  if(root)return;
  const host=document.createElement('div');document.body.appendChild(host);root=host.attachShadow({mode:'open'});
- root.innerHTML=`<style>*{box-sizing:border-box}dialog{position:fixed;inset:0;margin:auto;width:min(1040px,96vw);max-height:94dvh;overflow:auto;padding:0;border:1px solid #e2e8f0;border-radius:22px;background:#f8fafc;color:#334155;font:15px system-ui,"Microsoft JhengHei",sans-serif}dialog::backdrop{background:#0f172a99}header,footer{padding:18px 24px;background:white;display:flex;justify-content:space-between;gap:12px;align-items:center;position:sticky;z-index:2}header{top:0;border-bottom:1px solid #e2e8f0}footer{bottom:0;border-top:1px solid #e2e8f0}h2{font-size:21px;color:#312e81;margin:0}main{padding:22px}button,input,select{font:inherit;border-radius:10px;padding:10px;border:1px solid #cbd5e1;background:white;color:#334155;min-width:0}button{cursor:pointer;font-weight:700;color:#4338ca;border-color:#e0e7ff}button:hover{background:#eef2ff}button:disabled{opacity:.5;cursor:wait}input:focus,select:focus{outline:3px solid #e0e7ff;border-color:#6366f1}input[readonly]{background:#f1f5f9}.primary{background:#4f46e5;color:white}.primary:hover{background:#4338ca}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700}section{padding:20px;background:white;border:1px solid #e2e8f0;border-radius:16px;margin:14px 0}.wide{grid-column:span 2}.muted{font-size:13px;color:#64748b;line-height:1.7}.result{display:block;width:100%;text-align:left;margin:5px 0}.results{max-height:200px;overflow:auto}.bar{display:flex;gap:10px;align-items:center}.bar input{flex:1}.error{color:#b91c1c;white-space:pre-line}.item-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.item-title h3{margin:0;font-size:17px;color:#312e81}.remove{color:#dc2626;padding:6px 12px}.price{background:#eef2ff;padding:13px 16px;border-radius:12px;margin-top:16px;display:flex;justify-content:space-between;gap:12px;align-items:center}.price strong{color:#4338ca;font-size:19px}.rule{margin:10px 0 0;font-size:13px;color:#64748b}.meta{display:flex;gap:18px;align-items:end}.meta label{width:210px}.source{font-size:12px;color:#6366f1;margin-top:10px;display:inline-block}details{margin:14px 0;font-size:13px;color:#64748b}summary{cursor:pointer}.restore{font-size:12px;padding:6px 10px}#addSection{border:1px dashed #a5b4fc;background:#f5f7ff}.tax[hidden]{display:none}@media(max-width:767px), (max-height:500px) and (pointer:coarse){dialog{display:none!important}}</style>
+ root.innerHTML=`<style>*{box-sizing:border-box}dialog{position:fixed;inset:0;margin:auto;width:min(1040px,96vw);max-height:94dvh;overflow:auto;padding:0;border:1px solid #e2e8f0;border-radius:22px;background:#f8fafc;color:#334155;font:15px system-ui,"Microsoft JhengHei",sans-serif}dialog::backdrop{background:#0f172a99}header,footer{padding:18px 24px;background:white;display:flex;justify-content:space-between;gap:12px;align-items:center;position:sticky;z-index:2}header{top:0;border-bottom:1px solid #e2e8f0}footer{bottom:0;border-top:1px solid #e2e8f0}h2{font-size:21px;color:#312e81;margin:0}main{padding:22px}button,input,select{font:inherit;border-radius:10px;padding:10px;border:1px solid #cbd5e1;background:white;color:#334155;min-width:0}button{cursor:pointer;font-weight:700;color:#4338ca;border-color:#e0e7ff}button:hover{background:#eef2ff}button:disabled{opacity:.5;cursor:wait}input:focus,select:focus{outline:3px solid #e0e7ff;border-color:#6366f1}input[readonly]{background:#f1f5f9}.primary{background:#4f46e5;color:white}.primary:hover{background:#4338ca}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700}section{padding:20px;background:white;border:1px solid #e2e8f0;border-radius:16px;margin:14px 0}.wide{grid-column:span 2}.muted{font-size:13px;color:#64748b;line-height:1.7}.result{display:block;width:100%;text-align:left;margin:5px 0}.results{max-height:200px;overflow:auto}.bar{display:flex;gap:10px;align-items:center}.bar input{flex:1}.error{color:#b91c1c;white-space:pre-line}.item-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.item-title h3{margin:0;font-size:17px;color:#312e81}.remove{color:#dc2626;padding:6px 12px}.product{border-left:4px solid #c7d2fe}.grid{align-items:start}.price{background:#eef2ff;padding:13px 16px;border-radius:12px;margin-top:16px;display:flex;justify-content:space-between;gap:12px;align-items:center}.price strong{color:#4338ca;font-size:19px}.rule{margin:10px 0 0;font-size:13px;color:#64748b}.meta{display:flex;gap:18px;align-items:end}.meta label{width:210px}.source{font-size:12px;color:#6366f1;margin-top:10px;display:inline-block}details{margin:14px 0;font-size:13px;color:#64748b}summary{cursor:pointer}.restore{font-size:12px;padding:6px 10px}#addSection{border:1px dashed #a5b4fc;background:#f5f7ff}.tax[hidden]{display:none}@media(max-width:767px), (max-height:500px) and (pointer:coarse){dialog{display:none!important}}</style>
  <dialog aria-labelledby="title"><header><h2 id="title">即期品售價申請</h2><button id="close">關閉</button></header><main>
  <div class="meta"><label>申請日期<input id="date" type="date" readonly></label><label>營業所<input id="office" value="龍潭營業所"></label></div>
  <div id="items"></div>
  <section id="addSection"><h3>＋ 加入下一項產品</h3><div class="bar"><input id="search" placeholder="代號／品名／批發價／建議價"><button id="manual">手動新增</button></div><div id="matches" class="results"></div><p class="muted">每張依原表填寫最多 4 項。</p></section>
- <details id="templateRecovery"><summary id="templateStatus">列印範本</summary><input id="template" type="file" accept=".xlsx,.xlsm"><p class="muted">已選取的範本會沿用至關閉網頁。</p></details>
+ <p class="muted" role="status"><span id="templateStatus">正在載入原格式範本…</span> <button id="retryTemplate" class="restore" hidden>重試載入</button></p>
  <p id="error" class="error" role="alert"></p>
- </main><footer><span id="count"></span><button id="export" class="primary">下載簽核單</button></footer></dialog>`;
+ </main><footer><span id="count"></span><button id="export" class="primary" disabled>下載簽核單</button></footer></dialog>`;
  dialog=root.querySelector('dialog');$('date').value=rules().today();$('close').onclick=()=>dialog.close();
- $('template').onchange=async()=>{const f=$('template').files[0];if(!f)return;try{template=await parseTemplate(f);$('templateStatus').textContent='已載入原範本';$('templateRecovery').open=false;$('error').textContent=''}catch(e){$('error').textContent=e.message}};
+ $('retryTemplate').onclick=()=>loadBuiltinTemplate();
  $('search').oninput=search;$('manual').onclick=()=>add({});
  $('matches').onclick=e=>{const b=e.target.closest('[data-add]');if(b)add(results[Number(b.dataset.add)])};
  $('items').oninput=e=>{
@@ -159,7 +183,7 @@ function init(){
 async function exportFile(){
  const b=$('export');b.disabled=true;
  try{
-  if(!template)throw Error('列印範本尚未載入，填寫內容已保留。');
+  if(!template&&!await loadBuiltinTemplate())throw Error('原格式範本尚未就緒，請稍後重試；目前填寫內容仍保留。');
   $('date').value=rules().today();items.forEach(p=>apply(p));
   const changes=changesFor(template,items,$('date').value.slice(0,7),$('office').value.trim());
   let xml=template.xml;for(const [a,v]of Object.entries(changes))xml=patchCell(xml,a,v);xmlDoc(xml);
@@ -172,7 +196,7 @@ async function exportFile(){
   }
   const blob=await zip.generateAsync({type:'blob',mimeType:template.filename.endsWith('.xlsm')?'application/vnd.ms-excel.sheet.macroEnabled.12':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='即期品簽核單_'+$('date').value+(template.filename.endsWith('.xlsm')?'.xlsm':'.xlsx');a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);$('error').textContent='';
- }catch(e){$('error').textContent=e.message}finally{b.disabled=false}
+ }catch(e){$('error').textContent=e.message}finally{b.disabled=!template}
 }
 function add(p){
  if(items.length>=4){$('error').textContent='原表每張 4 項，請先匯出這張。';return}
@@ -209,6 +233,6 @@ window.ExpiryForm={async open(products,p){
  if(!await ensureRules())return;
  init();allProducts=Array.isArray(products)?products:[];$('date').value=rules().today();await loadCatalog();
  items.forEach(item=>{enrich(item)});
- if(p)add(p);else render();if(!dialog.open)dialog.showModal();
+ if(p)add(p);else render();if(!dialog.open)dialog.showModal();void loadBuiltinTemplate();
 },mapTemplate,salePrice,patchCell,changesFor};
 })();

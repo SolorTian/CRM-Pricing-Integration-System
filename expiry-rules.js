@@ -21,15 +21,15 @@ function classify(p,official={}){
 function period(expiry,day=today()){
  if(!parseDate(expiry))return '';
  if(expiry<day)return '已到期';
- for(const n of [1,2,3,4,6])if(expiry<=addMonths(day,n))return n+'個月內';
+ for(const n of [1,2,3,4,6])if(day>=addMonths(expiry,-n))return n+'個月內';
  return '其他';
 }
 function recommend(p,day=today()){
  const expiry=p.expiry;
  if(!parseDate(expiry))return {rate:'',message:'填寫到期日後自動判斷'};
  if(expiry<day)return {rate:'',message:'產品已到期，不套用即期價'};
- const within=n=>expiry<=addMonths(day,n);
- if(p.cat==='菸')return within(1)?{rate:'7',message:'扣除健康捐及菸稅後打七折，再加回稅捐'}:{rate:'',message:'尚未進入菸品一個月內的適用區間'};
+ const within=n=>day>=addMonths(expiry,-n);
+ if(p.cat==='菸')return within(1)?{rate:'7',message:'扣除健康捐及菸稅後打七折，再加回稅捐；限營業所開單、客戶或員工購買'}:{rate:'',message:'尚未進入菸品一個月內的適用區間'};
  if(p.cat==='啤酒'){
   if(/生啤|桶啤|桶裝|桶裝|18\s*天|十八天|鮮啤/.test((p.name||'')+' '+(p.officialTitle||'')))return {rate:'',message:'生啤、桶啤不適用這組啤酒折扣，請另行確認'};
   return within(1)?{rate:'7',message:'一般啤酒：一個月內七折'}:within(2)?{rate:'9',message:'一般啤酒：兩個月內九折'}:{rate:'',message:'尚未進入一般啤酒的適用區間'};

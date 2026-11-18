@@ -2405,7 +2405,7 @@ async function open(p){
   if(!entry){$('status').textContent='目前官方照片索引沒有相同產品編碼，可前往台酒商品目錄查詢。';return}
   const image=safeURL(entry.image,['www.ttl.com.tw','sale.ttl.com.tw']),url=safeURL(entry.url,['www.ttl.com.tw']);
   if(!image||!url)throw Error();
-  $('description').textContent=entry.description||'官方目前未提供產品介紹。';$('detail').href=url;$('detail').hidden=false;
+  $('description').textContent=[entry.description,entry.notes].filter(Boolean).join('\n\n')||'官方目前未提供產品介紹。';$('detail').href=url;$('detail').hidden=false;
   img.alt=String(p.name)+'（'+key+'）';img.referrerPolicy='no-referrer';
   img.onload=()=>{if(token!==request)return;img.hidden=false;$('status').textContent='來源：台灣菸酒官方商品頁'};
   img.onerror=()=>{if(token!==request)return;img.hidden=true;delete catalog[key];window.dispatchEvent(new Event('ttl-catalog-ready'));$('status').textContent='照片暫時無法載入，請點「開啟官方產品頁」查看。'};
@@ -2422,7 +2422,7 @@ loadCatalog().catch(()=>{});
 
 })();
 </script>
-<script src="expiry-rules.js?v=20261118-2"></script>
-<script src="expiry-form.js?v=20261118-2"></script>
+<script src="expiry-rules.js?v=20261118-3"></script>
+<script src="expiry-form.js?v=20261118-3"></script>
 </body>
 </html>
