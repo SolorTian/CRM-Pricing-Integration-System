@@ -12,7 +12,6 @@ def get(url, data=None):
     r.encoding = r.apparent_encoding
     return BeautifulSoup(r.text, "html.parser")
 page = get(BASE)
-print("PAGER_HTML", str(page)[-24000:], flush=True)
 links = set()
 seen = set()
 for number in range(1, 101):
@@ -23,23 +22,16 @@ for number in range(1, 101):
     seen.add(signature)
     links.update(found)
     print("Listing", number, "products", len(found), flush=True)
-    candidates = []
-    for a in page.select("a[href]"):
-        label = a.get_text(strip=True)
-        if label == str(number + 1) or label in ("下一頁", "下頁", ">", "›", "Next"):
-            candidates.append(a)
-    if not candidates:
-        print("Pagination controls:", [(a.get_text(strip=True), a.get("href")) for a in page.select("a[href]") if "__doPostBack" in a["href"]], flush=True)
+    pager = page.select_one("select[name$='$Pageer1$CurrentPage']")
+    if not pager or not pager.select_one('option[value="' + str(number + 1) + '"]'):
         break
-    a = candidates[0]
-    href = a["href"]
-    post = re.search(r"__doPostBack\('([^']*)','([^']*)'\)", href)
-    if post:
-        data = {x["name"]: x.get("value", "") for x in page.select("input[name]") if x.get("type", "").lower() not in ("submit", "button", "image", "checkbox", "radio")}
-        data["__EVENTTARGET"], data["__EVENTARGUMENT"] = post.groups()
-        page = get(BASE, data)
-    else:
-        page = get(urljoin(BASE, href))
+    data = {x["name"]: x.get("value", "") for x in page.select("input[name]") if x.get("type", "").lower() not in ("submit", "button", "image", "checkbox", "radio")}
+    for select in page.select("select[name]"):
+        option = select.select_one("option[selected]") or select.select_one("option")
+        data[select["name"]] = option.get("value", "") if option else ""
+    data[pager["name"]] = str(number + 1)
+    data["ctl00$ContentPlaceHolder1$Pageer1$Button1"] = "GO!"
+    page = get(BASE, data)
     time.sleep(.2)
 path = Path("ttl-product-images.json")
 catalog = json.loads(path.read_text("utf-8")) if path.exists() else {}
