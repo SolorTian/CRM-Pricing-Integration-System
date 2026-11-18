@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'scripts/index-ttl-products.py'
+      - 'scripts/enrich-ttl-products.py'
       - '.github/workflows/ttl-product-images.yml'
   workflow_dispatch:
 permissions:
@@ -17,7 +18,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install requests beautifulsoup4
-      - run: python scripts/index-ttl-products.py
+      - run: python scripts/enrich-ttl-products.py
       - name: Save verified catalog
         run: |
           git config user.name "github-actions[bot]"
