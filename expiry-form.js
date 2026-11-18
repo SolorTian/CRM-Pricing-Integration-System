@@ -80,7 +80,7 @@ function changesFor(t,items,month,office){
   const fields=['id','name','qty','unit','shelf','expiry','base','rate','sale','notes'];
   for(const field of fields)changes[m.anchor(m.columns[field],r)]='';
   const endRow=i<3?m.rows[i+1]:r+(m.rows[1]-m.rows[0]);
-  for(const [a,v]of Object.entries(t.cells))if(row(a)>=r&&row(a)<endRow&&[m.columns.cat,m.columns.period].some(c=>col(a)===c)&&/[☑■]/.test(v))changes[a]=v.replace(/[☑■]/g,'□');
+  for(const [a,v]of Object.entries(t.cells))if(row(a)>=r&&row(a)<endRow&&col(a)>=m.columns.cat&&col(a)<m.columns.base&&/[☑■]/.test(v))changes[a]=v.replace(/[☑■]/g,'□');
   if(!p)continue;
   if(!p.id.trim()||!p.name.trim()||!p.unit.trim()||!p.shelf.trim()||!p.expiry||!p.cat||!p.period)throw Error('請補齊產品料號、品名、單位、保存期限、到期日、類別及距保存期限情形。');
   if(!Number.isInteger(Number(p.qty))||Number(p.qty)<=0)throw Error('屆期數量須為正整數。');
