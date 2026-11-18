@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-11-18T13:28:17.696787+00:00",
+  "updatedAt": "2026-11-18T13:29:54.950153+00:00",
   "sources": {
     "corporate": {
       "label": "台酒官網",
       "url": "https://www.ttl.com.tw/index.aspx",
-      "checkedAt": "2026-11-18T13:28:17.696787+00:00",
-      "updatedAt": "2026-11-18T13:28:17.696787+00:00",
+      "checkedAt": "2026-11-18T13:29:54.950153+00:00",
+      "updatedAt": "2026-11-18T13:29:54.950153+00:00",
       "status": "ok",
       "items": [
         {
@@ -73,8 +73,8 @@
     "shop": {
       "label": "台酒購物網",
       "url": "https://eshop.ttl.com.tw/news",
-      "checkedAt": "2026-11-18T13:28:17.696787+00:00",
-      "updatedAt": "2026-11-18T13:28:17.696787+00:00",
+      "checkedAt": "2026-11-18T13:29:54.950153+00:00",
+      "updatedAt": "2026-11-18T13:29:54.950153+00:00",
       "status": "ok",
       "items": [
         {
@@ -132,7 +132,7 @@
     "deals": {
       "label": "即期惜福",
       "url": "https://eshop.ttl.com.tw/即期惜福",
-      "checkedAt": "2026-11-18T13:28:17.696787+00:00",
+      "checkedAt": "2026-11-18T13:29:54.950153+00:00",
       "status": "error",
       "items": [],
       "error": "官網暫時無法更新，顯示上次成功資料。"
