@@ -1,0 +1,141 @@
+{
+  "updatedAt": "2026-11-18T13:28:17.696787+00:00",
+  "sources": {
+    "corporate": {
+      "label": "台酒官網",
+      "url": "https://www.ttl.com.tw/index.aspx",
+      "checkedAt": "2026-11-18T13:28:17.696787+00:00",
+      "updatedAt": "2026-11-18T13:28:17.696787+00:00",
+      "status": "ok",
+      "items": [
+        {
+          "title": "【台酒過年最蝦趴！】2027春節年菜預購/餅乾早鳥預購開跑！",
+          "url": "https://www.ttl.com.tw/02news/news_view.aspx?news_id=24430&sn=13",
+          "date": "2026-11-13"
+        },
+        {
+          "title": "南投酒廠威士忌城堡招商營運案",
+          "url": "https://www.ttl.com.tw/02news/news_view.aspx?news_id=24427&sn=13",
+          "date": "2026-11-12"
+        },
+        {
+          "title": "臺灣菸酒股份有限公司115年從業職員及從業評價職位人員甄試簡章(1151020修訂)",
+          "url": "https://www.ttl.com.tw/02news/news_view.aspx?news_id=24385&sn=13",
+          "date": "2026-10-20"
+        },
+        {
+          "title": "臺灣菸酒股份有限公司115年從業職員及從業評價職位人員甄試簡章",
+          "url": "https://www.ttl.com.tw/02news/news_view.aspx?news_id=24375&sn=13",
+          "date": "2026-10-16"
+        },
+        {
+          "title": "睽違四年，經典回歸！麻油雞控準備開吃啦！",
+          "url": "https://www.ttl.com.tw/02news/news_view.aspx?news_id=24386&sn=13",
+          "date": "2026-10-13"
+        },
+        {
+          "title": "臺灣菸酒股份有限公司115年從業職員及從業評價職位人員甄試各項甄試類別、筆試科目及需用人數彙整表【暫定】-1150918修訂",
+          "url": "https://www.ttl.com.tw/02news/news_view.aspx?news_id=24339&sn=13",
+          "date": "2026-09-18"
+        },
+        {
+          "title": "115年_CEDAW宣導海報",
+          "url": "https://www.ttl.com.tw/02news/news_view.aspx?news_id=24177&sn=13",
+          "date": "2026-06-03"
+        },
+        {
+          "title": "本公司獲2026台灣零售永續獎「顧客永續行動獎」",
+          "url": "https://www.ttl.com.tw/02news/news_view.aspx?news_id=24159&sn=13",
+          "date": "2026-05-28"
+        },
+        {
+          "title": "正式宣布加入「2026 TALENT, in Taiwan，台灣人才永續行動聯盟」",
+          "url": "https://www.ttl.com.tw/02news/news_view.aspx?news_id=24060&sn=13",
+          "date": "2026-03-23"
+        },
+        {
+          "title": "臺灣菸酒股份有限公司114年從業職員及從業評價職位人員甄試錄取名單",
+          "url": "https://www.ttl.com.tw/02news/news_view.aspx?news_id=24001&sn=13",
+          "date": "2026-02-09"
+        },
+        {
+          "title": "藥味酒料理食譜",
+          "url": "https://www.ttl.com.tw/02news/news_view.aspx?news_id=23131&sn=13",
+          "date": "2024-10-08"
+        },
+        {
+          "title": "臺灣菸酒股份有限公司113年度公職人員利益衝突迴避法 「依法令規定以公開公平方式辦理之補助」資訊公開事項",
+          "url": "https://www.ttl.com.tw/02news/news_view.aspx?news_id=23128&sn=13",
+          "date": "2024-10-07"
+        }
+      ]
+    },
+    "shop": {
+      "label": "台酒購物網",
+      "url": "https://eshop.ttl.com.tw/news",
+      "checkedAt": "2026-11-18T13:28:17.696787+00:00",
+      "updatedAt": "2026-11-18T13:28:17.696787+00:00",
+      "status": "ok",
+      "items": [
+        {
+          "title": "【活動】2027年菜預購",
+          "url": "https://eshop.ttl.com.tw/%E6%B4%BB%E5%8B%952027%E5%B9%B4%E8%8F%9C%E9%A0%90%E8%B3%BC",
+          "date": "2026-11-12"
+        },
+        {
+          "title": "【活動】由內而美周年慶，美容x保健食品最低39折起",
+          "url": "https://eshop.ttl.com.tw/202610vinata",
+          "date": "2026-10-22"
+        },
+        {
+          "title": "【活動】會員綁定 LINE 專屬優惠",
+          "url": "https://eshop.ttl.com.tw/%E6%B4%BB%E5%8B%95%E6%9C%83%E5%93%A1%E7%B6%81%E5%AE%9A-line-%E5%B0%88%E5%B1%AC%E5%84%AA%E6%83%A0",
+          "date": "2026-07-01"
+        },
+        {
+          "title": "【公告】非會員購物便利下單新上線",
+          "url": "https://eshop.ttl.com.tw/guest-checkout-available",
+          "date": "2026-03-30"
+        },
+        {
+          "title": "【台酒健康Plus18】從「適量」到「日常補充」：以適當量為參考，建立Omega-3營養補給新觀念",
+          "url": "https://eshop.ttl.com.tw/health-classroom26",
+          "date": "2026-02-02"
+        },
+        {
+          "title": "【台酒健康Plus17】步伐重獲新生！揭開維持穩固基底的科技奧秘！",
+          "url": "https://eshop.ttl.com.tw/health-classroom25",
+          "date": "2026-01-27"
+        },
+        {
+          "title": "【公告】台酒購物網「每週四限時免運」會員專屬好康，立即下單去！",
+          "url": "https://eshop.ttl.com.tw/%E5%85%AC%E5%91%8A%E5%8F%B0%E9%85%92%E8%B3%BC%E7%89%A9%E7%B6%B2%E6%AF%8F%E9%80%B1%E5%9B%9B%E9%99%90%E6%99%82%E5%85%8D%E9%81%8B%E6%9C%83%E5%93%A1%E5%B0%88%E5%B1%AC%E5%A5%BD%E5%BA%B7%E7%AB%8B%E5%8D%B3%E4%B8%8B%E5%96%AE%E5%8E%BB",
+          "date": "2026-01-01"
+        },
+        {
+          "title": "【保健小教室08】免疫力下降要補充什麼？6 大症狀、調理建議一覽，平時多吃這幾物",
+          "url": "https://eshop.ttl.com.tw/health-classroom24",
+          "date": "2025-12-31"
+        },
+        {
+          "title": "【台酒健康Plus16】β-聚葡萄糖是什麼？功效、建議劑量與副作用一次看懂！",
+          "url": "https://eshop.ttl.com.tw/health-classroom23",
+          "date": "2025-12-31"
+        },
+        {
+          "title": "【保健小教室07】保護力下降要補充什麼？6大徵兆、調理建議一覽，平時多吃這幾物",
+          "url": "https://eshop.ttl.com.tw/health-classroom22",
+          "date": "2025-12-29"
+        }
+      ]
+    },
+    "deals": {
+      "label": "即期惜福",
+      "url": "https://eshop.ttl.com.tw/即期惜福",
+      "checkedAt": "2026-11-18T13:28:17.696787+00:00",
+      "status": "error",
+      "items": [],
+      "error": "官網暫時無法更新，顯示上次成功資料。"
+    }
+  }
+}
