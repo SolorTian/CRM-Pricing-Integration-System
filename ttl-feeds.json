@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-11-20T13:04:01.026099+00:00",
+  "updatedAt": "2026-11-20T22:41:49.339452+00:00",
   "sources": {
     "corporate": {
       "label": "台酒官網",
       "url": "https://www.ttl.com.tw/index.aspx",
-      "checkedAt": "2026-11-20T13:04:01.026099+00:00",
-      "updatedAt": "2026-11-20T13:04:01.026099+00:00",
+      "checkedAt": "2026-11-20T22:41:49.339452+00:00",
+      "updatedAt": "2026-11-20T22:41:49.339452+00:00",
       "status": "ok",
       "items": [
         {
@@ -73,8 +73,8 @@
     "shop": {
       "label": "台酒購物網",
       "url": "https://eshop.ttl.com.tw/news",
-      "checkedAt": "2026-11-20T13:04:01.026099+00:00",
-      "updatedAt": "2026-11-20T13:04:01.026099+00:00",
+      "checkedAt": "2026-11-20T22:41:49.339452+00:00",
+      "updatedAt": "2026-11-20T22:41:49.339452+00:00",
       "status": "ok",
       "items": [
         {
@@ -132,8 +132,8 @@
     "deals": {
       "label": "即期惜福",
       "url": "https://eshop.ttl.com.tw/即期惜福",
-      "checkedAt": "2026-11-20T13:04:01.026099+00:00",
-      "updatedAt": "2026-11-20T13:04:01.026099+00:00",
+      "checkedAt": "2026-11-20T22:41:49.339452+00:00",
+      "updatedAt": "2026-11-20T22:41:49.339452+00:00",
       "status": "ok",
       "items": [
         {
@@ -183,8 +183,8 @@
     "p9news": {
       "label": "P9 酒類新聞",
       "url": "https://www.p9.com.tw/News/NewsList.aspx",
-      "checkedAt": "2026-11-20T13:04:01.026099+00:00",
-      "updatedAt": "2026-11-20T13:04:01.026099+00:00",
+      "checkedAt": "2026-11-20T22:41:49.339452+00:00",
+      "updatedAt": "2026-11-20T22:41:49.339452+00:00",
       "status": "ok",
       "items": [
         {
@@ -292,30 +292,10 @@
     "p9topics": {
       "label": "P9 熱門話題",
       "url": "https://www.p9.com.tw/Index.aspx",
-      "checkedAt": "2026-11-20T13:04:01.026099+00:00",
-      "updatedAt": "2026-11-20T13:04:01.026099+00:00",
+      "checkedAt": "2026-11-20T22:41:49.339452+00:00",
+      "updatedAt": "2026-11-20T22:41:49.339452+00:00",
       "status": "ok",
       "items": [
-        {
-          "title": "—— M12 - 奢華雪莉甜點 ——",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15267",
-          "date": ""
-        },
-        {
-          "title": "國慶紀念酒玉山大曲十年窖藏",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15265",
-          "date": ""
-        },
-        {
-          "title": "品飲分享：董酒(白董), 貴州遵義",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15273",
-          "date": ""
-        },
-        {
-          "title": "戰酒黑金龍「消暑的凍飲之旅」",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15271",
-          "date": ""
-        },
         {
           "title": "一芯入酒 風味起舞 粱芯-舞",
           "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15269",
@@ -327,8 +307,18 @@
           "date": ""
         },
         {
-          "title": "創世者桶陳金高 No.3 品酒會",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15272",
+          "title": "國慶紀念酒玉山大曲十年窖藏",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15265",
+          "date": ""
+        },
+        {
+          "title": "TTL穀蘊威士忌 115國慶紀念",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15266",
+          "date": ""
+        },
+        {
+          "title": "品飲分享：董酒(白董), 貴州遵義",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15273",
           "date": ""
         },
         {
@@ -337,13 +327,23 @@
           "date": ""
         },
         {
+          "title": "—— M12 - 奢華雪莉甜點 ——",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15267",
+          "date": ""
+        },
+        {
+          "title": "創世者桶陳金高 No.3 品酒會",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15272",
+          "date": ""
+        },
+        {
           "title": "【粱芯 · 舞】品飲心得分享",
           "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15268",
           "date": ""
         },
         {
-          "title": "TTL穀蘊威士忌 115國慶紀念",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15266",
+          "title": "戰酒黑金龍「消暑的凍飲之旅」",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15271",
           "date": ""
         }
       ]
