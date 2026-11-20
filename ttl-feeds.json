@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-11-19T17:25:40.426464+00:00",
+  "updatedAt": "2026-11-20T01:47:50.282686+00:00",
   "sources": {
     "corporate": {
       "label": "台酒官網",
       "url": "https://www.ttl.com.tw/index.aspx",
-      "checkedAt": "2026-11-19T17:25:40.426464+00:00",
-      "updatedAt": "2026-11-19T17:25:40.426464+00:00",
+      "checkedAt": "2026-11-20T01:47:50.282686+00:00",
+      "updatedAt": "2026-11-20T01:47:50.282686+00:00",
       "status": "ok",
       "items": [
         {
@@ -73,8 +73,8 @@
     "shop": {
       "label": "台酒購物網",
       "url": "https://eshop.ttl.com.tw/news",
-      "checkedAt": "2026-11-19T17:25:40.426464+00:00",
-      "updatedAt": "2026-11-19T17:25:40.426464+00:00",
+      "checkedAt": "2026-11-20T01:47:50.282686+00:00",
+      "updatedAt": "2026-11-20T01:47:50.282686+00:00",
       "status": "ok",
       "items": [
         {
@@ -132,8 +132,8 @@
     "deals": {
       "label": "即期惜福",
       "url": "https://eshop.ttl.com.tw/即期惜福",
-      "checkedAt": "2026-11-19T17:25:40.426464+00:00",
-      "updatedAt": "2026-11-19T17:25:40.426464+00:00",
+      "checkedAt": "2026-11-20T01:47:50.282686+00:00",
+      "updatedAt": "2026-11-20T01:47:50.282686+00:00",
       "status": "ok",
       "items": [
         {
@@ -142,6 +142,20 @@
           "price": "NT$347",
           "originalPrice": "NT$450",
           "expiry": "2026-12-26"
+        },
+        {
+          "title": "【微醺肉香X雙重饗宴】台酒酒香高粱香腸 600g*2包 (賞味期限2027/01/03)",
+          "url": "https://eshop.ttl.com.tw/%E5%8F%B0%E9%85%92%E9%85%92%E9%A6%99%E9%AB%98%E7%B2%B1%E9%A6%99%E8%85%B8%E7%A6%AE%E7%9B%92",
+          "price": "NT$488",
+          "originalPrice": "NT$660",
+          "expiry": "2027-01-03"
+        },
+        {
+          "title": "【微醺肉香X雙重饗宴】台酒酒香綜合香腸 600g*2包 (高粱/紹興各1包)(賞味期限2027/01/03)",
+          "url": "https://eshop.ttl.com.tw/%E5%8F%B0%E9%85%92%E9%85%92%E9%A6%99%E7%B6%9C%E5%90%88%E9%A6%99%E8%85%B8%E7%A6%AE%E7%9B%92-%E9%AB%98%E7%B2%B11%E5%8C%85%E5%8F%8A%E7%B4%B9%E8%88%881%E5%8C%85",
+          "price": "NT$488",
+          "originalPrice": "NT$660",
+          "expiry": "2027-01-03"
         },
         {
           "title": "【年末出清】金牌FREE無酒精啤酒風味飲料-烈日芒果冰茶(6罐組*4)(賞味期限至2027/02/06)",
@@ -169,8 +183,8 @@
     "p9news": {
       "label": "P9 酒類新聞",
       "url": "https://www.p9.com.tw/News/NewsList.aspx",
-      "checkedAt": "2026-11-19T17:25:40.426464+00:00",
-      "updatedAt": "2026-11-19T17:25:40.426464+00:00",
+      "checkedAt": "2026-11-20T01:47:50.282686+00:00",
+      "updatedAt": "2026-11-20T01:47:50.282686+00:00",
       "status": "ok",
       "items": [
         {
@@ -278,13 +292,13 @@
     "p9topics": {
       "label": "P9 熱門話題",
       "url": "https://www.p9.com.tw/Index.aspx",
-      "checkedAt": "2026-11-19T17:25:40.426464+00:00",
-      "updatedAt": "2026-11-19T17:25:40.426464+00:00",
+      "checkedAt": "2026-11-20T01:47:50.282686+00:00",
+      "updatedAt": "2026-11-20T01:47:50.282686+00:00",
       "status": "ok",
       "items": [
         {
-          "title": "戰酒黑金龍「消暑的凍飲之旅」",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15271",
+          "title": "一芯入酒 風味起舞 粱芯-舞",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15269",
           "date": ""
         },
         {
@@ -293,28 +307,8 @@
           "date": ""
         },
         {
-          "title": "國慶紀念酒玉山大曲十年窖藏",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15265",
-          "date": ""
-        },
-        {
           "title": "【粱芯 · 舞】品飲心得分享",
           "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15268",
-          "date": ""
-        },
-        {
-          "title": "粱芯金門高粱酒（禪）品飲心得",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15274",
-          "date": ""
-        },
-        {
-          "title": "TTL穀蘊威士忌 115國慶紀念",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15266",
-          "date": ""
-        },
-        {
-          "title": "—— M12 - 奢華雪莉甜點 ——",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15267",
           "date": ""
         },
         {
@@ -323,13 +317,33 @@
           "date": ""
         },
         {
-          "title": "一芯入酒 風味起舞 粱芯-舞",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15269",
+          "title": "粱芯金門高粱酒（禪）品飲心得",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15274",
+          "date": ""
+        },
+        {
+          "title": "國慶紀念酒玉山大曲十年窖藏",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15265",
+          "date": ""
+        },
+        {
+          "title": "—— M12 - 奢華雪莉甜點 ——",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15267",
+          "date": ""
+        },
+        {
+          "title": "TTL穀蘊威士忌 115國慶紀念",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15266",
           "date": ""
         },
         {
           "title": "創世者桶陳金高 No.3 品酒會",
           "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15272",
+          "date": ""
+        },
+        {
+          "title": "戰酒黑金龍「消暑的凍飲之旅」",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15271",
           "date": ""
         }
       ]
