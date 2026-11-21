@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-11-20T22:41:49.339452+00:00",
+  "updatedAt": "2026-11-21T07:20:10.089559+00:00",
   "sources": {
     "corporate": {
       "label": "台酒官網",
       "url": "https://www.ttl.com.tw/index.aspx",
-      "checkedAt": "2026-11-20T22:41:49.339452+00:00",
-      "updatedAt": "2026-11-20T22:41:49.339452+00:00",
+      "checkedAt": "2026-11-21T07:20:10.089559+00:00",
+      "updatedAt": "2026-11-21T07:20:10.089559+00:00",
       "status": "ok",
       "items": [
         {
@@ -73,8 +73,8 @@
     "shop": {
       "label": "台酒購物網",
       "url": "https://eshop.ttl.com.tw/news",
-      "checkedAt": "2026-11-20T22:41:49.339452+00:00",
-      "updatedAt": "2026-11-20T22:41:49.339452+00:00",
+      "checkedAt": "2026-11-21T07:20:10.089559+00:00",
+      "updatedAt": "2026-11-21T07:20:10.089559+00:00",
       "status": "ok",
       "items": [
         {
@@ -132,8 +132,8 @@
     "deals": {
       "label": "即期惜福",
       "url": "https://eshop.ttl.com.tw/即期惜福",
-      "checkedAt": "2026-11-20T22:41:49.339452+00:00",
-      "updatedAt": "2026-11-20T22:41:49.339452+00:00",
+      "checkedAt": "2026-11-21T07:20:10.089559+00:00",
+      "updatedAt": "2026-11-21T07:20:10.089559+00:00",
       "status": "ok",
       "items": [
         {
@@ -183,8 +183,8 @@
     "p9news": {
       "label": "P9 酒類新聞",
       "url": "https://www.p9.com.tw/News/NewsList.aspx",
-      "checkedAt": "2026-11-20T22:41:49.339452+00:00",
-      "updatedAt": "2026-11-20T22:41:49.339452+00:00",
+      "checkedAt": "2026-11-21T07:20:10.089559+00:00",
+      "updatedAt": "2026-11-21T07:20:10.089559+00:00",
       "status": "ok",
       "items": [
         {
@@ -292,18 +292,33 @@
     "p9topics": {
       "label": "P9 熱門話題",
       "url": "https://www.p9.com.tw/Index.aspx",
-      "checkedAt": "2026-11-20T22:41:49.339452+00:00",
-      "updatedAt": "2026-11-20T22:41:49.339452+00:00",
+      "checkedAt": "2026-11-21T07:20:10.089559+00:00",
+      "updatedAt": "2026-11-21T07:20:10.089559+00:00",
       "status": "ok",
       "items": [
+        {
+          "title": "粱芯金門高粱酒（禪）品飲心得",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15274",
+          "date": ""
+        },
+        {
+          "title": "品飲分享：董酒(白董), 貴州遵義",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15273",
+          "date": ""
+        },
         {
           "title": "一芯入酒 風味起舞 粱芯-舞",
           "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15269",
           "date": ""
         },
         {
-          "title": "COEDO 伽羅 Kyara IPA",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15270",
+          "title": "戰酒黑金龍「消暑的凍飲之旅」",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15271",
+          "date": ""
+        },
+        {
+          "title": "創世者桶陳金高 No.3 品酒會",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15272",
           "date": ""
         },
         {
@@ -317,23 +332,8 @@
           "date": ""
         },
         {
-          "title": "品飲分享：董酒(白董), 貴州遵義",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15273",
-          "date": ""
-        },
-        {
-          "title": "粱芯金門高粱酒（禪）品飲心得",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15274",
-          "date": ""
-        },
-        {
-          "title": "—— M12 - 奢華雪莉甜點 ——",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15267",
-          "date": ""
-        },
-        {
-          "title": "創世者桶陳金高 No.3 品酒會",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15272",
+          "title": "COEDO 伽羅 Kyara IPA",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15270",
           "date": ""
         },
         {
@@ -342,8 +342,8 @@
           "date": ""
         },
         {
-          "title": "戰酒黑金龍「消暑的凍飲之旅」",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15271",
+          "title": "—— M12 - 奢華雪莉甜點 ——",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15267",
           "date": ""
         }
       ]
