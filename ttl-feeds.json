@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-11-22T07:00:16.924821+00:00",
+  "updatedAt": "2026-11-22T16:21:07.155542+00:00",
   "sources": {
     "corporate": {
       "label": "台酒官網",
       "url": "https://www.ttl.com.tw/index.aspx",
-      "checkedAt": "2026-11-22T07:00:16.924821+00:00",
-      "updatedAt": "2026-11-22T07:00:16.924821+00:00",
+      "checkedAt": "2026-11-22T16:21:07.155542+00:00",
+      "updatedAt": "2026-11-22T16:21:07.155542+00:00",
       "status": "ok",
       "items": [
         {
@@ -73,19 +73,14 @@
     "shop": {
       "label": "台酒購物網",
       "url": "https://eshop.ttl.com.tw/news",
-      "checkedAt": "2026-11-22T07:00:16.924821+00:00",
-      "updatedAt": "2026-11-22T07:00:16.924821+00:00",
+      "checkedAt": "2026-11-22T16:21:07.155542+00:00",
+      "updatedAt": "2026-11-22T16:21:07.155542+00:00",
       "status": "ok",
       "items": [
         {
           "title": "【活動】2027年菜預購",
           "url": "https://eshop.ttl.com.tw/%E6%B4%BB%E5%8B%952027%E5%B9%B4%E8%8F%9C%E9%A0%90%E8%B3%BC",
           "date": "2026-11-12"
-        },
-        {
-          "title": "【活動】由內而美周年慶，美容x保健食品最低39折起",
-          "url": "https://eshop.ttl.com.tw/202610vinata",
-          "date": "2026-10-22"
         },
         {
           "title": "【活動】會員綁定 LINE 專屬優惠",
@@ -126,14 +121,19 @@
           "title": "【保健小教室07】保護力下降要補充什麼？6大徵兆、調理建議一覽，平時多吃這幾物",
           "url": "https://eshop.ttl.com.tw/health-classroom22",
           "date": "2025-12-29"
+        },
+        {
+          "title": "【台酒健康Plus15】UC2功效全整理！掌握正確時機、劑量，還可以搭配這些保健食品",
+          "url": "https://eshop.ttl.com.tw/health-classroom21",
+          "date": "2025-12-24"
         }
       ]
     },
     "deals": {
       "label": "即期惜福",
       "url": "https://eshop.ttl.com.tw/即期惜福",
-      "checkedAt": "2026-11-22T07:00:16.924821+00:00",
-      "updatedAt": "2026-11-22T07:00:16.924821+00:00",
+      "checkedAt": "2026-11-22T16:21:07.155542+00:00",
+      "updatedAt": "2026-11-22T16:21:07.155542+00:00",
       "status": "ok",
       "items": [
         {
@@ -183,8 +183,8 @@
     "p9news": {
       "label": "P9 酒類新聞",
       "url": "https://www.p9.com.tw/News/NewsList.aspx",
-      "checkedAt": "2026-11-22T07:00:16.924821+00:00",
-      "updatedAt": "2026-11-22T07:00:16.924821+00:00",
+      "checkedAt": "2026-11-22T16:21:07.155542+00:00",
+      "updatedAt": "2026-11-22T16:21:07.155542+00:00",
       "status": "ok",
       "items": [
         {
@@ -292,13 +292,13 @@
     "p9topics": {
       "label": "P9 熱門話題",
       "url": "https://www.p9.com.tw/Index.aspx",
-      "checkedAt": "2026-11-22T07:00:16.924821+00:00",
-      "updatedAt": "2026-11-22T07:00:16.924821+00:00",
+      "checkedAt": "2026-11-22T16:21:07.155542+00:00",
+      "updatedAt": "2026-11-22T16:21:07.155542+00:00",
       "status": "ok",
       "items": [
         {
-          "title": "品飲分享：董酒(白董), 貴州遵義",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15273",
+          "title": "一芯入酒 風味起舞 粱芯-舞",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15269",
           "date": ""
         },
         {
@@ -317,23 +317,8 @@
           "date": ""
         },
         {
-          "title": "國慶紀念酒玉山大曲十年窖藏",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15265",
-          "date": ""
-        },
-        {
           "title": "—— M12 - 奢華雪莉甜點 ——",
           "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15267",
-          "date": ""
-        },
-        {
-          "title": "創世者桶陳金高 No.3 品酒會",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15272",
-          "date": ""
-        },
-        {
-          "title": "一芯入酒 風味起舞 粱芯-舞",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15269",
           "date": ""
         },
         {
@@ -342,8 +327,23 @@
           "date": ""
         },
         {
+          "title": "創世者桶陳金高 No.3 品酒會",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15272",
+          "date": ""
+        },
+        {
+          "title": "品飲分享：董酒(白董), 貴州遵義",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15273",
+          "date": ""
+        },
+        {
           "title": "粱芯金門高粱酒（禪）品飲心得",
           "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15274",
+          "date": ""
+        },
+        {
+          "title": "國慶紀念酒玉山大曲十年窖藏",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15265",
           "date": ""
         }
       ]
