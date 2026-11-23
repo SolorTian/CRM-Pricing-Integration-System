@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-11-22T21:55:16.916535+00:00",
+  "updatedAt": "2026-11-23T07:49:39.150318+00:00",
   "sources": {
     "corporate": {
       "label": "台酒官網",
       "url": "https://www.ttl.com.tw/index.aspx",
-      "checkedAt": "2026-11-22T21:55:16.916535+00:00",
-      "updatedAt": "2026-11-22T21:55:16.916535+00:00",
+      "checkedAt": "2026-11-23T07:49:39.150318+00:00",
+      "updatedAt": "2026-11-23T07:49:39.150318+00:00",
       "status": "ok",
       "items": [
         {
@@ -73,8 +73,8 @@
     "shop": {
       "label": "台酒購物網",
       "url": "https://eshop.ttl.com.tw/news",
-      "checkedAt": "2026-11-22T21:55:16.916535+00:00",
-      "updatedAt": "2026-11-22T21:55:16.916535+00:00",
+      "checkedAt": "2026-11-23T07:49:39.150318+00:00",
+      "updatedAt": "2026-11-23T07:49:39.150318+00:00",
       "status": "ok",
       "items": [
         {
@@ -132,8 +132,8 @@
     "deals": {
       "label": "即期惜福",
       "url": "https://eshop.ttl.com.tw/即期惜福",
-      "checkedAt": "2026-11-22T21:55:16.916535+00:00",
-      "updatedAt": "2026-11-22T21:55:16.916535+00:00",
+      "checkedAt": "2026-11-23T07:49:39.150318+00:00",
+      "updatedAt": "2026-11-23T07:49:39.150318+00:00",
       "status": "ok",
       "items": [
         {
@@ -170,23 +170,31 @@
           "price": "NT$475",
           "originalPrice": "NT$864",
           "expiry": "2027-02-05"
-        },
-        {
-          "title": "【即期】VINATA酒粕維他命亮白面膜(8片/盒)",
-          "url": "https://eshop.ttl.com.tw/%E5%8D%B3%E6%9C%9Fvinata%E9%85%92%E7%B2%95%E7%B6%AD%E4%BB%96%E5%91%BD%E4%BA%AE%E7%99%BD%E9%9D%A2%E8%86%9C8%E7%89%87%E7%9B%92",
-          "price": "NT$239",
-          "originalPrice": "",
-          "expiry": ""
         }
       ]
     },
     "p9news": {
       "label": "P9 酒類新聞",
       "url": "https://www.p9.com.tw/News/NewsList.aspx",
-      "checkedAt": "2026-11-22T21:55:16.916535+00:00",
-      "updatedAt": "2026-11-22T21:55:16.916535+00:00",
+      "checkedAt": "2026-11-23T07:49:39.150318+00:00",
+      "updatedAt": "2026-11-23T07:49:39.150318+00:00",
       "status": "ok",
       "items": [
+        {
+          "title": "亞伯樂攜手星巴克 隆重跨界打造「伯樂星臻選」",
+          "url": "https://www.p9.com.tw/News/%E4%BA%9E%E4%BC%AF%E6%A8%82%E6%94%9C%E6%89%8B%E6%98%9F%E5%B7%B4%E5%85%8B-%E9%9A%86%E9%87%8D%E8%B7%A8%E7%95%8C%E6%89%93%E9%80%A0%E3%80%8C%E4%BC%AF%E6%A8%82%E6%98%9F%E8%87%BB%E9%81%B8%E3%80%8D-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16888.aspx",
+          "date": "2026-11-23"
+        },
+        {
+          "title": "大關發表One Cup Mini 羊年酒標清酒 限定發售",
+          "url": "https://www.p9.com.tw/News/%E5%A4%A7%E9%97%9C%E7%99%BC%E8%A1%A8One-Cup-Mini-%E7%BE%8A%E5%B9%B4%E9%85%92%E6%A8%99%E6%B8%85%E9%85%92-%E9%99%90%E5%AE%9A%E7%99%BC%E5%94%AE-%E6%B8%85%E9%85%92%EF%BC%8E%E7%87%92%E9%85%8E-News16887.aspx",
+          "date": "2026-11-23"
+        },
+        {
+          "title": "臺虎精釀攜手SALT Collectiv打造聖誕愛心樹",
+          "url": "https://www.p9.com.tw/News/%E8%87%BA%E8%99%8E%E7%B2%BE%E9%87%80%E6%94%9C%E6%89%8BSALT-Collectiv%E6%89%93%E9%80%A0%E8%81%96%E8%AA%95%E6%84%9B%E5%BF%83%E6%A8%B9-%E5%95%A4%E9%85%92%EF%BC%8E%E4%BD%8E%E9%85%92%E7%B2%BE%E9%A3%B2%E6%96%99-News16886.aspx",
+          "date": "2026-11-23"
+        },
         {
           "title": "Craftbros 攜手肯塔基 Town Branch 發表雙聯名威士忌",
           "url": "https://www.p9.com.tw/News/Craftbros-%E6%94%9C%E6%89%8B%E8%82%AF%E5%A1%94%E5%9F%BA-Town-Branch-%E7%99%BC%E8%A1%A8%E9%9B%99%E8%81%AF%E5%90%8D%E5%A8%81%E5%A3%AB%E5%BF%8C--%E5%A8%81%E5%A3%AB%E5%BF%8C-News16885.aspx",
@@ -271,31 +279,36 @@
           "title": "葡萄牙火鳥莊園發表「80 年茶色波特酒」全球限量 450 瓶",
           "url": "https://www.p9.com.tw/News/%E8%91%A1%E8%90%84%E7%89%99%E7%81%AB%E9%B3%A5%E8%8E%8A%E5%9C%92%E7%99%BC%E8%A1%A8%E3%80%8C80-%E5%B9%B4%E8%8C%B6%E8%89%B2%E6%B3%A2%E7%89%B9%E9%85%92%E3%80%8D%E5%85%A8%E7%90%83%E9%99%90%E9%87%8F-450-%E7%93%B6-%E8%91%A1%E8%90%84%E9%85%92-News16869.aspx",
           "date": "2026-11-16"
-        },
-        {
-          "title": "口哨豬發表12 年楓糖法式烤布蕾過桶版威士忌",
-          "url": "https://www.p9.com.tw/News/%E5%8F%A3%E5%93%A8%E8%B1%AC%E7%99%BC%E8%A1%A812-%E5%B9%B4%E6%A5%93%E7%B3%96%E6%B3%95%E5%BC%8F%E7%83%A4%E5%B8%83%E8%95%BE%E9%81%8E%E6%A1%B6%E7%89%88%E5%A8%81%E5%A3%AB%E5%BF%8C-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16868.aspx",
-          "date": "2026-11-15"
-        },
-        {
-          "title": "三郎丸發表首款權杖王牌單桶威士忌 限量上市.",
-          "url": "https://www.p9.com.tw/News/%E4%B8%89%E9%83%8E%E4%B8%B8%E7%99%BC%E8%A1%A8%E9%A6%96%E6%AC%BE%E6%AC%8A%E6%9D%96%E7%8E%8B%E7%89%8C%E5%96%AE%E6%A1%B6%E5%A8%81%E5%A3%AB%E5%BF%8C-%E9%99%90%E9%87%8F%E4%B8%8A%E5%B8%82%EF%BC%8E-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16867.aspx",
-          "date": "2026-11-14"
-        },
-        {
-          "title": "小諸蒸餾所首款單一麥芽威士忌 KOMORO ORIGIN 上市",
-          "url": "https://www.p9.com.tw/News/%E5%B0%8F%E8%AB%B8%E8%92%B8%E9%A4%BE%E6%89%80%E9%A6%96%E6%AC%BE%E5%96%AE%E4%B8%80%E9%BA%A5%E8%8A%BD%E5%A8%81%E5%A3%AB%E5%BF%8C-KOMORO-ORIGIN-%E4%B8%8A%E5%B8%82-%E5%A8%81%E5%A3%AB%E5%BF%8C-News16866.aspx",
-          "date": "2026-11-13"
         }
       ]
     },
     "p9topics": {
       "label": "P9 熱門話題",
       "url": "https://www.p9.com.tw/Index.aspx",
-      "checkedAt": "2026-11-22T21:55:16.916535+00:00",
-      "updatedAt": "2026-11-22T21:55:16.916535+00:00",
+      "checkedAt": "2026-11-23T07:49:39.150318+00:00",
+      "updatedAt": "2026-11-23T07:49:39.150318+00:00",
       "status": "ok",
       "items": [
+        {
+          "title": "【粱芯 · 舞】品飲心得分享",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15268",
+          "date": ""
+        },
+        {
+          "title": "品飲分享：董酒(白董), 貴州遵義",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15273",
+          "date": ""
+        },
+        {
+          "title": "TTL穀蘊威士忌 115國慶紀念",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15266",
+          "date": ""
+        },
+        {
+          "title": "戰酒黑金龍「消暑的凍飲之旅」",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15271",
+          "date": ""
+        },
         {
           "title": "—— M12 - 奢華雪莉甜點 ——",
           "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15267",
@@ -307,13 +320,8 @@
           "date": ""
         },
         {
-          "title": "國慶紀念酒玉山大曲十年窖藏",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15265",
-          "date": ""
-        },
-        {
-          "title": "品飲分享：董酒(白董), 貴州遵義",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15273",
+          "title": "粱芯金門高粱酒（禪）品飲心得",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15274",
           "date": ""
         },
         {
@@ -322,28 +330,13 @@
           "date": ""
         },
         {
-          "title": "戰酒黑金龍「消暑的凍飲之旅」",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15271",
-          "date": ""
-        },
-        {
-          "title": "粱芯金門高粱酒（禪）品飲心得",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15274",
-          "date": ""
-        },
-        {
           "title": "一芯入酒 風味起舞 粱芯-舞",
           "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15269",
           "date": ""
         },
         {
-          "title": "TTL穀蘊威士忌 115國慶紀念",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15266",
-          "date": ""
-        },
-        {
-          "title": "【粱芯 · 舞】品飲心得分享",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15268",
+          "title": "國慶紀念酒玉山大曲十年窖藏",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15265",
           "date": ""
         }
       ]
