@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-11-24T19:33:00.186073+00:00",
+  "updatedAt": "2026-11-25T03:34:37.600959+00:00",
   "sources": {
     "corporate": {
       "label": "台酒官網",
       "url": "https://www.ttl.com.tw/index.aspx",
-      "checkedAt": "2026-11-24T19:33:00.186073+00:00",
-      "updatedAt": "2026-11-24T19:33:00.186073+00:00",
+      "checkedAt": "2026-11-25T03:34:37.600959+00:00",
+      "updatedAt": "2026-11-25T03:34:37.600959+00:00",
       "status": "ok",
       "items": [
         {
@@ -73,8 +73,8 @@
     "shop": {
       "label": "台酒購物網",
       "url": "https://eshop.ttl.com.tw/news",
-      "checkedAt": "2026-11-24T19:33:00.186073+00:00",
-      "updatedAt": "2026-11-24T19:33:00.186073+00:00",
+      "checkedAt": "2026-11-25T03:34:37.600959+00:00",
+      "updatedAt": "2026-11-25T03:34:37.600959+00:00",
       "status": "ok",
       "items": [
         {
@@ -132,15 +132,15 @@
     "deals": {
       "label": "即期惜福",
       "url": "https://eshop.ttl.com.tw/即期惜福",
-      "checkedAt": "2026-11-24T19:33:00.186073+00:00",
-      "updatedAt": "2026-11-24T19:33:00.186073+00:00",
+      "checkedAt": "2026-11-25T03:34:37.600959+00:00",
+      "updatedAt": "2026-11-25T03:34:37.600959+00:00",
       "status": "ok",
       "items": [
         {
           "title": "【冷凍】台糖Ｘ台酒安心豚高粱酒香腸 600g/包(賞味期限2026.12.26)",
           "url": "https://eshop.ttl.com.tw/%E5%8F%B0%E7%B3%96%E5%AE%89%E5%BF%83%E8%B1%9A%E9%AB%98%E7%B2%B1%E9%85%92%E9%A6%99%E8%85%B8",
-          "price": "NT$347",
-          "originalPrice": "NT$450",
+          "price": "NT$450",
+          "originalPrice": "",
           "expiry": "2026-12-26"
         },
         {
@@ -183,8 +183,8 @@
     "p9news": {
       "label": "P9 酒類新聞",
       "url": "https://www.p9.com.tw/News/NewsList.aspx",
-      "checkedAt": "2026-11-24T19:33:00.186073+00:00",
-      "updatedAt": "2026-11-24T19:33:00.186073+00:00",
+      "checkedAt": "2026-11-25T03:34:37.600959+00:00",
+      "updatedAt": "2026-11-25T03:34:37.600959+00:00",
       "status": "ok",
       "items": [
         {
@@ -292,18 +292,13 @@
     "p9topics": {
       "label": "P9 熱門話題",
       "url": "https://www.p9.com.tw/Index.aspx",
-      "checkedAt": "2026-11-24T19:33:00.186073+00:00",
-      "updatedAt": "2026-11-24T19:33:00.186073+00:00",
+      "checkedAt": "2026-11-25T03:34:37.600959+00:00",
+      "updatedAt": "2026-11-25T03:34:37.600959+00:00",
       "status": "ok",
       "items": [
         {
-          "title": "創世者桶陳金高 No.3 品酒會",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15272",
-          "date": ""
-        },
-        {
-          "title": "【粱芯 · 舞】品飲心得分享",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15268",
+          "title": "TTL穀蘊威士忌 115國慶紀念",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15266",
           "date": ""
         },
         {
@@ -312,13 +307,8 @@
           "date": ""
         },
         {
-          "title": "國慶紀念酒玉山大曲十年窖藏",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15265",
-          "date": ""
-        },
-        {
-          "title": "品飲分享：董酒(白董), 貴州遵義",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15273",
+          "title": "粱芯金門高粱酒（禪）品飲心得",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15274",
           "date": ""
         },
         {
@@ -327,8 +317,13 @@
           "date": ""
         },
         {
-          "title": "—— M12 - 奢華雪莉甜點 ——",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15267",
+          "title": "國慶紀念酒玉山大曲十年窖藏",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15265",
+          "date": ""
+        },
+        {
+          "title": "創世者桶陳金高 No.3 品酒會",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15272",
           "date": ""
         },
         {
@@ -337,13 +332,18 @@
           "date": ""
         },
         {
-          "title": "粱芯金門高粱酒（禪）品飲心得",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15274",
+          "title": "—— M12 - 奢華雪莉甜點 ——",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15267",
           "date": ""
         },
         {
-          "title": "TTL穀蘊威士忌 115國慶紀念",
-          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15266",
+          "title": "【粱芯 · 舞】品飲心得分享",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15268",
+          "date": ""
+        },
+        {
+          "title": "品飲分享：董酒(白董), 貴州遵義",
+          "url": "https://www.p9.com.tw/AdRedirect.aspx?Id=15273",
           "date": ""
         }
       ]
